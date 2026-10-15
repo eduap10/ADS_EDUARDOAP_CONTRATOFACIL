@@ -29,7 +29,7 @@ O editor permitirá elaborar contratos a partir de modelos de texto, associá-lo
 | Construção | Maven |
 | Banco de dados | PostgreSQL |
 | Controle de versão | Git e GitHub |
-| IDE | Eclipse (faculdade) ou VS Code com extensões Java (casa) |
+| IDE | Eclipse ou VS Code com extensões Java |
 
 > **Compatibilidade pendente:** confirmar a versão do Manhattan/PrimeFaces/JSF antes de escolher as dependências e o servidor de aplicação. Não adicionar uma versão arbitrária ao `pom.xml`.
 
@@ -40,11 +40,11 @@ O editor permitirá elaborar contratos a partir de modelos de texto, associá-lo
 - `modelos_contrato`: textos-base reutilizáveis.
 - `contratos`: documentos vinculados a colaboradores e, quando aplicável, a modelos.
 
-A estrutura será criada por scripts SQL versionados, de modo que o banco possa ser reproduzido na faculdade e em casa.
+A estrutura será criada por scripts SQL versionados para facilitar a configuração e a manutenção do banco de dados.
 
-## Portabilidade
+## Organização do projeto
 
-O **mesmo repositório** será utilizado na faculdade e no computador pessoal. Os dois ambientes terão seus próprios bancos PostgreSQL locais.
+O código-fonte e os scripts de banco de dados serão mantidos no mesmo repositório. O Maven será utilizado para gerenciar as dependências e facilitar a execução do projeto.
 
 Regras do projeto:
 
@@ -56,7 +56,7 @@ Regras do projeto:
 ## Etapas de desenvolvimento
 
 1. [x] Definição do objetivo e levantamento dos requisitos.
-2. [x] Verificação inicial do ambiente da faculdade (Java, Maven, Git e PostgreSQL).
+2. [x] Verificação inicial das ferramentas Java, Maven, Git e PostgreSQL.
 3. [ ] Confirmação da versão do template Manhattan e do servidor Java.
 4. [ ] Criação do projeto Maven e configuração da aplicação JSF.
 5. [ ] Modelagem e criação do banco de dados da aplicação.
@@ -66,6 +66,6 @@ Regras do projeto:
 
 ## Estado atual
 
-**14/10/2026:** repositório iniciado, requisitos mapeados e ferramentas básicas verificadas no computador da faculdade. A aplicação ainda **não está implementada**.
+**14/10/2026:** repositório iniciado, requisitos definidos e ferramentas básicas verificadas. A aplicação ainda **não está implementada**.
 
 Este README será atualizado conforme as funcionalidades forem desenvolvidas e testadas.
