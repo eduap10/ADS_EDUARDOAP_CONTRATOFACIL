@@ -12,12 +12,12 @@ O editor permitirá elaborar contratos a partir de modelos de texto, associá-lo
 
 - [ ] Autenticação e filtro de acesso administrativo.
 - [ ] Uso de pelo menos um `enum` Java (situação do contrato).
-- [ ] CRUD de colaboradores: criar, editar, excluir, listar e buscar.
+- [x] CRUD de colaboradores: código inicial para criar, editar, excluir, listar e buscar (pendente teste integrado).
 - [ ] CRUD de modelos de contrato: criar, editar, excluir, listar e buscar.
 - [ ] CRUD de contratos: criar, editar, excluir, listar e buscar.
 - [ ] Funcionalidade principal: elaborar e salvar contratos com editor de texto e preenchimento de dados do colaborador.
 - [ ] Relacionamento **um-para-muitos**: um colaborador pode ter vários contratos.
-- [ ] Persistência de dados em PostgreSQL.
+- [x] Persistência: conexão JDBC e script PostgreSQL preparados (pendente teste integrado).
 
 ## Tecnologias previstas
 
@@ -31,7 +31,7 @@ O editor permitirá elaborar contratos a partir de modelos de texto, associá-lo
 | Controle de versão | Git e GitHub |
 | IDE | Eclipse ou VS Code com extensões Java |
 
-> **Compatibilidade pendente:** confirmar a versão do Manhattan/PrimeFaces/JSF antes de escolher as dependências e o servidor de aplicação. Não adicionar uma versão arbitrária ao `pom.xml`.
+ > **Compatibilidade pendente:** a base inicial usa Jakarta Faces 4 / PrimeFaces 16 / Tomcat 10.1; a versão do Manhattan da disciplina ainda precisa ser confirmada para integração.
 
 ## Estrutura planejada
 
@@ -58,14 +58,25 @@ Regras do projeto:
 1. [x] Definição do objetivo e levantamento dos requisitos.
 2. [x] Verificação inicial das ferramentas Java, Maven, Git e PostgreSQL.
 3. [ ] Confirmação da versão do template Manhattan e do servidor Java.
-4. [ ] Criação do projeto Maven e configuração da aplicação JSF.
-5. [ ] Modelagem e criação do banco de dados da aplicação.
+4. [x] Criação inicial do projeto Maven e das páginas JSF (pendente compilação e testes).
+5. [ ] Modelagem completa do banco; script inicial de colaboradores já preparado.
 6. [ ] Implementação do login, `enum` e dos três CRUDs.
 7. [ ] Integração do editor de contratos com os dados dos colaboradores.
 8. [ ] Testes, documentação final e demonstração.
 
 ## Estado atual
 
-**14/10/2026:** repositório iniciado, requisitos definidos e ferramentas básicas verificadas. A aplicação ainda **não está implementada**.
+**19/10/2026:** estrutura Maven, páginas JSF e CRUD inicial de colaboradores adicionados. Ainda não foram realizados testes integrados em Tomcat/PostgreSQL.
 
 Este README será atualizado conforme as funcionalidades forem desenvolvidas e testadas.
+
+
+## Primeira execução
+
+1. Criar um banco PostgreSQL chamado `contratofacil` e um usuário de aplicação `contratofacil_app`, com privilégios no banco.
+2. Executar `database/01_schema.sql` conectado ao banco como usuário da aplicação. O arquivo `database/02_dados_exemplo.sql` contém apenas exemplos fictícios opcionais.
+3. Configurar a variável de ambiente `DB_PASSWORD` com a senha local do usuário. As outras configurações aparecem em `.env.example`, que é apenas referência: **o código não carrega esse arquivo automaticamente**.
+4. Compilar com `mvn clean package` (Java 21 e Maven). Implantar o WAR `target/contratofacil.war` em Tomcat 10.1.
+5. Abrir `http://localhost:8080/contratofacil/` e testar o cadastro de colaboradores.
+
+**Segurança:** esta versão ainda não implementa login nem controle de acesso. Utilizar somente em ambiente de desenvolvimento isolado e com dados fictícios; não publicar na internet.
