@@ -1,0 +1,21 @@
+# Build e temporarios
+target/
+*.log
+*.class
+
+# IDEs
+.project
+.classpath
+.settings/
+.idea/
+.vscode/
+
+# Credenciais e configuracoes locais
+.env
+.env.*
+!.env.example
+config-local.properties
+
+# Sistema operacional
+.DS_Store
+Thumbs.db

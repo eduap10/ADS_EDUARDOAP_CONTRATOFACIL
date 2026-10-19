@@ -1,0 +1,17 @@
+:root { font-family: Arial, sans-serif; color: #243044; background: #f5f7fa; }
+body { margin: 0; }
+header { background: #152b42; color: #fff; padding: 18px max(24px,calc((100vw - 1100px)/2)); }
+header h1 { margin: 0; font-size: 1.2rem; }
+nav { margin-top: 10px; display: flex; gap: 22px; }
+nav a { color: #e6eff9; text-decoration: none; }
+main { max-width: 1100px; margin: 32px auto; padding: 0 20px; }
+.painel { background: #fff; border-radius: 10px; padding: 22px; box-shadow: 0 2px 12px #1b27321a; }
+.barra { display: flex; gap: 12px; align-items: end; flex-wrap: wrap; margin-bottom: 16px; }
+.barra .campo-busca { min-width: 240px; flex: 1; }
+.titulo { display: flex; justify-content: space-between; gap: 16px; align-items: center; flex-wrap: wrap; }
+.titulo h2 { margin: 0 0 16px; font-size: 1.35rem; }
+.campos { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.campos label { display: block; margin-bottom: 5px; font-weight: bold; }
+.campos .ui-inputfield { width: 100%; box-sizing: border-box; }
+.botao-tabela { margin-right: 6px !important; }
+@media(max-width:650px) { .campos { grid-template-columns: 1fr; } }
