@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html" xmlns:f="jakarta.faces.core" xmlns:p="primefaces">
+<h:head><title>ContratoFácil | Modelos</title><h:outputStylesheet library="css" name="estilo.css"/></h:head>
+<h:body>
+<header><h1>ContratoFácil</h1><nav><h:link outcome="/index.xhtml" value="Início"/><h:link outcome="/colaboradores.xhtml" value="Colaboradores"/><h:link outcome="/modelos.xhtml" value="Modelos"/><h:link outcome="/contratos.xhtml" value="Contratos"/></nav></header>
+<main><h:form id="form"><section class="painel">
+<div class="titulo"><h2>Modelos de contrato</h2>
+<p:commandButton value="Novo modelo" icon="pi pi-plus" process="@this" actionListener="#{modeloContratoBean.novo}" update=":form:campos" oncomplete="PF('editor').show()"/></div>
+<div class="barra"><div class="campo-busca"><p:outputLabel for="pesquisa" value="Pesquisar modelos"/><p:inputText id="pesquisa" value="#{modeloContratoBean.pesquisa}" style="width:100%"/></div>
+<p:commandButton value="Pesquisar" icon="pi pi-search" process="pesquisa @this" action="#{modeloContratoBean.pesquisar}" update="tabela avisos"/></div>
+<p:messages id="avisos" closable="true"/>
+<p:dataTable id="tabela" var="m" value="#{modeloContratoBean.lista}" paginator="true" rows="10" reflow="true" emptyMessage="Nenhum modelo cadastrado.">
+<p:column headerText="Código"><h:outputText value="#{m.id}"/></p:column>
+<p:column headerText="Título"><h:outputText value="#{m.titulo}"/></p:column>
+<p:column headerText="Ações">
+<p:commandButton value="Editar" icon="pi pi-pencil" process="@this" actionListener="#{modeloContratoBean.editar(m)}" update=":form:campos" oncomplete="PF('editor').show()"/>
+<p:commandButton value="Excluir" icon="pi pi-trash" styleClass="ui-button-danger" process="@this" action="#{modeloContratoBean.excluir(m.id)}" update="tabela avisos"><p:confirm header="Confirmar" message="Excluir este modelo?"/></p:commandButton>
+</p:column></p:dataTable></section>
+<p:dialog widgetVar="editor" header="Modelo de contrato" modal="true" responsive="true" resizable="false" width="760">
+<p:outputPanel id="campos"><div>
+<p:outputLabel for="titulo" value="Título *"/><p:inputText id="titulo" value="#{modeloContratoBean.edicao.titulo}" required="true" requiredMessage="Informe o título." maxlength="160" style="width:100%"/>
+</div><div><p:outputLabel for="conteudo" value="Texto-base *"/>
+<p:inputTextarea id="conteudo" value="#{modeloContratoBean.edicao.conteudo}" required="true" requiredMessage="Informe o texto." rows="13" autoResize="false" style="width:100%"/></div>
+<div class="acoes-formulario"><p:commandButton value="Salvar" icon="pi pi-check" process="campos @this" action="#{modeloContratoBean.salvar}" update=":form:tabela :form:avisos :form:campos" oncomplete="if(args &amp;&amp; args.salvo)PF('editor').hide()"/>
+<p:commandButton value="Cancelar" type="button" onclick="PF('editor').hide()" styleClass="ui-button-secondary"/></div></p:outputPanel></p:dialog>
+<p:confirmDialog global="true"><p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes"/><p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no"/></p:confirmDialog>
+</h:form></main></h:body></html>

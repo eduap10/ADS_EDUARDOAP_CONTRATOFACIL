@@ -1,21 +1,14 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html">
-<h:head>
-    <title>ContratoFácil | Início</title>
-    <h:outputStylesheet library="css" name="estilo.css"/>
-</h:head>
-<h:body>
-    <header>
-        <h1>ContratoFácil</h1>
-        <nav><h:link outcome="/index.xhtml" value="Início"/> <h:link outcome="/colaboradores.xhtml" value="Colaboradores"/></nav>
-    </header>
-    <main>
-        <section class="painel">
-            <h2>Bem-vindo ao ContratoFácil</h2>
-            <p>Aplicação para cadastrar colaboradores e organizar documentos de contrato.</p>
-            <p>O cadastro de colaboradores é o primeiro módulo do sistema.</p>
-            <h:link outcome="/colaboradores.xhtml" value="Abrir cadastro de colaboradores"/>
-        </section>
-    </main>
-</h:body>
-</html>
+<h:head><title>ContratoFácil | Início</title><h:outputStylesheet library="css" name="estilo.css"/></h:head>
+<h:body><header><h1>ContratoFácil</h1><nav>
+<h:link outcome="/index.xhtml" value="Início"/>
+<h:link outcome="/colaboradores.xhtml" value="Colaboradores"/>
+<h:link outcome="/modelos.xhtml" value="Modelos"/>
+<h:link outcome="/contratos.xhtml" value="Contratos"/>
+</nav></header><main><section class="painel">
+<h2>Bem-vindo ao ContratoFácil</h2><p>Cadastre colaboradores, crie modelos e elabore contratos com textos reutilizáveis.</p>
+<p><h:link outcome="/colaboradores.xhtml" value="Gerenciar colaboradores"/></p>
+<p><h:link outcome="/modelos.xhtml" value="Gerenciar modelos"/></p>
+<p><h:link outcome="/contratos.xhtml" value="Gerenciar contratos"/></p>
+</section></main></h:body></html>
