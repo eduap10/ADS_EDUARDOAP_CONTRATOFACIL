@@ -12,6 +12,8 @@
         <nav>
             <h:link outcome="/index.xhtml" value="Início"/>
             <h:link outcome="/colaboradores.xhtml" value="Colaboradores"/>
+            <h:link outcome="/modelos.xhtml" value="Modelos"/>
+            <h:link outcome="/contratos.xhtml" value="Contratos"/>
         </nav>
     </header>
     <main>
@@ -23,15 +25,21 @@
                                      process="@this" actionListener="#{colaboradorBean.novo}"
                                      update=":form:campos" oncomplete="PF('editor').show()"/>
                 </div>
-                <p:messages id="avisos" showDetail="false" closable="true"/>
                 <div class="barra">
                     <div class="campo-busca">
                         <p:outputLabel for="pesquisa" value="Pesquisar por nome ou matrícula"/>
                         <p:inputText id="pesquisa" value="#{colaboradorBean.pesquisa}" style="width:100%;"/>
                     </div>
                     <p:commandButton value="Pesquisar" icon="pi pi-search" process="pesquisa @this"
-                                     action="#{colaboradorBean.pesquisar}" update="tabela avisos"/>
+                                     action="#{colaboradorBean.pesquisar}" update="tabela avisos status"/>
+                    <p:commandButton value="Testar banco" icon="pi pi-database" process="@this"
+                                     action="#{colaboradorBean.testarConexao}" update="tabela avisos status"
+                                     styleClass="ui-button-secondary"/>
                 </div>
+                <h:panelGroup id="status" layout="block" styleClass="status-banco">
+                    <strong>PostgreSQL:</strong> <h:outputText value="#{colaboradorBean.statusBanco}"/>
+                </h:panelGroup>
+                <p:messages id="avisos" showDetail="false" closable="true"/>
                 <p:dataTable id="tabela" var="col" value="#{colaboradorBean.lista}"
                              paginator="true" rows="10" reflow="true"
                              emptyMessage="Nenhum colaborador encontrado.">
@@ -44,7 +52,7 @@
                                          update=":form:campos" oncomplete="PF('editor').show()"/>
                         <p:commandButton value="Excluir" icon="pi pi-trash" styleClass="ui-button-danger"
                                          process="@this" action="#{colaboradorBean.excluir(col.id)}"
-                                         update="tabela avisos">
+                                         update="tabela avisos status">
                             <p:confirm header="Confirmação" message="Deseja excluir este colaborador?"
                                        icon="pi pi-exclamation-triangle"/>
                         </p:commandButton>
@@ -54,6 +62,7 @@
             <p:dialog id="janela" widgetVar="editor" header="Cadastro de colaborador"
                       modal="true" resizable="false" responsive="true" width="600">
                 <p:outputPanel id="campos">
+                    <p:messages id="avisosEditor" for="matricula nome" showDetail="true"/>
                     <div class="campos">
                         <div>
                             <p:outputLabel for="matricula" value="Matrícula *"/>
@@ -78,10 +87,10 @@
                             <p:inputText id="email" value="#{colaboradorBean.edicao.email}" maxlength="150"/>
                         </div>
                     </div>
-                    <div style="margin-top:20px;">
+                    <div class="acoes-formulario">
                         <p:commandButton value="Salvar" icon="pi pi-check"
                                          process="campos @this" action="#{colaboradorBean.salvar}"
-                                         update="tabela avisos campos"
+                                         update=":form:tabela :form:avisos :form:campos :form:status"
                                          oncomplete="if (args &amp;&amp; args.salvo) PF('editor').hide()"/>
                         <p:commandButton value="Cancelar" type="button" styleClass="ui-button-secondary"
                                          onclick="PF('editor').hide()" style="margin-left:8px;"/>
