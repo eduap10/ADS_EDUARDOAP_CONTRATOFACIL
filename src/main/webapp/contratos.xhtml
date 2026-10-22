@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html" xmlns:f="jakarta.faces.core" xmlns:p="primefaces">
+<h:head><title>ContratoFácil | Contratos</title><h:outputStylesheet library="css" name="estilo.css"/></h:head>
+<h:body>
+<header><h1>ContratoFácil</h1><nav><h:link outcome="/index.xhtml" value="Início"/><h:link outcome="/colaboradores.xhtml" value="Colaboradores"/><h:link outcome="/modelos.xhtml" value="Modelos"/><h:link outcome="/contratos.xhtml" value="Contratos"/></nav></header>
+<main><h:form id="form"><section class="painel">
+<div class="titulo"><h2>Contratos</h2><p:commandButton value="Novo contrato" icon="pi pi-plus" process="@this" actionListener="#{contratoBean.novo}" update=":form:campos" oncomplete="PF('editor').show()"/></div>
+<div class="barra"><div class="campo-busca"><p:outputLabel for="pesquisa" value="Pesquisar por título, nome ou matrícula"/><p:inputText id="pesquisa" value="#{contratoBean.pesquisa}" style="width:100%"/></div>
+<p:commandButton value="Pesquisar" icon="pi pi-search" process="pesquisa @this" action="#{contratoBean.pesquisar}" update="tabela avisos"/></div>
+<p:messages id="avisos" closable="true"/>
+<p:dataTable id="tabela" value="#{contratoBean.lista}" var="c" paginator="true" rows="10" reflow="true" emptyMessage="Nenhum contrato cadastrado.">
+<p:column headerText="Código"><h:outputText value="#{c.id}"/></p:column>
+<p:column headerText="Título"><h:outputText value="#{c.titulo}"/></p:column>
+<p:column headerText="Colaborador"><h:outputText value="#{c.colaboradorId}"/></p:column>
+<p:column headerText="Situação"><h:outputText value="#{c.situacao}"/></p:column>
+<p:column headerText="Ações">
+<p:commandButton value="Editar" icon="pi pi-pencil" process="@this" actionListener="#{contratoBean.editar(c)}" update=":form:campos" oncomplete="PF('editor').show()"/>
+<p:commandButton value="Excluir" icon="pi pi-trash" styleClass="ui-button-danger" process="@this" action="#{contratoBean.excluir(c.id)}" update="tabela avisos"><p:confirm header="Confirmar" message="Excluir este contrato?"/></p:commandButton>
+</p:column></p:dataTable></section>
+<p:dialog widgetVar="editor" header="Cadastro de contrato" modal="true" responsive="true" resizable="false" width="800">
+<p:outputPanel id="campos">
+<div class="campos">
+<div><p:outputLabel for="colaborador" value="Colaborador *"/><p:selectOneMenu id="colaborador" value="#{contratoBean.edicao.colaboradorId}" required="true" requiredMessage="Selecione um colaborador." style="width:100%">
+<f:selectItem itemLabel="Selecione..." itemValue="#{null}" noSelectionOption="true"/>
+<f:selectItems value="#{contratoBean.colaboradores}" var="pessoa" itemLabel="#{pessoa.matricula} - #{pessoa.nome}" itemValue="#{pessoa.id}"/></p:selectOneMenu></div>
+<div><p:outputLabel for="modelo" value="Modelo (opcional)"/><p:selectOneMenu id="modelo" value="#{contratoBean.edicao.modeloId}" style="width:100%">
+<f:selectItem itemLabel="Sem modelo" itemValue="#{null}" noSelectionOption="true"/>
+<f:selectItems value="#{contratoBean.modelos}" var="modeloItem" itemLabel="#{modeloItem.titulo}" itemValue="#{modeloItem.id}"/>
+<p:ajax listener="#{contratoBean.carregarModelo}" update="titulo conteudo" process="@this"/></p:selectOneMenu></div>
+<div><p:outputLabel for="titulo" value="Título *"/><p:inputText id="titulo" value="#{contratoBean.edicao.titulo}" required="true" requiredMessage="Informe o título." maxlength="160"/></div>
+<div><p:outputLabel for="situacao" value="Situação"/><p:selectOneMenu id="situacao" value="#{contratoBean.edicao.situacao}" style="width:100%">
+<f:selectItems value="#{contratoBean.situacoes}" var="s" itemValue="#{s}" itemLabel="#{s}"/></p:selectOneMenu></div>
+</div><div><p:outputLabel for="conteudo" value="Texto do contrato *"/>
+<p:inputTextarea id="conteudo" value="#{contratoBean.edicao.conteudo}" required="true" requiredMessage="Informe o texto." rows="13" autoResize="false" style="width:100%"/></div>
+<div class="acoes-formulario">
+<p:commandButton value="Salvar" icon="pi pi-check" process="campos @this" action="#{contratoBean.salvar}" update=":form:tabela :form:avisos :form:campos" oncomplete="if(args &amp;&amp; args.salvo)PF('editor').hide()"/>
+<p:commandButton value="Cancelar" type="button" onclick="PF('editor').hide()" styleClass="ui-button-secondary"/></div>
+</p:outputPanel></p:dialog>
+<p:confirmDialog global="true"><p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes"/><p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no"/></p:confirmDialog>
+</h:form></main></h:body></html>
