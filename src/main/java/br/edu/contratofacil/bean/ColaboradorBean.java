@@ -12,11 +12,14 @@ import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Named
 @ViewScoped
 public class ColaboradorBean implements Serializable {
     private static final long serialVersionUID = 1L;
+    private static final Logger LOG = Logger.getLogger(ColaboradorBean.class.getName());
     private String pesquisa = "";
     private Colaborador edicao = new Colaborador();
     private List<Colaborador> lista = new ArrayList<>();
@@ -29,7 +32,7 @@ public class ColaboradorBean implements Serializable {
             lista = new ColaboradorDAO().listar(pesquisa);
         } catch (SQLException e) {
             lista = new ArrayList<>();
-            mensagem(FacesMessage.SEVERITY_ERROR, "Não foi possível consultar os colaboradores. Verifique o banco.");
+            falhaBanco(e, "Não foi possível consultar os colaboradores. Verifique o banco.");
         }
     }
 
@@ -64,7 +67,7 @@ public class ColaboradorBean implements Serializable {
             if ("23505".equals(e.getSQLState()))
                 mensagem(FacesMessage.SEVERITY_WARN, "Já existe um colaborador com essa matrícula.");
             else
-                mensagem(FacesMessage.SEVERITY_ERROR, "Não foi possível salvar. Verifique a conexão.");
+                falhaBanco(e, "Não foi possível salvar. Verifique a conexão.");
         } finally {
             PrimeFaces.current().ajax().addCallbackParam("salvo", salvo);
         }
@@ -78,8 +81,18 @@ public class ColaboradorBean implements Serializable {
         } catch (SQLException e) {
             if ("23503".equals(e.getSQLState()))
                 mensagem(FacesMessage.SEVERITY_WARN, "Colaborador possui contratos vinculados.");
-            else mensagem(FacesMessage.SEVERITY_ERROR, "Não foi possível excluir o colaborador.");
+            else falhaBanco(e, "Não foi possível excluir o colaborador.");
         }
+    }
+
+    private void falhaBanco(SQLException erro, String texto) {
+        // Registra apenas o codigo do erro, sem credenciais ou dados do SQL.
+        LOG.log(Level.WARNING, "Falha de acesso ao banco. SQLState={0}", erro.getSQLState());
+        String senha = System.getenv("DB_PASSWORD");
+        if (senha == null || senha.isBlank()) {
+            texto = "Conexão com o banco não configurada. Reinicie a aplicação informando a senha do banco no terminal.";
+        }
+        mensagem(FacesMessage.SEVERITY_ERROR, texto);
     }
 
     private void mensagem(FacesMessage.Severity tipo, String texto) {

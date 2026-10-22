@@ -1,17 +1,15 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="jakarta.faces.html"
-      xmlns:p="primefaces">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html" xmlns:p="primefaces">
 <h:head>
     <title>ContratoFácil | Colaboradores</title>
-    <h:outputStylesheet library="css" name="estilo.css"/>
+    <h:outputStylesheet library="css" name="estilo.css" />
 </h:head>
 <h:body>
     <header>
         <h1>ContratoFácil</h1>
         <nav>
-            <h:link outcome="/index.xhtml" value="Início"/>
-            <h:link outcome="/colaboradores.xhtml" value="Colaboradores"/>
+            <h:link outcome="/index.xhtml" value="Início" />
+            <h:link outcome="/colaboradores.xhtml" value="Colaboradores" />
         </nav>
     </header>
     <main>
@@ -19,80 +17,85 @@
             <section class="painel">
                 <div class="titulo">
                     <h2>Colaboradores</h2>
-                    <p:commandButton value="Novo colaborador" icon="pi pi-plus"
-                                     process="@this" actionListener="#{colaboradorBean.novo}"
-                                     update=":form:campos" oncomplete="PF('editor').show()"/>
+                    <p:commandButton value="Novo colaborador" icon="pi pi-plus" process="@this"
+                        actionListener="#{colaboradorBean.novo}" update=":form:campos" resetValues="true"
+                        oncomplete="PF('editor').show()" />
                 </div>
-                <p:messages id="avisos" showDetail="false" closable="true"/>
                 <div class="barra">
                     <div class="campo-busca">
-                        <p:outputLabel for="pesquisa" value="Pesquisar por nome ou matrícula"/>
-                        <p:inputText id="pesquisa" value="#{colaboradorBean.pesquisa}" style="width:100%;"/>
+                        <p:outputLabel for="pesquisa" value="Pesquisar por nome ou matrícula" />
+                        <p:inputText id="pesquisa" value="#{colaboradorBean.pesquisa}" style="width:100%;" />
                     </div>
                     <p:commandButton value="Pesquisar" icon="pi pi-search" process="pesquisa @this"
-                                     action="#{colaboradorBean.pesquisar}" update="tabela avisos"/>
+                        action="#{colaboradorBean.pesquisar}" update="tabela avisos" />
                 </div>
-                <p:dataTable id="tabela" var="col" value="#{colaboradorBean.lista}"
-                             paginator="true" rows="10" reflow="true"
-                             emptyMessage="Nenhum colaborador encontrado.">
-                    <p:column headerText="Matrícula"><h:outputText value="#{col.matricula}"/></p:column>
-                    <p:column headerText="Nome"><h:outputText value="#{col.nome}"/></p:column>
-                    <p:column headerText="Cargo"><h:outputText value="#{col.cargo}"/></p:column>
+                <p:messages id="avisos" showDetail="false" closable="true" />
+                <p:dataTable id="tabela" var="col" value="#{colaboradorBean.lista}" paginator="true" rows="10"
+                    reflow="true" emptyMessage="Nenhum colaborador encontrado.">
+                    <p:column headerText="Matrícula">
+                        <h:outputText value="#{col.matricula}" />
+                    </p:column>
+                    <p:column headerText="Nome">
+                        <h:outputText value="#{col.nome}" />
+                    </p:column>
+                    <p:column headerText="Cargo">
+                        <h:outputText value="#{col.cargo}" />
+                    </p:column>
                     <p:column headerText="Ações" style="width:190px;">
-                        <p:commandButton value="Editar" icon="pi pi-pencil" styleClass="botao-tabela"
-                                         process="@this" actionListener="#{colaboradorBean.editar(col)}"
-                                         update=":form:campos" oncomplete="PF('editor').show()"/>
+                        <p:commandButton value="Editar" icon="pi pi-pencil" styleClass="botao-tabela" process="@this"
+                            actionListener="#{colaboradorBean.editar(col)}" update=":form:campos" resetValues="true"
+                            oncomplete="PF('editor').show()" />
                         <p:commandButton value="Excluir" icon="pi pi-trash" styleClass="ui-button-danger"
-                                         process="@this" action="#{colaboradorBean.excluir(col.id)}"
-                                         update="tabela avisos">
+                            process="@this" action="#{colaboradorBean.excluir(col.id)}" update="tabela avisos">
                             <p:confirm header="Confirmação" message="Deseja excluir este colaborador?"
-                                       icon="pi pi-exclamation-triangle"/>
+                                icon="pi pi-exclamation-triangle" />
                         </p:commandButton>
                     </p:column>
                 </p:dataTable>
             </section>
-            <p:dialog id="janela" widgetVar="editor" header="Cadastro de colaborador"
-                      modal="true" resizable="false" responsive="true" width="600">
+            <p:dialog id="janela" widgetVar="editor" header="Cadastro de colaborador" modal="true" resizable="false"
+                responsive="true" width="600">
                 <p:outputPanel id="campos">
                     <div class="campos">
                         <div>
-                            <p:outputLabel for="matricula" value="Matrícula *"/>
-                            <p:inputText id="matricula" value="#{colaboradorBean.edicao.matricula}"
-                                         required="true" requiredMessage="Informe a matrícula." maxlength="20"/>
+                            <p:outputLabel for="matricula" value="Matrícula *" />
+                            <p:inputText id="matricula" value="#{colaboradorBean.edicao.matricula}" required="true"
+                                requiredMessage="Informe a matrícula." maxlength="20" />
                         </div>
                         <div>
-                            <p:outputLabel for="nome" value="Nome *"/>
-                            <p:inputText id="nome" value="#{colaboradorBean.edicao.nome}"
-                                         required="true" requiredMessage="Informe o nome." maxlength="120"/>
+                            <p:outputLabel for="nome" value="Nome *" />
+                            <p:inputText id="nome" value="#{colaboradorBean.edicao.nome}" required="true"
+                                requiredMessage="Informe o nome." maxlength="120" />
                         </div>
                         <div>
-                            <p:outputLabel for="cargo" value="Cargo"/>
-                            <p:inputText id="cargo" value="#{colaboradorBean.edicao.cargo}" maxlength="100"/>
+                            <p:outputLabel for="cargo" value="Cargo" />
+                            <p:inputText id="cargo" value="#{colaboradorBean.edicao.cargo}" maxlength="100" />
                         </div>
                         <div>
-                            <p:outputLabel for="cpf" value="CPF"/>
-                            <p:inputText id="cpf" value="#{colaboradorBean.edicao.cpf}" maxlength="14"/>
+                            <p:outputLabel for="cpf" value="CPF" />
+                            <p:inputText id="cpf" value="#{colaboradorBean.edicao.cpf}" maxlength="14" />
                         </div>
                         <div>
-                            <p:outputLabel for="email" value="E-mail"/>
-                            <p:inputText id="email" value="#{colaboradorBean.edicao.email}" maxlength="150"/>
+                            <p:outputLabel for="email" value="E-mail" />
+                            <p:inputText id="email" value="#{colaboradorBean.edicao.email}" maxlength="150" />
                         </div>
                     </div>
                     <div style="margin-top:20px;">
-                        <p:commandButton value="Salvar" icon="pi pi-check"
-                                         process="campos @this" action="#{colaboradorBean.salvar}"
-                                         update="tabela avisos campos"
-                                         oncomplete="if (args &amp;&amp; args.salvo) PF('editor').hide()"/>
+                        <p:commandButton value="Salvar" icon="pi pi-check" process="campos @this"
+                            action="#{colaboradorBean.salvar}" update="tabela avisos campos"
+                            oncomplete="if (args &amp;&amp; args.salvo) PF('editor').hide()" />
                         <p:commandButton value="Cancelar" type="button" styleClass="ui-button-secondary"
-                                         onclick="PF('editor').hide()" style="margin-left:8px;"/>
+                            onclick="PF('editor').hide()" style="margin-left:8px;" />
                     </div>
                 </p:outputPanel>
             </p:dialog>
             <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
-                <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check"/>
-                <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times"/>
+                <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+                <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no ui-button-secondary"
+                    icon="pi pi-times" />
             </p:confirmDialog>
         </h:form>
     </main>
 </h:body>
+
 </html>

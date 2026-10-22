@@ -1,20 +1,33 @@
 # Build e temporarios
 target/
+.runtime/
 *.log
 *.class
+*.war
+*.tmp
+*.bak
+*.dump
+*.backup
 
 # IDEs
 .project
 .classpath
 .settings/
 .idea/
-.vscode/
+.vscode/*
+!.vscode/tasks.json
 
 # Credenciais e configuracoes locais
 .env
 .env.*
 !.env.example
 config-local.properties
+.pgpass
+pgpass.conf
+*.p12
+*.pfx
+*.jks
+*.key
 
 # Sistema operacional
 .DS_Store
