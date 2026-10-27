@@ -5,10 +5,10 @@ Sistema acadêmico individual para cadastrar colaboradores, criar modelos de doc
 ## Requisitos do trabalho
 
 - [ ] Autenticação e filtro de acesso administrativo.
-- [ ] Uso de um enum para situação do contrato.
+- [x] Enum de situação do contrato implementado (pendente validação integrada).
 - [x] Código do CRUD de colaboradores: criar, editar, excluir, listar e pesquisar (teste integrado pendente).
-- [ ] CRUD de modelos de contrato.
-- [ ] CRUD de contratos e relacionamento um-para-muitos com colaboradores.
+- [x] CRUD inicial de modelos de contrato implementado (pendente validação integrada).
+- [x] CRUD inicial de contratos e relacionamento um-para-muitos no SQL (pendente validação integrada).
 - [ ] Editor de contratos a partir de modelos e dados do colaborador.
 - [x] Conexão JDBC e schema inicial PostgreSQL (validação autenticada pendente).
 
@@ -21,6 +21,7 @@ src/main/java/br/edu/contratofacil/   # model, dao, bean e conexao JDBC
 src/main/webapp/                    # paginas JSF, recursos e WEB-INF
 database/01_schema.sql              # tabela de colaboradores
 database/02_dados_exemplo.sql       # dados ficticios opcionais
+database/04_modelos_contratos.sql    # tabelas de modelos e contratos
 scripts/build.ps1                   # atalho opcional para Maven no Windows
 scripts/tomcat.ps1                  # executar Tomcat local no terminal
 .vscode/tasks.json                 # compilar, executar e parar
@@ -37,13 +38,13 @@ README.md
 Pré-requisitos: JDK 21 e Maven no PATH, PostgreSQL em execução e Tomcat 10.1. O `pom.xml` inclui Mojarra 4.0.17, PrimeFaces 16.0.0, Weld 5.1.6.Final e JDBC PostgreSQL 42.7.8. Faces e CDI vão no WAR porque o Tomcat não os fornece. Nenhuma dependência foi adicionada nesta preparação.
 
 1. **Banco:** com autorização e credenciais administrativas, crie pelo pgAdmin, somente se ausentes, o usuário `contratofacil_app` (login habilitado, sem privilégios administrativos) e o banco `contratofacil`, pertencente a ele. Defina a senha no diálogo local. Preserve usuários/bancos existentes, incluindo `dbprimefaces` e `postgres`.
-2. **Schema:** conectado como `contratofacil_app` ao banco `contratofacil`, execute `database/01_schema.sql`. Pode usar o Query Tool do pgAdmin ou, com `psql` no PATH, o terminal na raiz do projeto:
+2. **Schema:** conectado como `contratofacil_app` ao banco `contratofacil`, execute `database/01_schema.sql` e depois `database/04_modelos_contratos.sql` para habilitar os outros dois cadastros. Pode usar o Query Tool do pgAdmin ou, com `psql` no PATH, o terminal na raiz do projeto:
 
    ```powershell
    psql -X -W -h localhost -p 5432 -U contratofacil_app -d contratofacil -v ON_ERROR_STOP=1 -f database/01_schema.sql
    ```
 
-   A senha é solicitada sem eco. O SQL recusa outro banco/usuário. `02_dados_exemplo.sql` é opcional e contém apenas dados fictícios.
+   A senha é solicitada sem eco. O script `01_schema.sql` recusa outro banco/usuário. `02_dados_exemplo.sql` é opcional e contém apenas dados fictícios.
 3. **Tomcat:** baixe o ZIP Core 10.1 da [Apache](https://tomcat.apache.org/download-10.cgi), confira seu SHA-512 com `Get-FileHash arquivo.zip -Algorithm SHA512` e extraia em `.runtime/`, mantendo o nome `apache-tomcat-10.1.x`. A distribuição 10.1.61 já foi baixada e verificada neste workspace; não é necessário reinstalá-la.
 4. **VS Code:** use **Terminal → Executar Tarefa → ContratoFacil: compilar** (`Ctrl+Shift+B`), depois **ContratoFacil: executar Tomcat**. A execução pede a senha de `contratofacil_app` no terminal se `DB_PASSWORD` não estiver no ambiente.
 5. Abra [http://localhost:8080/contratofacil/](http://localhost:8080/contratofacil/). Os logs aparecem no mesmo terminal. Para encerrar, use a tarefa **ContratoFacil: parar Tomcat**. Após modificar código: **parar → compilar → executar**.
@@ -63,7 +64,7 @@ O script encontra o Tomcat dentro de `.runtime/`, ou aceita `-TomcatHome` / `CAT
 
 Os dois scripts são conveniências do Windows: a aplicação continua sendo um WAR Maven comum, implantável em Tomcat 10.1 com as variáveis de banco configuradas. `RemoteSigned` vale apenas para o processo da tarefa; nenhuma política global do Windows é alterada.
 
-Se a tabela aparece no pgAdmin mas listar/pesquisar/salvar falham na aplicação, confirme a conexão do pgAdmin com `SELECT current_database(), current_user;`. A aplicação usa `contratofacil`/`contratofacil_app`. Um Tomcat iniciado em diagnóstico sem senha não acessa o banco: pare e execute novamente pela tarefa normal, informando a senha no terminal. Os logs registram somente o código SQLState dos erros, sem senha ou conteúdo dos registros.
+Se a tabela aparece no pgAdmin mas listar/pesquisar/salvar falham na aplicação, confirme a conexão do pgAdmin com `SELECT current_database(), current_user;`. A aplicação usa `contratofacil`/`contratofacil_app`. Um Tomcat iniciado em diagnóstico sem senha não acessa o banco: pare e execute novamente pela tarefa normal, informando a senha no terminal. Os logs registram somente o código SQLState dos erros, sem senha ou conteúdo dos registros. Se uma operação falhar, leia o aviso no cadastro e confira os logs do Tomcat.
 
 ## Se ocorrer PKIX no Maven
 
@@ -76,6 +77,13 @@ powershell -NoProfile -ExecutionPolicy RemoteSigned -File scripts/build.ps1 -Win
 ```
 
 Essa opção usa `Windows-ROOT` apenas no processo Maven e restaura `MAVEN_OPTS` ao terminar. Não importa certificados, não altera `cacerts`, proxy ou configurações globais. Sem a opção, a compilação usa os padrões do Java e do Maven. [Referência do JDK](https://docs.oracle.com/en/java/javase/21/security/oracle-providers.html).
+
+## Correções de interface
+
+- O AJAX do cadastro de colaboradores agora aponta para o componente de mensagens existente.
+- Erros de campos obrigatórios aparecem dentro da janela de edição, que é limpa ao iniciar novo cadastro.
+- Falhas comuns de PostgreSQL recebem mensagens orientativas sem mostrar credenciais.
+- **Essas correções ainda precisam de teste integrado com Tomcat e PostgreSQL.**
 
 ## Validação
 

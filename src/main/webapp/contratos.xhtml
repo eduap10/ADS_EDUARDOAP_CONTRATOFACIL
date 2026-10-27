@@ -4,7 +4,7 @@
 <h:body>
 <header><h1>ContratoFácil</h1><nav><h:link outcome="/index.xhtml" value="Início"/><h:link outcome="/colaboradores.xhtml" value="Colaboradores"/><h:link outcome="/modelos.xhtml" value="Modelos"/><h:link outcome="/contratos.xhtml" value="Contratos"/></nav></header>
 <main><h:form id="form"><section class="painel">
-<div class="titulo"><h2>Contratos</h2><p:commandButton value="Novo contrato" icon="pi pi-plus" process="@this" actionListener="#{contratoBean.novo}" update=":form:campos" oncomplete="PF('editor').show()"/></div>
+<div class="titulo"><h2>Contratos</h2><p:commandButton value="Novo contrato" icon="pi pi-plus" process="@this" actionListener="#{contratoBean.novo}" update=":form:campos" resetValues="true" oncomplete="PF('editor').show()"/></div>
 <div class="barra"><div class="campo-busca"><p:outputLabel for="pesquisa" value="Pesquisar por título, nome ou matrícula"/><p:inputText id="pesquisa" value="#{contratoBean.pesquisa}" style="width:100%"/></div>
 <p:commandButton value="Pesquisar" icon="pi pi-search" process="pesquisa @this" action="#{contratoBean.pesquisar}" update="tabela avisos"/></div>
 <p:messages id="avisos" closable="true"/>
@@ -14,11 +14,12 @@
 <p:column headerText="Colaborador"><h:outputText value="#{c.colaboradorId}"/></p:column>
 <p:column headerText="Situação"><h:outputText value="#{c.situacao}"/></p:column>
 <p:column headerText="Ações">
-<p:commandButton value="Editar" icon="pi pi-pencil" process="@this" actionListener="#{contratoBean.editar(c)}" update=":form:campos" oncomplete="PF('editor').show()"/>
+<p:commandButton value="Editar" icon="pi pi-pencil" process="@this" actionListener="#{contratoBean.editar(c)}" update=":form:campos" resetValues="true" oncomplete="PF('editor').show()"/>
 <p:commandButton value="Excluir" icon="pi pi-trash" styleClass="ui-button-danger" process="@this" action="#{contratoBean.excluir(c.id)}" update="tabela avisos"><p:confirm header="Confirmar" message="Excluir este contrato?"/></p:commandButton>
 </p:column></p:dataTable></section>
 <p:dialog widgetVar="editor" header="Cadastro de contrato" modal="true" responsive="true" resizable="false" width="800">
 <p:outputPanel id="campos">
+<p:messages id="avisosEditor" showDetail="true" />
 <div class="campos">
 <div><p:outputLabel for="colaborador" value="Colaborador *"/><p:selectOneMenu id="colaborador" value="#{contratoBean.edicao.colaboradorId}" required="true" requiredMessage="Selecione um colaborador." style="width:100%">
 <f:selectItem itemLabel="Selecione..." itemValue="#{null}" noSelectionOption="true"/>

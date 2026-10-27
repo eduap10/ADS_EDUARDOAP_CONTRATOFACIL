@@ -21,6 +21,7 @@
                         actionListener="#{colaboradorBean.novo}" update=":form:campos" resetValues="true"
                         oncomplete="PF('editor').show()" />
                 </div>
+                <p:messages id="avisos" globalOnly="true" closable="true" showDetail="false" />
                 <div class="barra">
                     <div class="campo-busca">
                         <p:outputLabel for="pesquisa" value="Pesquisar por nome ou matrícula" />
@@ -51,7 +52,7 @@
             <p:dialog id="janela" widgetVar="editor" header="Cadastro de colaborador" modal="true" resizable="false"
                 responsive="true" width="600">
                 <p:outputPanel id="campos">
-                    <p:messages id="avisosEditor" for="matricula nome" showDetail="true"/>
+                    <p:messages id="avisosEditor" showDetail="true" />
                     <div class="campos">
                         <div>
                             <p:outputLabel for="matricula" value="Matrícula *" />

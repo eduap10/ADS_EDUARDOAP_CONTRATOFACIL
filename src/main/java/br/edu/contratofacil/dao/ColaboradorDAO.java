@@ -49,7 +49,9 @@ public class ColaboradorDAO {
         try (Connection c = Conexao.abrir();
              PreparedStatement ps = c.prepareStatement("DELETE FROM colaboradores WHERE id=?")) {
             ps.setLong(1, id);
-            ps.executeUpdate();
+            if (ps.executeUpdate() == 0) {
+                throw new SQLException("Colaborador não encontrado.");
+            }
         }
     }
 
