@@ -72,10 +72,11 @@ public class ColaboradorBean implements Serializable {
             pesquisar();
             mensagem(FacesMessage.SEVERITY_INFO, "Colaborador salvo com sucesso.");
         } catch (SQLException e) {
-            if ("23505".equals(e.getSQLState()))
+            if ("23505".equals(e.getSQLState())) {
                 mensagem(FacesMessage.SEVERITY_WARN, "Já existe um colaborador com essa matrícula.");
-            else
+            } else {
                 erroBanco("salvar", e);
+            }
         } finally {
             PrimeFaces.current().ajax().addCallbackParam("salvo", salvo);
         }
@@ -102,6 +103,10 @@ public class ColaboradorBean implements Serializable {
         String texto;
         if (erro.getMessage() != null && erro.getMessage().contains("DB_PASSWORD nao definida")) {
             texto = "Senha do banco não configurada. Reinicie o Tomcat informando DB_PASSWORD.";
+        } else if ("22023".equals(estado)) {
+            texto = "Preencha corretamente os campos obrigatórios.";
+        } else if ("02000".equals(estado)) {
+            texto = "O registro não foi encontrado. Atualize a lista e tente novamente.";
         } else if ("42P01".equals(estado)) {
             texto = "Tabela de colaboradores não encontrada. Execute database/01_schema.sql.";
         } else if ("28P01".equals(estado)) {

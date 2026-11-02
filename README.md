@@ -7,7 +7,7 @@ Sistema acadêmico individual para cadastrar colaboradores, criar modelos de doc
 - [ ] Autenticação e filtro de acesso administrativo.
 - [x] Enum de situação do contrato implementado (pendente validação integrada).
 - [x] Código do CRUD de colaboradores: criar, editar, excluir, listar e pesquisar (teste integrado pendente).
-- [x] CRUD inicial de modelos de contrato implementado (pendente validação integrada).
+- [x] CRUD de modelos de contrato: criar, editar, excluir, listar e pesquisar (teste integrado pendente).
 - [x] CRUD inicial de contratos e relacionamento um-para-muitos no SQL (pendente validação integrada).
 - [ ] Editor de contratos a partir de modelos e dados do colaborador.
 - [x] Conexão JDBC e schema inicial PostgreSQL (validação autenticada pendente).
@@ -22,6 +22,7 @@ src/main/webapp/                    # paginas JSF, recursos e WEB-INF
 database/01_schema.sql              # tabela de colaboradores
 database/02_dados_exemplo.sql       # dados ficticios opcionais
 database/04_modelos_contratos.sql    # tabelas de modelos e contratos
+database/05_teste_cruds.sql         # teste transacional dos cadastros
 scripts/build.ps1                   # atalho opcional para Maven no Windows
 scripts/tomcat.ps1                  # executar Tomcat local no terminal
 .vscode/tasks.json                 # compilar, executar e parar
@@ -78,6 +79,16 @@ powershell -NoProfile -ExecutionPolicy RemoteSigned -File scripts/build.ps1 -Win
 
 Essa opção usa `Windows-ROOT` apenas no processo Maven e restaura `MAVEN_OPTS` ao terminar. Não importa certificados, não altera `cacerts`, proxy ou configurações globais. Sem a opção, a compilação usa os padrões do Java e do Maven. [Referência do JDK](https://docs.oracle.com/en/java/javase/21/security/oracle-providers.html).
 
+## Testar os cadastros no PostgreSQL
+
+Depois de executar os scripts 01 e 04, conecte-se com `contratofacil_app` ao banco `contratofacil` e execute:
+
+```powershell
+psql -X -W -v ON_ERROR_STOP=1 -h localhost -p 5432 -U contratofacil_app -d contratofacil -f database/05_teste_cruds.sql
+```
+
+O teste verifica inclusão, consulta, edição e exclusão de colaboradores e modelos com dados fictícios. Ele termina com `ROLLBACK`, sem manter os registros inseridos. **Esse teste deve ser executado na instalação local e não substitui os testes das telas JSF.**
+
 ## Correções de interface
 
 - O AJAX do cadastro de colaboradores agora aponta para o componente de mensagens existente.
@@ -86,6 +97,9 @@ Essa opção usa `Windows-ROOT` apenas no processo Maven e restaura `MAVEN_OPTS`
 - **Essas correções ainda precisam de teste integrado com Tomcat e PostgreSQL.**
 
 ## Validação
+
+**02/11/2026:** conexão JDBC com timeouts e validações dos dois DAOs revisadas; há script de teste transacional. O teste integrado local continua pendente.
+
 
 Com o banco configurado, teste pela tela usando uma matrícula fictícia exclusiva: incluir, conferir a listagem, pesquisar por matrícula/nome, editar e excluir somente o registro criado no teste. Confira também os campos obrigatórios e a limpeza do diálogo ao abrir Novo depois de um erro.
 
