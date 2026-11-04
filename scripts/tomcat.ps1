@@ -5,6 +5,7 @@ $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path $PSScriptRoot -Parent
 $base = Join-Path $projectRoot '.runtime/tomcat-base'
 $war = Join-Path $projectRoot 'target/contratofacil.war'
+$server = Join-Path $base 'conf/server.xml'
 if ($Stop) {
     # Somente o Java cuja base corresponde exatamente a este projeto.
     $pattern = '(?:^|\s)"?' + [regex]::Escape("-Dcatalina.base=$base") + '(?:"|\s|$)'
@@ -30,8 +31,18 @@ foreach ($setting in @{DB_NAME='contratofacil'; DB_USER='contratofacil_app'}.Get
     if ($value -and $value -ne $setting.Value) { throw "$($setting.Key) deve ser $($setting.Value) para este projeto." }
 }
 if ($env:DB_HOST -and $env:DB_HOST -notin @('localhost', '127.0.0.1')) { throw 'Use um PostgreSQL local em DB_HOST.' }
-$portCheck = [Net.Sockets.TcpListener]::new([Net.IPAddress]::Loopback, 8080)
-try { $portCheck.Start() } catch { throw 'Porta 8080 ocupada. Pare o servidor antes de executar novamente.' } finally { $portCheck.Stop() }
+$httpPort = 8080
+if (Test-Path -LiteralPath $server) {
+    [xml]$serverConfig = Get-Content -LiteralPath $server -Raw
+    $connector = @($serverConfig.Server.Service.Connector)
+    if ($connector.Count -ne 1 -or $connector[0].address -ne '127.0.0.1') {
+        throw 'A base local deve conter um unico Connector em 127.0.0.1.'
+    }
+    $httpPort = [int]$connector[0].port
+    if ($httpPort -lt 1024 -or $httpPort -gt 65535) { throw 'Porta HTTP local invalida.' }
+}
+$portCheck = [Net.Sockets.TcpListener]::new([Net.IPAddress]::Loopback, $httpPort)
+try { $portCheck.Start() } catch { throw "Porta $httpPort ocupada. Confira o servidor antes de executar novamente." } finally { $portCheck.Stop() }
 
 # Configuracao exclusiva do projeto; a instalacao do Tomcat nao e alterada.
 foreach ($directory in @('conf', 'logs', 'temp', 'webapps', 'work')) {
@@ -41,7 +52,6 @@ foreach ($file in @('web.xml', 'catalina.properties', 'logging.properties', 'con
     $destination = Join-Path $base "conf/$file"
     if (!(Test-Path $destination)) { Copy-Item -LiteralPath (Join-Path $TomcatHome "conf/$file") -Destination $destination }
 }
-$server = Join-Path $base 'conf/server.xml'
 if (!(Test-Path $server)) {
     @'
 <?xml version="1.0" encoding="UTF-8"?>
@@ -84,7 +94,7 @@ try {
     }
     if (!$jdkDirectory) { throw 'Configure JAVA_HOME com o diretorio do JDK 21.' }
     $java = Join-Path $jdkDirectory 'bin/java.exe'
-    Write-Host 'Tomcat: http://localhost:8080/contratofacil/ | Logs neste terminal. Use a tarefa parar Tomcat para encerrar.'
+    Write-Host "Tomcat: http://localhost:$httpPort/contratofacil/ | Logs neste terminal. Use a tarefa parar Tomcat para encerrar."
     $javaArgs = @(
         '-Dfile.encoding=UTF-8', "-Dcatalina.home=$TomcatHome", "-Dcatalina.base=$base",
         "-Djava.io.tmpdir=$base/temp", "-Djava.util.logging.config.file=$base/conf/logging.properties",

@@ -6,11 +6,11 @@ Sistema acadêmico individual para cadastrar colaboradores, criar modelos de doc
 
 - [x] Código de autenticação e filtro administrativo implementado (pendente testes de execução e acesso).
 - [x] Enum de situação do contrato implementado (pendente validação integrada).
-- [x] Código do CRUD de colaboradores: criar, editar, excluir, listar e pesquisar (teste integrado pendente).
-- [x] CRUD de modelos de contrato: criar, editar, excluir, listar e pesquisar (teste integrado pendente).
+- [x] CRUD de colaboradores: criar, editar, excluir, listar e pesquisar (SQL/JDBC validados; validação visual pendente).
+- [x] CRUD de modelos de contrato: criar, editar, excluir, listar e pesquisar (SQL/JDBC validados; validação visual pendente).
 - [x] CRUD inicial de contratos e relacionamento um-para-muitos no SQL (pendente validação integrada).
 - [ ] Editor de contratos a partir de modelos e dados do colaborador.
-- [x] Conexão JDBC e schema inicial PostgreSQL (validação autenticada pendente).
+- [x] Conexão JDBC e schema PostgreSQL (validação autenticada concluída).
 
 **Manhattan ainda não foi fornecido.** O visual atual é provisório; não atende a esse requisito. Sua compatibilidade será verificada quando o template da disciplina estiver disponível.
 
@@ -57,9 +57,13 @@ mvn clean package
 powershell -NoProfile -ExecutionPolicy RemoteSigned -File scripts/tomcat.ps1
 ```
 
+O script `build.ps1` usa o Maven do PATH ou, quando indisponível, a distribuição existente em `.runtime/apache-maven-*/bin`. Nesta configuração local, foi aproveitado o ZIP do Maven 3.10.0 já presente no computador, sem alterar o PATH global.
+
 Para parar pelo terminal, abra outro terminal e execute `powershell -NoProfile -ExecutionPolicy RemoteSigned -File scripts/tomcat.ps1 -Stop`. Somente o processo Java com a base deste projeto é encerrado; outros servidores e o Java do VS Code são preservados.
 
 O script encontra o Tomcat dentro de `.runtime/`, ou aceita `-TomcatHome` / `CATALINA_HOME`. Cria uma base exclusiva em `.runtime/tomcat-base`, copia o WAR e atende somente em `127.0.0.1:8080`, sem serviço Windows nem alterações na instalação do servidor. Prefere `JAVA_HOME` e, quando ausente, identifica o JDK do PATH. Não há caminhos pessoais nos arquivos versionáveis.
+
+**Configuração local de 04/11/2026:** a porta 8080 já pertence a outro processo Apache e foi preservada. O ContratoFácil usa [http://localhost:8081/contratofacil/](http://localhost:8081/contratofacil/). O script lê a porta do único `Connector` em `.runtime/tomcat-base/conf/server.xml`, mantendo o endereço `127.0.0.1`. Em uma base nova, o padrão continua sendo 8080.
 
 `DB_HOST`, `DB_PORT`, `DB_NAME` e `DB_USER` estão descritos em `.env.example`: ele **não é carregado automaticamente**. A senha fica apenas no ambiente do processo, nunca em argumentos ou arquivos. O script local aceita somente o banco/usuário do projeto. Reinicie o servidor após configurar a senha. `-SkipPasswordPrompt` permite diagnóstico sem banco e **não habilita o CRUD**.
 
@@ -94,28 +98,34 @@ O teste verifica inclusão, consulta, edição e exclusão de colaboradores e mo
 - O AJAX do cadastro de colaboradores agora aponta para o componente de mensagens existente.
 - Erros de campos obrigatórios aparecem dentro da janela de edição, que é limpa ao iniciar novo cadastro.
 - Falhas comuns de PostgreSQL recebem mensagens orientativas sem mostrar credenciais.
-- **Essas correções ainda precisam de teste integrado com Tomcat e PostgreSQL.**
+- **A validação visual dessas correções permanece pendente; os testes SQL/JDBC passaram.**
 
 ## Validação
 
-**02/11/2026:** conexão JDBC com timeouts e validações dos dois DAOs revisadas; há script de teste transacional. O teste integrado local continua pendente.
+**04/11/2026:** ambiente local configurado e testes autenticados concluídos.
 
-
-Com o banco configurado, teste pela tela usando uma matrícula fictícia exclusiva: incluir, conferir a listagem, pesquisar por matrícula/nome, editar e excluir somente o registro criado no teste. Confira também os campos obrigatórios e a limpeza do diálogo ao abrir Novo depois de um erro.
-
-| Verificação em 21/10/2026 | Resultado |
+| Verificação | Resultado |
 | --- | --- |
-| Maven padrão e geração do WAR Java 21 | Aprovados; não há testes JUnit no projeto |
-| Execução com os scripts simplificados | Inicialização e logs no terminal aprovados |
-| Parada pelo mesmo script | Aprovada; porta 8080 liberada e Java do VS Code preservado |
-| Página inicial, colaboradores, CSS e JavaScript | HTTP 200 |
-| Nome obrigatório e limpeza de Novo após erro | Aprovados; correções preservadas |
-| Falha do banco visível na primeira abertura | Aprovada |
-| PostgreSQL | Serviço disponível; faltam credenciais para autenticar |
-| Schema e CRUD persistido | **Bloqueados**, não aprovados |
-| Git | Temporários e credenciais ignorados; sem commit/push enquanto o CRUD estiver bloqueado |
+| PostgreSQL utilizado | Instância 18, servidor 18.6, localhost:5432 |
+| Outra instância preservada | PostgreSQL 17, porta 5433; nenhum serviço/porta/configuração alterado |
+| Recursos criados | Somente banco `contratofacil` e usuário `contratofacil_app`, proprietário do próprio banco |
+| Privilégios | Sem superuser, createdb, createrole, replication ou bypassrls; acesso PUBLIC revogado somente no novo banco |
+| Schema | `01_schema.sql` e `04_modelos_contratos.sql` executados nessa ordem |
+| Teste SQL | `05_teste_cruds.sql` aprovado, encerrado com ROLLBACK |
+| JDBC e DAOs | Cadastro, listagem/pesquisa, edição e exclusão dos dois CRUDs aprovados; persistência conferida por conexões independentes |
+| Dados de teste | Apenas fictícios; registros criados pelos testes removidos ao concluir |
+| Maven 3.10.0 / Java 21 | `clean package`: BUILD SUCCESS; não há testes JUnit no projeto |
+| Tomcat | 10.1.61, distribuição oficial com SHA-512 conferido, base exclusiva em `.runtime/tomcat-base`, porta 8081 |
+| HTTP | Página inicial, colaboradores e modelos: 200 |
+| Interface no navegador | Validação visual pendente: automação interrompida por não conseguir confirmar a URL atual |
+| Credenciais | Entrada no prompt protegido do Windows; senhas somente na memória/ambiente dos processos, sem arquivos de credenciais |
+| Git | Sem commit/push; distribuições, WAR e logs permanecem ignorados em `.runtime/` e `target/` |
 
-O teste HTTP auxiliar desta sessão foi mantido apenas em `.runtime/`, fora do Git; ele não é necessário para executar a aplicação. O banco e os usuários existentes não foram alterados. Os avisos do Weld sobre JPA/Bean Validation opcionais não impediram a renderização; não foram adicionadas bibliotecas apenas para silenciá-los.
+Para reiniciar, execute a tarefa **ContratoFacil: executar Tomcat** e informe a senha de `contratofacil_app`. Os valores locais são `DB_HOST=localhost`, `DB_PORT=5432`, `DB_NAME=contratofacil` e `DB_USER=contratofacil_app`. O servidor atual foi iniciado com essas variáveis e `DB_PASSWORD` no ambiente; nenhuma variável global foi modificada. Os logs da execução atual estão em `.runtime/tomcat.stdout.log`, `.runtime/tomcat.stderr.log` e `.runtime/tomcat-base/logs/`.
+
+Para concluir a validação visual, use uma matrícula fictícia exclusiva: incluir, conferir a listagem, pesquisar por matrícula/nome, editar e excluir somente o registro criado no teste. Repita para modelos de contrato e confira campos obrigatórios e limpeza do diálogo ao abrir Novo depois de um erro.
+
+Os avisos informativos do Weld sobre JPA/Bean Validation opcionais não impediram a inicialização; não foram adicionadas bibliotecas apenas para silenciá-los. Os recursos existentes de outros projetos foram preservados.
 
 **Uso local:** esta versão ainda não implementa autenticação. Utilize apenas dados fictícios e não publique a aplicação na internet.
 
