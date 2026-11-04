@@ -17,3 +17,19 @@ main { max-width: 1100px; margin: 32px auto; padding: 0 20px; }
 .acoes-formulario { margin-top: 20px; }
 .status-banco { color: #556579; font-size: .88rem; margin-bottom: 14px; }
 @media(max-width:650px) { .campos { grid-template-columns: 1fr; } }
+
+/* Login e configuração inicial */
+.form-sair { display: inline-block; margin: 0; }
+.form-sair a { color: #e6eff9; text-decoration: none; }
+.form-sair a:hover, nav a:hover { text-decoration: underline; }
+.acesso { max-width: 420px; margin: 72px auto; padding: 0 16px; }
+.acesso .painel { padding: 32px; }
+.acesso h2 { margin-top: 0; font-size: 1.6rem; }
+.acesso p { color: #59677b; line-height: 1.5; }
+.campo-acesso { margin: 17px 0; }
+.campo-acesso label { display: block; margin-bottom: 7px; font-weight: 600; }
+.campo-acesso input { box-sizing: border-box; width: 100%; padding: 11px 12px; border: 1px solid #bdc8d6; border-radius: 6px; font-size: 1rem; }
+.botao-acesso { cursor: pointer; padding: 12px 20px; width: 100%; color: #fff; background: #1e527d; border: 0; border-radius: 6px; font-size: 1rem; font-weight: 600; }
+.botao-acesso:hover { background: #173e5f; }
+.mensagens-acesso { margin: 12px 0; padding: 0 0 0 18px; color: #a72929; }
+.ajuda-acesso { margin-top: 18px; text-align: center; font-size: .9rem; }

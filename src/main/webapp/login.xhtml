@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html">
+<h:head>
+    <title>ContratoFácil | Entrar</title>
+    <h:outputStylesheet library="css" name="estilo.css"/>
+</h:head>
+<h:body>
+    <header><h1>ContratoFácil</h1></header>
+    <main class="acesso">
+        <section class="painel">
+            <h2>Entrar</h2>
+            <p>Informe seu usuário e sua senha para acessar o sistema.</p>
+            <h:form id="formLogin">
+                <h:messages styleClass="mensagens-acesso" globalOnly="false"/>
+                <div class="campo-acesso">
+                    <h:outputLabel for="login" value="Usuário"/>
+                    <h:inputText id="login" value="#{loginBean.login}" required="true"
+                                 requiredMessage="Informe o usuário." maxlength="60"/>
+                </div>
+                <div class="campo-acesso">
+                    <h:outputLabel for="senha" value="Senha"/>
+                    <h:inputSecret id="senha" value="#{loginBean.senha}" required="true"
+                                   requiredMessage="Informe a senha." redisplay="false"/>
+                </div>
+                <h:commandButton value="Entrar" action="#{loginBean.entrar}" styleClass="botao-acesso"/>
+            </h:form>
+            <p class="ajuda-acesso">
+                Primeiro acesso?
+                <h:link outcome="/primeiro-acesso.xhtml" value="Cadastrar administrador local"/>
+            </p>
+        </section>
+    </main>
+</h:body>
+</html>

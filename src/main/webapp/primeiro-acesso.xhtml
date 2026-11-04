@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html">
+<h:head>
+    <title>ContratoFácil | Primeiro acesso</title>
+    <h:outputStylesheet library="css" name="estilo.css"/>
+</h:head>
+<h:body>
+    <header><h1>ContratoFácil</h1></header>
+    <main class="acesso">
+        <section class="painel">
+            <h2>Administrador inicial</h2>
+            <p>Esta etapa só pode ser feita no próprio computador e fica indisponível após o primeiro cadastro.</p>
+            <h:form id="formInicial">
+                <h:messages styleClass="mensagens-acesso" globalOnly="false"/>
+                <div class="campo-acesso">
+                    <h:outputLabel for="login" value="Usuário administrador"/>
+                    <h:inputText id="login" value="#{primeiroAcessoBean.login}" required="true"
+                                 requiredMessage="Informe o usuário." maxlength="60"/>
+                </div>
+                <div class="campo-acesso">
+                    <h:outputLabel for="senha" value="Senha"/>
+                    <h:inputSecret id="senha" value="#{primeiroAcessoBean.senha}" required="true"
+                                   requiredMessage="Informe a senha." redisplay="false"/>
+                </div>
+                <div class="campo-acesso">
+                    <h:outputLabel for="confirmacao" value="Confirmar senha"/>
+                    <h:inputSecret id="confirmacao" value="#{primeiroAcessoBean.confirmacao}"
+                                   required="true" requiredMessage="Confirme a senha." redisplay="false"/>
+                </div>
+                <p>Use ao menos 10 caracteres, incluindo letra e número. Não utilize senha de outros serviços.</p>
+                <h:commandButton value="Criar administrador" action="#{primeiroAcessoBean.criar}" styleClass="botao-acesso"/>
+            </h:form>
+            <p class="ajuda-acesso"><h:link outcome="/login.xhtml" value="Voltar ao login"/></p>
+        </section>
+    </main>
+</h:body>
+</html>

@@ -3,6 +3,15 @@
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd" version="6.0">
   <display-name>ContratoFácil</display-name>
+  <filter>
+    <filter-name>FiltroAcesso</filter-name>
+    <filter-class>br.edu.contratofacil.filter.FiltroAcesso</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>FiltroAcesso</filter-name>
+    <url-pattern>/*</url-pattern>
+    <dispatcher>REQUEST</dispatcher>
+  </filter-mapping>
   <context-param>
     <param-name>jakarta.faces.PROJECT_STAGE</param-name><param-value>Development</param-value>
   </context-param>

@@ -4,7 +4,7 @@ Sistema acadêmico individual para cadastrar colaboradores, criar modelos de doc
 
 ## Requisitos do trabalho
 
-- [ ] Autenticação e filtro de acesso administrativo.
+- [x] Código de autenticação e filtro administrativo implementado (pendente testes de execução e acesso).
 - [x] Enum de situação do contrato implementado (pendente validação integrada).
 - [x] Código do CRUD de colaboradores: criar, editar, excluir, listar e pesquisar (teste integrado pendente).
 - [x] CRUD de modelos de contrato: criar, editar, excluir, listar e pesquisar (teste integrado pendente).
@@ -118,3 +118,21 @@ Com o banco configurado, teste pela tela usando uma matrícula fictícia exclusi
 O teste HTTP auxiliar desta sessão foi mantido apenas em `.runtime/`, fora do Git; ele não é necessário para executar a aplicação. O banco e os usuários existentes não foram alterados. Os avisos do Weld sobre JPA/Bean Validation opcionais não impediram a renderização; não foram adicionadas bibliotecas apenas para silenciá-los.
 
 **Uso local:** esta versão ainda não implementa autenticação. Utilize apenas dados fictícios e não publique a aplicação na internet.
+
+## Login administrativo (nova implementação)
+
+A aplicação passou a exigir sessão autenticada. As páginas de colaboradores, modelos e contratos são protegidas por um filtro, com acesso exclusivo ao perfil `ADMIN`. As senhas são armazenadas com hash PBKDF2-HMAC-SHA256 e salt aleatório; nenhuma senha inicial é incluída no projeto.
+
+Para ativar o login em um ambiente local já configurado:
+
+1. Atualize os arquivos com `git pull origin main`.
+2. Conecte-se ao banco `contratofacil` com o usuário `contratofacil_app` e execute **somente uma vez** `database/06_usuarios.sql`. Esse script não remove registros dos outros cadastros.
+3. Recompile a aplicação com `mvn clean package` e reinicie o Tomcat com o script existente, informando a senha de banco como antes.
+4. No próprio computador, acesse `http://localhost:8080/contratofacil/primeiro-acesso.xhtml` e cadastre seu primeiro usuário administrador. Esta página funciona somente em `localhost` e deixa de aceitar novos administradores depois da primeira criação.
+5. Acesse `http://localhost:8080/contratofacil/login.xhtml`, faça login e verifique a navegação, o acesso direto por URL e o botão **Sair**.
+
+O administrador inicial deverá ser criado manualmente em cada banco local. Não existe credencial padrão.
+
+**Verificação pendente no ambiente real:** confirmar que sem login o acesso direto a `/colaboradores.xhtml`, `/modelos.xhtml` e `/contratos.xhtml` redireciona ao login; verificar criação inicial, senha incorreta, sessão e logout. O código foi publicado, mas os testes com o Tomcat/PostgreSQL locais ainda precisam ser realizados.
+
+**Atenção:** o editor visual e o Template Manhattan continuam pendentes, e a interface atual ainda é provisória.
