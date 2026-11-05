@@ -4,7 +4,7 @@ Sistema acadêmico individual para cadastrar colaboradores, criar modelos de doc
 
 ## Requisitos do trabalho
 
-- [x] Código de autenticação e filtro administrativo implementado (pendente testes de execução e acesso).
+- [x] Autenticação e filtro administrativo validados com Tomcat/PostgreSQL.
 - [x] Enum de situação do contrato implementado (pendente validação integrada).
 - [x] CRUD de colaboradores: criar, editar, excluir, listar e pesquisar (SQL/JDBC validados; validação visual pendente).
 - [x] CRUD de modelos de contrato: criar, editar, excluir, listar e pesquisar (SQL/JDBC validados; validação visual pendente).
@@ -119,7 +119,7 @@ O teste verifica inclusão, consulta, edição e exclusão de colaboradores e mo
 | HTTP | Página inicial, colaboradores e modelos: 200 |
 | Interface no navegador | Validação visual pendente: automação interrompida por não conseguir confirmar a URL atual |
 | Credenciais | Entrada no prompt protegido do Windows; senhas somente na memória/ambiente dos processos, sem arquivos de credenciais |
-| Git | Sem commit/push; distribuições, WAR e logs permanecem ignorados em `.runtime/` e `target/` |
+| Git | Distribuições, WAR e logs permanecem ignorados em `.runtime/` e `target/` |
 
 Para reiniciar, execute a tarefa **ContratoFacil: executar Tomcat** e informe a senha de `contratofacil_app`. Os valores locais são `DB_HOST=localhost`, `DB_PORT=5432`, `DB_NAME=contratofacil` e `DB_USER=contratofacil_app`. O servidor atual foi iniciado com essas variáveis e `DB_PASSWORD` no ambiente; nenhuma variável global foi modificada. Os logs da execução atual estão em `.runtime/tomcat.stdout.log`, `.runtime/tomcat.stderr.log` e `.runtime/tomcat-base/logs/`.
 
@@ -127,7 +127,7 @@ Para concluir a validação visual, use uma matrícula fictícia exclusiva: incl
 
 Os avisos informativos do Weld sobre JPA/Bean Validation opcionais não impediram a inicialização; não foram adicionadas bibliotecas apenas para silenciá-los. Os recursos existentes de outros projetos foram preservados.
 
-**Uso local:** esta versão ainda não implementa autenticação. Utilize apenas dados fictícios e não publique a aplicação na internet.
+**Uso acadêmico local:** utilize dados fictícios; esta configuração de Tomcat atende somente em loopback.
 
 ## Login administrativo (nova implementação)
 
@@ -143,6 +143,8 @@ Para ativar o login em um ambiente local já configurado:
 
 O administrador inicial deverá ser criado manualmente em cada banco local. Não existe credencial padrão.
 
-**Verificação pendente no ambiente real:** confirmar que sem login o acesso direto a `/colaboradores.xhtml`, `/modelos.xhtml` e `/contratos.xhtml` redireciona ao login; verificar criação inicial, senha incorreta, sessão e logout. O código foi publicado, mas os testes com o Tomcat/PostgreSQL locais ainda precisam ser realizados.
+**Validado em 04/11/2026:** seis testes de integração passaram no Tomcat/PostgreSQL: primeiro administrador, senha correta/incorreta, usuário inativo, renovação de sessão, logout, bloqueio de usuário comum e de acesso direto, incluindo URLs com parâmetros de caminho e requisições AJAX sem sessão. O filtro exige ADMIN em todas as rotas autenticadas, incluindo futuras visualizações e downloads. Os usuários de teste têm senhas aleatórias e são removidos ao concluir; não existe senha padrão.
+
+Os testes usam JUnit (somente no escopo de teste) e HTTP real. Com `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` no ambiente local e `CF_TEST_URL=http://localhost:8081/contratofacil/`, execute `mvn -Dtest=AutenticacaoIT test` após implantar o WAR. Não grave essas senhas em arquivos. O teste utiliza apenas o banco `contratofacil` e remove exclusivamente seus próprios usuários fictícios.
 
 **Atenção:** o editor visual e o Template Manhattan continuam pendentes, e a interface atual ainda é provisória.

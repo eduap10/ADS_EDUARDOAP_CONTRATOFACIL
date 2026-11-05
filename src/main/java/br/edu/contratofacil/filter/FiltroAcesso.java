@@ -25,10 +25,13 @@ public class FiltroAcesso implements Filter {
         HttpServletResponse resp = (HttpServletResponse) resposta;
 
         String contexto = req.getContextPath();
-        String caminho = req.getRequestURI().substring(contexto.length());
+        // O container normaliza o destino e remove parametros de caminho como ;jsessionid.
+        String caminho = req.getServletPath();
 
         resp.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
         resp.setHeader("Pragma", "no-cache");
+        resp.setHeader("X-Content-Type-Options", "nosniff");
+        resp.setHeader("X-Frame-Options", "DENY");
 
         if (caminho.startsWith("/jakarta.faces.resource/")
                 || caminho.startsWith("/javax.faces.resource/")
@@ -65,17 +68,27 @@ public class FiltroAcesso implements Filter {
         HttpSession sessao = req.getSession(false);
         Usuario usuario = sessao == null ? null : (Usuario) sessao.getAttribute("usuarioLogado");
         if (usuario == null) {
-            resp.sendRedirect(contexto + "/login.xhtml");
+            redirecionarLogin(req, resp);
             return;
         }
 
-        // Somente administradores podem abrir as páginas de manutenção e contratos.
-        if ((caminho.equals("/colaboradores.xhtml") || caminho.equals("/modelos.xhtml")
-                || caminho.equals("/contratos.xhtml")) && usuario.getPerfil() != PerfilUsuario.ADMIN) {
+        // Toda funcao autenticada deste sistema e administrativa, inclusive novos downloads.
+        if (usuario.getPerfil() != PerfilUsuario.ADMIN) {
             resp.sendError(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
         cadeia.doFilter(requisicao, resposta);
+    }
+
+    private void redirecionarLogin(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        String destino = req.getContextPath() + "/login.xhtml";
+        if ("partial/ajax".equals(req.getHeader("Faces-Request"))) {
+            resp.setContentType("text/xml;charset=UTF-8");
+            resp.getWriter().write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                    + "<partial-response><redirect url=\"" + destino + "\"></redirect></partial-response>");
+        } else {
+            resp.sendRedirect(destino);
+        }
     }
 
     private boolean ehLocal(String endereco) {

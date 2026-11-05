@@ -115,7 +115,7 @@ public class UsuarioDAO {
     }
 
     private String normalizarLogin(String login) {
-        return login.strip().toLowerCase(Locale.ROOT);
+        return login == null ? "" : login.strip().toLowerCase(Locale.ROOT);
     }
 
     private byte[] hash(char[] caracteres, byte[] salt) throws SQLException {
