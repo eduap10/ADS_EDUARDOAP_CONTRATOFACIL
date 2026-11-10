@@ -14,7 +14,7 @@ public class ModeloContratoDAO {
     public List<ModeloContrato> listar(String pesquisa) throws SQLException {
         List<ModeloContrato> lista = new ArrayList<>();
         String termo = pesquisa == null ? "" : pesquisa.strip();
-        String sql = "SELECT id, titulo, conteudo FROM public.modelos_contrato "
+        String sql = "SELECT id, titulo, conteudo, categoria FROM public.modelos_contrato "
                 + "WHERE titulo ILIKE ? ORDER BY titulo, id";
 
         try (Connection conexao = Conexao.abrir();
@@ -33,7 +33,7 @@ public class ModeloContratoDAO {
         if (id == null) {
             return null;
         }
-        String sql = "SELECT id, titulo, conteudo FROM public.modelos_contrato WHERE id=?";
+        String sql = "SELECT id, titulo, conteudo, categoria FROM public.modelos_contrato WHERE id=?";
         try (Connection conexao = Conexao.abrir();
              PreparedStatement ps = conexao.prepareStatement(sql)) {
             ps.setLong(1, id);
