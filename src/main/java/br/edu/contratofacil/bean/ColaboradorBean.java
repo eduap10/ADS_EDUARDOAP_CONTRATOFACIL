@@ -53,6 +53,25 @@ public class ColaboradorBean implements Serializable {
         edicao.setCargo(selecionado.getCargo());
         edicao.setCpf(selecionado.getCpf());
         edicao.setEmail(selecionado.getEmail());
+        edicao.setDataNascimento(selecionado.getDataNascimento());
+        edicao.setSexo(selecionado.getSexo());
+        edicao.setRacaCor(selecionado.getRacaCor());
+        edicao.setEstadoCivil(selecionado.getEstadoCivil());
+        edicao.setNacionalidade(selecionado.getNacionalidade());
+        edicao.setEscolaridade(selecionado.getEscolaridade());
+        edicao.setGenero(selecionado.getGenero());
+        edicao.setCep(selecionado.getCep());
+        edicao.setLogradouro(selecionado.getLogradouro());
+        edicao.setNumero(selecionado.getNumero());
+        edicao.setComplemento(selecionado.getComplemento());
+        edicao.setBairro(selecionado.getBairro());
+        edicao.setCidade(selecionado.getCidade());
+        edicao.setUf(selecionado.getUf());
+        edicao.setPais(selecionado.getPais());
+        edicao.setDataAdmissao(selecionado.getDataAdmissao());
+        edicao.setCentroCustoCodigo(selecionado.getCentroCustoCodigo());
+        edicao.setCentroCustoDescricao(selecionado.getCentroCustoDescricao());
+        edicao.setSalario(selecionado.getSalario());
         PrimeFaces.current().resetInputs("form:campos");
     }
 
@@ -126,6 +145,13 @@ public class ColaboradorBean implements Serializable {
         if (contexto != null) contexto.addMessage(null, new FacesMessage(tipo, texto, null));
     }
 
+    public String[] getSexos() { return new String[]{"Feminino", "Masculino", "Intersexo", "Prefiro não informar"}; }
+    public String[] getRacasCores() { return new String[]{"Branca", "Preta", "Parda", "Amarela", "Indígena", "Prefiro não informar"}; }
+    public String[] getEstadosCivis() { return new String[]{"Solteiro(a)", "Casado(a)", "União estável", "Divorciado(a)", "Viúvo(a)"}; }
+    public String[] getNacionalidades() { return new String[]{"Brasileira", "Brasileira naturalizada", "Estrangeira"}; }
+    public String[] getEscolaridades() { return new String[]{"Fundamental incompleto", "Fundamental completo", "Médio incompleto", "Médio completo", "Superior incompleto", "Superior completo", "Pós-graduação"}; }
+    public String[] getGeneros() { return new String[]{"Mulher", "Homem", "Não binário", "Outro", "Prefiro não informar"}; }
+    public String[] getUfs() { return new String[]{"AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"}; }
     public String getPesquisa() { return pesquisa; }
     public void setPesquisa(String pesquisa) { this.pesquisa = pesquisa; }
     public String getStatusBanco() { return statusBanco; }

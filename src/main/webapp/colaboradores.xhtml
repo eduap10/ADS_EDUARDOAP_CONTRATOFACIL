@@ -1,102 +1,151 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html" xmlns:p="primefaces">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core" xmlns:p="primefaces">
 <h:head>
     <title>ContratoFácil | Colaboradores</title>
-    <h:outputStylesheet library="css" name="estilo.css" />
+    <h:outputStylesheet library="css" name="estilo.css"/>
 </h:head>
 <h:body>
-    <header>
-        <h1>ContratoFácil</h1>
-        <nav>
-            <h:link outcome="/index.xhtml" value="Início"/>
-            <h:link outcome="/colaboradores.xhtml" value="Colaboradores"/>
-            <h:link outcome="/modelos.xhtml" value="Modelos"/>
-            <h:link outcome="/contratos.xhtml" value="Contratos"/>
-<h:form id="formSair" styleClass="form-sair"><h:commandLink action="#{loginBean.sair}" value="Sair"/></h:form>
-        </nav>
-    </header>
-    <main>
-        <h:form id="form">
-            <section class="painel">
-                <div class="titulo">
-                    <h2>Colaboradores</h2>
-                    <p:commandButton value="Novo colaborador" icon="pi pi-plus" process="@this"
-                        actionListener="#{colaboradorBean.novo}" update=":form:campos" resetValues="true"
-                        oncomplete="PF('editor').show()" />
-                </div>
-                <p:messages id="avisos" globalOnly="true" closable="true" showDetail="false" />
-                <div class="barra">
-                    <div class="campo-busca">
-                        <p:outputLabel for="pesquisa" value="Pesquisar por nome ou matrícula" />
-                        <p:inputText id="pesquisa" value="#{colaboradorBean.pesquisa}" style="width:100%;" />
-                    </div>
-                    <p:commandButton value="Pesquisar" icon="pi pi-search" process="pesquisa @this"
-                                     action="#{colaboradorBean.pesquisar}" update="tabela avisos"/>
-                </div>
-                <p:dataTable id="tabela" var="col" value="#{colaboradorBean.lista}"
-                             paginator="true" rows="10" reflow="true"
-                             emptyMessage="Nenhum colaborador encontrado.">
-                    <p:column headerText="Matrícula"><h:outputText value="#{col.matricula}"/></p:column>
-                    <p:column headerText="Nome"><h:outputText value="#{col.nome}"/></p:column>
-                    <p:column headerText="Cargo"><h:outputText value="#{col.cargo}"/></p:column>
-                    <p:column headerText="Ações" style="width:190px;">
-                        <p:commandButton value="Editar" icon="pi pi-pencil" styleClass="botao-tabela" process="@this"
-                            actionListener="#{colaboradorBean.editar(col)}" update=":form:campos" resetValues="true"
-                            oncomplete="PF('editor').show()" />
-                        <p:commandButton value="Excluir" icon="pi pi-trash" styleClass="ui-button-danger"
-                                         process="@this" action="#{colaboradorBean.excluir(col.id)}"
-                                         update="tabela avisos">
-                            <p:confirm header="Confirmação" message="Deseja excluir este colaborador?"
-                                icon="pi pi-exclamation-triangle" />
-                        </p:commandButton>
-                    </p:column>
-                </p:dataTable>
-            </section>
-            <p:dialog id="janela" widgetVar="editor" header="Cadastro de colaborador" modal="true" resizable="false"
-                responsive="true" width="600">
-                <p:outputPanel id="campos">
-                    <p:messages id="avisosEditor" showDetail="true" />
-                    <div class="campos">
-                        <div>
-                            <p:outputLabel for="matricula" value="Matrícula *" />
-                            <p:inputText id="matricula" value="#{colaboradorBean.edicao.matricula}" required="true"
-                                requiredMessage="Informe a matrícula." maxlength="20" />
-                        </div>
-                        <div>
-                            <p:outputLabel for="nome" value="Nome *" />
-                            <p:inputText id="nome" value="#{colaboradorBean.edicao.nome}" required="true"
-                                requiredMessage="Informe o nome." maxlength="120" />
-                        </div>
-                        <div>
-                            <p:outputLabel for="cargo" value="Cargo" />
-                            <p:inputText id="cargo" value="#{colaboradorBean.edicao.cargo}" maxlength="100" />
-                        </div>
-                        <div>
-                            <p:outputLabel for="cpf" value="CPF" />
-                            <p:inputText id="cpf" value="#{colaboradorBean.edicao.cpf}" maxlength="14" />
-                        </div>
-                        <div>
-                            <p:outputLabel for="email" value="E-mail" />
-                            <p:inputText id="email" value="#{colaboradorBean.edicao.email}" maxlength="150" />
-                        </div>
-                    </div>
-                    <div style="margin-top:20px;">
-                        <p:commandButton value="Salvar" icon="pi pi-check"
-                                         process="campos @this" action="#{colaboradorBean.salvar}"
-                                         update="tabela avisos campos"
-                                         oncomplete="if (args &amp;&amp; args.salvo) PF('editor').hide()"/>
-                        <p:commandButton value="Cancelar" type="button" styleClass="ui-button-secondary"
-                            onclick="PF('editor').hide()" style="margin-left:8px;" />
-                    </div>
-                </p:outputPanel>
-            </p:dialog>
-            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
-                <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
-                <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no ui-button-secondary"
-                    icon="pi pi-times" />
-            </p:confirmDialog>
-        </h:form>
-    </main>
-</h:body>
-
-</html>
+<header><h1>ContratoFácil</h1><nav>
+    <h:link outcome="/index.xhtml" value="Início"/>
+    <h:link outcome="/colaboradores.xhtml" value="Colaboradores"/>
+    <h:link outcome="/modelos.xhtml" value="Modelos"/>
+    <h:link outcome="/contratos.xhtml" value="Contratos"/>
+    <h:form id="formSair" styleClass="form-sair"><h:commandLink action="#{loginBean.sair}" value="Sair"/></h:form>
+</nav></header>
+<main><h:form id="form"><section class="painel">
+    <div class="titulo"><h2>Colaboradores</h2>
+      <p:commandButton value="Novo colaborador" icon="pi pi-plus" process="@this"
+            actionListener="#{colaboradorBean.novo}" update=":form:campos"
+            resetValues="true" oncomplete="PF('editor').show()"/>
+    </div>
+    <p:messages id="avisos" globalOnly="true" closable="true"/>
+    <div class="barra"><div class="campo-busca">
+        <p:outputLabel for="pesquisa" value="Pesquisar nome ou matrícula"/>
+        <p:inputText id="pesquisa" value="#{colaboradorBean.pesquisa}" style="width:100%"/>
+      </div>
+      <p:commandButton value="Pesquisar" icon="pi pi-search" process="pesquisa @this"
+            action="#{colaboradorBean.pesquisar}" update="tabela avisos"/>
+    </div>
+    <p:dataTable id="tabela" var="col" value="#{colaboradorBean.lista}" paginator="true"
+                 rows="10" reflow="true" emptyMessage="Nenhum colaborador encontrado.">
+        <p:column headerText="Matrícula"><h:outputText value="#{col.matricula}"/></p:column>
+        <p:column headerText="Nome"><h:outputText value="#{col.nome}"/></p:column>
+        <p:column headerText="Cargo"><h:outputText value="#{col.cargo}"/></p:column>
+        <p:column headerText="Centro de custo"><h:outputText value="#{col.centroCustoDescricao}"/></p:column>
+        <p:column headerText="Ações">
+            <p:commandButton value="Editar" icon="pi pi-pencil" process="@this"
+                actionListener="#{colaboradorBean.editar(col)}" update=":form:campos"
+                resetValues="true" oncomplete="PF('editor').show()"/>
+            <p:commandButton value="Excluir" icon="pi pi-trash" styleClass="ui-button-danger"
+                process="@this" action="#{colaboradorBean.excluir(col.id)}" update="tabela avisos">
+                <p:confirm header="Confirmar" message="Excluir este colaborador?"/>
+            </p:commandButton>
+        </p:column>
+    </p:dataTable>
+</section>
+<p:dialog widgetVar="editor" header="Ficha do colaborador" modal="true" responsive="true"
+          resizable="false" width="900" styleClass="dialog-cadastro">
+    <p:outputPanel id="campos">
+        <p:messages showDetail="true"/>
+        <h3>Identificação</h3>
+        <div class="campos">
+            <div><p:outputLabel for="matricula" value="Matrícula *"/>
+                <p:inputText id="matricula" value="#{colaboradorBean.edicao.matricula}"
+                    required="true" requiredMessage="Informe a matrícula." maxlength="20"/></div>
+            <div><p:outputLabel for="nome" value="Nome completo *"/>
+                <p:inputText id="nome" value="#{colaboradorBean.edicao.nome}"
+                    required="true" requiredMessage="Informe o nome." maxlength="120"/></div>
+            <div><p:outputLabel for="cpf" value="CPF"/>
+                <p:inputMask id="cpf" mask="999.999.999-99" value="#{colaboradorBean.edicao.cpf}"/></div>
+            <div><p:outputLabel for="email" value="E-mail"/>
+                <p:inputText id="email" value="#{colaboradorBean.edicao.email}" maxlength="150"/></div>
+            <div><p:outputLabel for="nascimento" value="Data de nascimento *"/>
+                <p:datePicker id="nascimento" value="#{colaboradorBean.edicao.dataNascimento}"
+                    pattern="dd/MM/yyyy" showIcon="true" monthNavigator="true" yearNavigator="true"
+                    required="#{colaboradorBean.edicao.id == null}" requiredMessage="Informe a data de nascimento."/></div>
+            <div><p:outputLabel for="sexo" value="Sexo"/>
+                <p:selectOneMenu id="sexo" value="#{colaboradorBean.edicao.sexo}">
+                    <f:selectItem itemLabel="Selecione" itemValue="#{null}" noSelectionOption="true"/>
+                    <f:selectItems value="#{colaboradorBean.sexos}"/>
+                </p:selectOneMenu></div>
+            <div><p:outputLabel for="raca" value="Raça/cor"/>
+                <p:selectOneMenu id="raca" value="#{colaboradorBean.edicao.racaCor}">
+                    <f:selectItem itemLabel="Selecione" itemValue="#{null}" noSelectionOption="true"/>
+                    <f:selectItems value="#{colaboradorBean.racasCores}"/>
+                </p:selectOneMenu></div>
+            <div><p:outputLabel for="genero" value="Gênero"/>
+                <p:selectOneMenu id="genero" value="#{colaboradorBean.edicao.genero}">
+                    <f:selectItem itemLabel="Selecione" itemValue="#{null}" noSelectionOption="true"/>
+                    <f:selectItems value="#{colaboradorBean.generos}"/>
+                </p:selectOneMenu></div>
+            <div><p:outputLabel for="estadoCivil" value="Estado civil"/>
+                <p:selectOneMenu id="estadoCivil" value="#{colaboradorBean.edicao.estadoCivil}">
+                    <f:selectItem itemLabel="Selecione" itemValue="#{null}" noSelectionOption="true"/>
+                    <f:selectItems value="#{colaboradorBean.estadosCivis}"/>
+                </p:selectOneMenu></div>
+            <div><p:outputLabel for="nacionalidade" value="Nacionalidade"/>
+                <p:selectOneMenu id="nacionalidade" value="#{colaboradorBean.edicao.nacionalidade}">
+                    <f:selectItem itemLabel="Selecione" itemValue="#{null}" noSelectionOption="true"/>
+                    <f:selectItems value="#{colaboradorBean.nacionalidades}"/>
+                </p:selectOneMenu></div>
+            <div><p:outputLabel for="escolaridade" value="Escolaridade"/>
+                <p:selectOneMenu id="escolaridade" value="#{colaboradorBean.edicao.escolaridade}">
+                    <f:selectItem itemLabel="Selecione" itemValue="#{null}" noSelectionOption="true"/>
+                    <f:selectItems value="#{colaboradorBean.escolaridades}"/>
+                </p:selectOneMenu></div>
+        </div>
+        <h3>Endereço</h3>
+        <div class="campos">
+            <div><p:outputLabel for="cep" value="CEP"/>
+                <p:inputMask id="cep" mask="99999-999" value="#{colaboradorBean.edicao.cep}"/></div>
+            <div><p:outputLabel for="logradouro" value="Logradouro"/>
+                <p:inputText id="logradouro" value="#{colaboradorBean.edicao.logradouro}" maxlength="150"/></div>
+            <div><p:outputLabel for="numero" value="Número"/>
+                <p:inputText id="numero" value="#{colaboradorBean.edicao.numero}" maxlength="20"/></div>
+            <div><p:outputLabel for="complemento" value="Complemento"/>
+                <p:inputText id="complemento" value="#{colaboradorBean.edicao.complemento}" maxlength="100"/></div>
+            <div><p:outputLabel for="bairro" value="Bairro"/>
+                <p:inputText id="bairro" value="#{colaboradorBean.edicao.bairro}" maxlength="100"/></div>
+            <div><p:outputLabel for="cidade" value="Cidade"/>
+                <p:inputText id="cidade" value="#{colaboradorBean.edicao.cidade}" maxlength="100"/></div>
+            <div><p:outputLabel for="uf" value="UF"/>
+                <p:selectOneMenu id="uf" value="#{colaboradorBean.edicao.uf}">
+                    <f:selectItem itemLabel="Selecione" itemValue="#{null}" noSelectionOption="true"/>
+                    <f:selectItems value="#{colaboradorBean.ufs}"/>
+                </p:selectOneMenu></div>
+            <div><p:outputLabel for="pais" value="País"/>
+                <p:inputText id="pais" value="#{colaboradorBean.edicao.pais}" maxlength="60"/></div>
+        </div>
+        <h3>Dados profissionais</h3>
+        <div class="campos">
+            <div><p:outputLabel for="admissao" value="Data de admissão *"/>
+                <p:datePicker id="admissao" value="#{colaboradorBean.edicao.dataAdmissao}"
+                    pattern="dd/MM/yyyy" showIcon="true"
+                    required="#{colaboradorBean.edicao.id == null}" requiredMessage="Informe a data de admissão."/></div>
+            <div><p:outputLabel for="cargo" value="Cargo *"/>
+                <p:inputText id="cargo" value="#{colaboradorBean.edicao.cargo}"
+                    required="#{colaboradorBean.edicao.id == null}" requiredMessage="Informe o cargo." maxlength="100"/></div>
+            <div><p:outputLabel for="ccCodigo" value="Código centro de custo"/>
+                <p:inputText id="ccCodigo" value="#{colaboradorBean.edicao.centroCustoCodigo}" maxlength="30"/></div>
+            <div><p:outputLabel for="ccDescricao" value="Descrição centro de custo"/>
+                <p:inputText id="ccDescricao" value="#{colaboradorBean.edicao.centroCustoDescricao}" maxlength="120"/></div>
+            <div><p:outputLabel for="salario" value="Salário (R$)"/>
+                <p:inputNumber id="salario" value="#{colaboradorBean.edicao.salario}"
+                    decimalPlaces="2" decimalSeparator="," thousandSeparator="." minValue="0"/></div>
+        </div>
+        <p class="observacao-cadastro">* Campos obrigatórios para novos cadastros. Informações sensíveis são opcionais.</p>
+        <div class="acoes-formulario">
+            <p:commandButton value="Salvar" icon="pi pi-check" process="campos @this"
+                action="#{colaboradorBean.salvar}" update=":form:tabela :form:avisos :form:campos"
+                oncomplete="if(args &amp;&amp; args.salvo) PF('editor').hide()"/>
+            <p:commandButton value="Cancelar" type="button" styleClass="ui-button-secondary"
+                onclick="PF('editor').hide()"/>
+        </div>
+    </p:outputPanel>
+</p:dialog>
+<p:confirmDialog global="true">
+    <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes"/>
+    <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no"/>
+</p:confirmDialog>
+</h:form></main></h:body></html>
