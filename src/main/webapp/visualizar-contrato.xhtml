@@ -21,6 +21,8 @@ xmlns:f="jakarta.faces.core">
 <div class="barra-documento">
 <h:link outcome="/editar-contrato.xhtml" value="Editar" styleClass="link-acao">
 <f:param name="id" value="#{visualizacaoBean.id}"/></h:link>
+<a href="#{request.contextPath}/exportar-contrato?id=#{visualizacaoBean.id}&amp;formato=pdf" class="link-acao-subtil">Salvar PDF</a>
+<a href="#{request.contextPath}/exportar-contrato?id=#{visualizacaoBean.id}&amp;formato=docx" class="link-acao-subtil">Salvar DOCX</a>
 <button type="button" onclick="window.print()" class="botao-imprimir">Imprimir</button>
 </div>
 <section class="folha-a4"><h3><h:outputText value="#{visualizacaoBean.contrato.titulo}"/></h3>
