@@ -3,7 +3,10 @@ import java.io.Serializable;
 public class Contrato implements Serializable {
  private Long id, colaboradorId, modeloId;
  private String titulo, conteudo;
+ private CategoriaDocumento categoria = CategoriaDocumento.OUTROS;
  private SituacaoContrato situacao = SituacaoContrato.RASCUNHO;
+ public CategoriaDocumento getCategoria(){return categoria;}
+ public void setCategoria(CategoriaDocumento v){categoria=v==null?CategoriaDocumento.OUTROS:v;}
  public Long getId(){return id;} public void setId(Long v){id=v;}
  public Long getColaboradorId(){return colaboradorId;} public void setColaboradorId(Long v){colaboradorId=v;}
  public Long getModeloId(){return modeloId;} public void setModeloId(Long v){modeloId=v;}

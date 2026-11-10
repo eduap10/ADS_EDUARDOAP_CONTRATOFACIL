@@ -48,7 +48,7 @@ public class ModeloContratoBean implements Serializable {
         edicao = new ModeloContrato();
         edicao.setId(selecionado.getId());
         edicao.setTitulo(selecionado.getTitulo());
-        edicao.setConteudo(selecionado.getConteudo());
+        edicao.setConteudo(selecionado.getConteudo());edicao.setCategoria(selecionado.getCategoria());
         PrimeFaces.current().resetInputs("form:campos");
     }
 
@@ -112,6 +112,9 @@ public class ModeloContratoBean implements Serializable {
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(tipo, texto, null));
     }
 
+    public br.edu.contratofacil.model.CategoriaDocumento[] getCategorias() {
+        return br.edu.contratofacil.model.CategoriaDocumento.values();
+    }
     public String getPesquisa() { return pesquisa; }
     public void setPesquisa(String pesquisa) { this.pesquisa = pesquisa; }
     public ModeloContrato getEdicao() { return edicao; }

@@ -14,6 +14,7 @@
 <p:column headerText="Título"><h:outputText value="#{c.titulo}"/></p:column>
 <p:column headerText="Colaborador"><h:outputText value="#{c.colaboradorId}"/></p:column>
 <p:column headerText="Situação"><h:outputText value="#{c.situacao}"/></p:column>
+<p:column headerText="Categoria"><h:outputText value="#{c.categoria.rotulo}"/></p:column>
 <p:column headerText="Ações">
 <p:commandButton value="Editar" icon="pi pi-pencil" process="@this" actionListener="#{contratoBean.editar(c)}" update=":form:campos" resetValues="true" oncomplete="PF('editor').show()"/>
 <p:commandButton value="Excluir" icon="pi pi-trash" styleClass="ui-button-danger" process="@this" action="#{contratoBean.excluir(c.id)}" update="tabela avisos"><p:confirm header="Confirmar" message="Excluir este contrato?"/></p:commandButton>
@@ -25,9 +26,15 @@
 <div><p:outputLabel for="colaborador" value="Colaborador *"/><p:selectOneMenu id="colaborador" value="#{contratoBean.edicao.colaboradorId}" required="true" requiredMessage="Selecione um colaborador." style="width:100%">
 <f:selectItem itemLabel="Selecione..." itemValue="#{null}" noSelectionOption="true"/>
 <f:selectItems value="#{contratoBean.colaboradores}" var="pessoa" itemLabel="#{pessoa.matricula} - #{pessoa.nome}" itemValue="#{pessoa.id}"/></p:selectOneMenu></div>
+<div><p:outputLabel for="categoria" value="Categoria do contrato"/>
+<p:selectOneMenu id="categoria" value="#{contratoBean.edicao.categoria}" style="width:100%">
+<f:selectItems value="#{contratoBean.categorias}" var="cat"
+ itemLabel="#{cat.rotulo}" itemValue="#{cat}"/>
+<p:ajax listener="#{contratoBean.selecionarCategoria}" update="modelo" process="@this"/>
+</p:selectOneMenu></div>
 <div><p:outputLabel for="modelo" value="Modelo (opcional)"/><p:selectOneMenu id="modelo" value="#{contratoBean.edicao.modeloId}" style="width:100%">
 <f:selectItem itemLabel="Sem modelo" itemValue="#{null}" noSelectionOption="true"/>
-<f:selectItems value="#{contratoBean.modelos}" var="modeloItem" itemLabel="#{modeloItem.titulo}" itemValue="#{modeloItem.id}"/>
+<f:selectItems value="#{contratoBean.modelosDaCategoria}" var="modeloItem" itemLabel="#{modeloItem.titulo}" itemValue="#{modeloItem.id}"/>
 <p:ajax listener="#{contratoBean.carregarModelo}" update="titulo conteudo" process="@this"/></p:selectOneMenu></div>
 <div><p:outputLabel for="titulo" value="Título *"/><p:inputText id="titulo" value="#{contratoBean.edicao.titulo}" required="true" requiredMessage="Informe o título." maxlength="160"/></div>
 <div><p:outputLabel for="situacao" value="Situação"/><p:selectOneMenu id="situacao" value="#{contratoBean.edicao.situacao}" style="width:100%">

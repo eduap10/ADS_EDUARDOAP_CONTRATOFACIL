@@ -53,12 +53,13 @@ public class ModeloContratoDAO {
     }
 
     private void inserir(ModeloContrato modelo) throws SQLException {
-        String sql = "INSERT INTO public.modelos_contrato (titulo, conteudo) "
-                + "VALUES (?, ?) RETURNING id";
+        String sql = "INSERT INTO public.modelos_contrato (titulo, conteudo, categoria) "
+                + "VALUES (?, ?, ?) RETURNING id";
         try (Connection conexao = Conexao.abrir();
              PreparedStatement ps = conexao.prepareStatement(sql)) {
             ps.setString(1, modelo.getTitulo());
             ps.setString(2, modelo.getConteudo());
+            ps.setString(3, modelo.getCategoria().name());
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     modelo.setId(rs.getLong("id"));
@@ -70,12 +71,13 @@ public class ModeloContratoDAO {
     }
 
     private void atualizar(ModeloContrato modelo) throws SQLException {
-        String sql = "UPDATE public.modelos_contrato SET titulo=?, conteudo=? WHERE id=?";
+        String sql = "UPDATE public.modelos_contrato SET titulo=?, conteudo=?, categoria=? WHERE id=?";
         try (Connection conexao = Conexao.abrir();
              PreparedStatement ps = conexao.prepareStatement(sql)) {
             ps.setString(1, modelo.getTitulo());
             ps.setString(2, modelo.getConteudo());
-            ps.setLong(3, modelo.getId());
+            ps.setString(3, modelo.getCategoria().name());
+            ps.setLong(4, modelo.getId());
             if (ps.executeUpdate() == 0) {
                 throw new SQLException("Modelo não encontrado.", "02000");
             }
@@ -109,6 +111,7 @@ public class ModeloContratoDAO {
         modelo.setId(rs.getLong("id"));
         modelo.setTitulo(rs.getString("titulo"));
         modelo.setConteudo(rs.getString("conteudo"));
+        modelo.setCategoria(br.edu.contratofacil.model.CategoriaDocumento.valueOf(rs.getString("categoria")));
         return modelo;
     }
 }

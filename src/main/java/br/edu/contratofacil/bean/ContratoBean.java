@@ -30,13 +30,14 @@ public class ContratoBean implements Serializable {
   edicao=new Contrato();
   edicao.setId(c.getId());edicao.setColaboradorId(c.getColaboradorId());edicao.setModeloId(c.getModeloId());
   edicao.setTitulo(c.getTitulo());edicao.setConteudo(c.getConteudo());edicao.setSituacao(c.getSituacao());
+  edicao.setCategoria(c.getCategoria());
   atualizarOpcoes();PrimeFaces.current().resetInputs("form:campos");
  }
  public void carregarModelo(){
   if(edicao.getModeloId()==null)return;
   try{
    ModeloContrato m=new ModeloContratoDAO().buscar(edicao.getModeloId());
-   if(m!=null){edicao.setConteudo(m.getConteudo());if(edicao.getTitulo()==null||edicao.getTitulo().isBlank())edicao.setTitulo(m.getTitulo());}
+   if(m!=null){edicao.setCategoria(m.getCategoria());edicao.setConteudo(m.getConteudo());if(edicao.getTitulo()==null||edicao.getTitulo().isBlank())edicao.setTitulo(m.getTitulo());}
   }catch(SQLException e){erro(e);}
  }
  public void salvar(){
@@ -59,5 +60,10 @@ public class ContratoBean implements Serializable {
  public List<Contrato> getLista(){return lista;}
  public List<Colaborador> getColaboradores(){return colaboradores;}
  public List<ModeloContrato> getModelos(){return modelos;}
+ public CategoriaDocumento[] getCategorias(){return CategoriaDocumento.values();}
+ public List<ModeloContrato> getModelosDaCategoria(){
+   return modelos.stream().filter(m -> m.getCategoria() == edicao.getCategoria()).toList();
+ }
+ public void selecionarCategoria(){ edicao.setModeloId(null); }
  public SituacaoContrato[] getSituacoes(){return SituacaoContrato.values();}
 }
