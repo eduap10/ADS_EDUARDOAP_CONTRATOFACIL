@@ -28,7 +28,8 @@ itemLabel="#{cat.rotulo}" itemValue="#{cat}"/>
 </p:selectOneMenu></div><div>
 <p:outputLabel for="titulo" value="Título *"/><p:inputText id="titulo" value="#{modeloContratoBean.edicao.titulo}" required="true" requiredMessage="Informe o título." maxlength="160" style="width:100%"/>
 </div><div><p:outputLabel for="conteudo" value="Texto-base *"/>
-<p:inputTextarea id="conteudo" value="#{modeloContratoBean.edicao.conteudo}" required="true" requiredMessage="Informe o texto." rows="13" autoResize="false" style="width:100%"/></div>
+<p:textEditor id="conteudo" secure="true" allowImages="false" height="340"
+value="#{modeloContratoBean.edicao.conteudo}" required="true" requiredMessage="Informe o texto."/></div>
 <div class="acoes-formulario"><p:commandButton value="Salvar" icon="pi pi-check" process="campos @this" action="#{modeloContratoBean.salvar}" update=":form:tabela :form:avisos :form:campos" oncomplete="if(args &amp;&amp; args.salvo)PF('editor').hide()"/>
 <p:commandButton value="Cancelar" type="button" onclick="PF('editor').hide()" styleClass="ui-button-secondary"/></div></p:outputPanel></p:dialog>
 <p:confirmDialog global="true"><p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes"/><p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no"/></p:confirmDialog>

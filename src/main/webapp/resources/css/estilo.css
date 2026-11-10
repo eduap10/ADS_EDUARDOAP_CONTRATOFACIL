@@ -33,3 +33,31 @@ main { max-width: 1100px; margin: 32px auto; padding: 0 20px; }
 .botao-acesso:hover { background: #173e5f; }
 .mensagens-acesso { margin: 12px 0; padding: 0 0 0 18px; color: #a72929; }
 .ajuda-acesso { margin-top: 18px; text-align: center; font-size: .9rem; }
+
+/* Editor de documentos e ficha de cadastro */
+.pagina-documento { max-width:1120px; }
+.subtitulo { margin-top:0; color:#64748b; }
+.campo-titulo { margin:16px 0; }
+.campo-titulo label,.pagina-documento label { display:block; margin-bottom:6px; font-weight:600; }
+.tags-documento { border:1px solid #d8e3ed; border-radius:9px; background:#f8fafc; padding:16px; margin-top:22px; }
+.tags-documento h3 { margin:0 0 5px; }
+.tags-documento p { color:#63748b; font-size:.9rem; }
+.tags-documento button,.botao-imprimir { background:#fff; border:1px solid #bbd0e2; color:#184d70; padding:8px 11px; border-radius:6px; cursor:pointer; margin:4px; }
+.link-acao { display:inline-block; background:#1882cf; color:#fff; text-decoration:none; padding:10px 15px; border-radius:6px; }
+.link-acao-subtil { display:inline-block; border:1px solid #dce6ef; color:#14577d; text-decoration:none; padding:8px 11px; border-radius:6px; margin:3px; }
+.barra-documento { display:flex; flex-wrap:wrap; gap:8px; margin:18px 0; }
+.folha-a4 { box-sizing:border-box; width:100%; max-width:794px; min-height:1050px; padding:70px 68px; margin:0 auto 30px; background:#fff; border:1px solid #e5e7eb; box-shadow:0 4px 20px #142b4115; overflow-wrap:anywhere; }
+.folha-a4 h3 { text-align:center; margin-bottom:30px; }
+.corpo-contrato { line-height:1.6; }
+.ql-align-center { text-align:center; }
+.ql-align-right { text-align:right; }
+.ql-align-justify { text-align:justify; }
+.ql-size-small { font-size:.75em; }
+.ql-size-large { font-size:1.5em; }
+.ql-size-huge { font-size:2em; }
+.observacao-cadastro { font-size:.83rem; color:#64748b; }
+.dialog-cadastro .ui-dialog-content { max-height:78vh; overflow-y:auto; }
+.dialog-cadastro h3 { margin:25px 0 13px; border-bottom:1px solid #e2e8f0; padding-bottom:8px; }
+.dialog-cadastro .ui-inputfield,.dialog-cadastro .ui-selectonemenu { width:100%; box-sizing:border-box; }
+@media(max-width:760px){main{margin:16px auto;} .painel{padding:15px;} .folha-a4{padding:22px 17px;min-height:0;} .dialog-cadastro{width:95vw!important;}}
+@media print {header,.titulo,.barra-documento{display:none!important;} body{background:#fff;} .folha-a4{border:0;box-shadow:none;max-width:none;min-height:0;margin:0;} }

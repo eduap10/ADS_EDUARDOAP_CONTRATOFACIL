@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html"
+xmlns:f="jakarta.faces.core" xmlns:p="primefaces">
+<f:metadata>
+<f:viewParam name="id" value="#{contratoBean.idEdicao}"/>
+<f:viewAction action="#{contratoBean.carregarEdicao}"/>
+</f:metadata>
+<h:head><title>ContratoFácil | Elaborar contrato</title>
+<h:outputStylesheet library="css" name="estilo.css"/></h:head>
+<h:body><header><h1>ContratoFácil</h1><nav>
+<h:link outcome="/index.xhtml" value="Início"/>
+<h:link outcome="/colaboradores.xhtml" value="Colaboradores"/>
+<h:link outcome="/modelos.xhtml" value="Modelos"/>
+<h:link outcome="/contratos.xhtml" value="Contratos"/>
+<h:form id="formSair" styleClass="form-sair"><h:commandLink action="#{loginBean.sair}" value="Sair"/></h:form>
+</nav></header>
+<main class="pagina-documento"><h:form id="form">
+<section class="painel">
+<div class="titulo"><div><h2>Elaborar contrato</h2>
+<p class="subtitulo">Selecione os dados e formate seu documento.</p></div>
+<h:link outcome="/contratos.xhtml" value="Voltar" styleClass="link-acao-subtil"/></div>
+<p:messages id="avisos" showDetail="true"/>
+<p:outputPanel id="campos">
+<div class="campos">
+<div><p:outputLabel for="colaborador" value="Colaborador *"/>
+<p:selectOneMenu id="colaborador" value="#{contratoBean.edicao.colaboradorId}"
+ required="true" requiredMessage="Selecione um colaborador." style="width:100%">
+<f:selectItem itemLabel="Selecione..." itemValue="#{null}" noSelectionOption="true"/>
+<f:selectItems value="#{contratoBean.colaboradores}" var="pessoa"
+ itemLabel="#{pessoa.matricula} - #{pessoa.nome}" itemValue="#{pessoa.id}"/>
+</p:selectOneMenu></div>
+<div><p:outputLabel for="categoria" value="Tipo de contrato"/>
+<p:selectOneMenu id="categoria" value="#{contratoBean.edicao.categoria}" style="width:100%">
+<f:selectItems value="#{contratoBean.categorias}" var="cat" itemLabel="#{cat.rotulo}" itemValue="#{cat}"/>
+<p:ajax listener="#{contratoBean.selecionarCategoria}" update="modelo" process="@this"/>
+</p:selectOneMenu></div>
+<div><p:outputLabel for="modelo" value="Modelo de texto"/>
+<p:selectOneMenu id="modelo" value="#{contratoBean.edicao.modeloId}" style="width:100%">
+<f:selectItem itemLabel="Criar do zero" itemValue="#{null}" noSelectionOption="true"/>
+<f:selectItems value="#{contratoBean.modelosDaCategoria}" var="mod"
+ itemLabel="#{mod.titulo}" itemValue="#{mod.id}"/>
+<p:ajax listener="#{contratoBean.carregarModelo}" update="titulo conteudo" process="@this"
+ onstart="return confirm('Aplicar o modelo substitui o texto atual. Continuar?');"/>
+</p:selectOneMenu></div>
+<div><p:outputLabel for="situacao" value="Situação"/>
+<p:selectOneMenu id="situacao" value="#{contratoBean.edicao.situacao}" style="width:100%">
+<f:selectItems value="#{contratoBean.situacoes}" var="s" itemValue="#{s}" itemLabel="#{s}"/>
+</p:selectOneMenu></div>
+</div>
+<div class="campo-titulo"><p:outputLabel for="titulo" value="Título do documento *"/>
+<p:inputText id="titulo" value="#{contratoBean.edicao.titulo}" required="true"
+ requiredMessage="Informe o título." maxlength="160" style="width:100%"/></div>
+<p:outputLabel for="conteudo" value="Texto do contrato *"/>
+<p:textEditor id="conteudo" widgetVar="documentoEditor" secure="true"
+ allowImages="false" height="440" value="#{contratoBean.edicao.conteudo}"
+ required="true" requiredMessage="Escreva o texto do contrato.">
+<f:facet name="toolbar">
+<span class="ql-formats"><select class="ql-font"></select><select class="ql-size"></select></span>
+<span class="ql-formats"><button type="button" class="ql-bold"></button>
+<button type="button" class="ql-italic"></button>
+<button type="button" class="ql-underline"></button>
+<button type="button" class="ql-strike"></button></span>
+<span class="ql-formats"><select class="ql-align"></select>
+<select class="ql-color"></select><select class="ql-background"></select></span>
+<span class="ql-formats"><button class="ql-list" value="ordered" type="button"></button>
+<button class="ql-list" value="bullet" type="button"></button>
+<button class="ql-indent" value="-1" type="button"></button>
+<button class="ql-indent" value="+1" type="button"></button></span>
+<span class="ql-formats"><select class="ql-header"></select>
+<button class="ql-clean" type="button"></button></span>
+</f:facet>
+</p:textEditor>
+</p:outputPanel>
+<div class="tags-documento"><h3>Campos dinâmicos</h3>
+<p>As tags permanecem no editor. Na visualização, serão preenchidas automaticamente.</p>
+<button type="button" onclick="inserirTag('{{colaborador.nome}}')">Nome</button>
+<button type="button" onclick="inserirTag('{{colaborador.cpf}}')">CPF</button>
+<button type="button" onclick="inserirTag('{{colaborador.matricula}}')">Matrícula</button>
+<button type="button" onclick="inserirTag('{{colaborador.cargo}}')">Cargo</button>
+<button type="button" onclick="inserirTag('{{colaborador.dataAdmissao}}')">Admissão</button>
+<button type="button" onclick="inserirTag('{{colaborador.salario}}')">Salário</button>
+<button type="button" onclick="inserirTag('{{colaborador.centroCustoDescricao}}')">Centro de custo</button>
+<button type="button" onclick="inserirTag('{{colaborador.cidade}}')">Cidade</button>
+<button type="button" onclick="inserirTag('{{documento.dataAtual}}')">Data atual</button>
+<button type="button" onclick="inserirTag('{{documento.assinatura}}')">Assinatura</button>
+</div>
+<div class="acoes-formulario">
+<p:commandButton value="Salvar contrato" icon="pi pi-check" process="campos @this"
+ action="#{contratoBean.salvar}" update="avisos campos"
+ oncomplete="if(args &amp;&amp; args.salvo) window.location.href='contratos.xhtml';"/>
+<h:link outcome="/contratos.xhtml" value="Cancelar" styleClass="link-acao-subtil"/>
+</div></section></h:form></main>
+<h:outputScript target="body">
+function inserirTag(tag) {
+  var widget = PF('documentoEditor');
+  if (!widget || !widget.editor) return;
+  var editor = widget.editor;
+  var sel = editor.getSelection();
+  var i = sel ? sel.index : editor.getLength() - 1;
+  editor.insertText(i, tag, 'user');
+  editor.setSelection(i + tag.length, 0, 'user');
+}
+</h:outputScript>
+</h:body></html>
