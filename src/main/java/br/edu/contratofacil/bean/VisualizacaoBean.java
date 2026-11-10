@@ -27,7 +27,8 @@ public class VisualizacaoBean implements Serializable {
             if (contrato == null) throw new SQLException("Contrato não encontrado.");
             Colaborador colaborador = new ColaboradorDAO().buscar(contrato.getColaboradorId());
             if (colaborador == null) throw new SQLException("Colaborador não encontrado.");
-            html = DocumentoService.preencher(contrato.getConteudo(), colaborador);
+            html = DocumentoService.preencher(contrato.getConteudo(), colaborador,
+                    new br.edu.contratofacil.dao.ConfiguracaoDocumentoDAO().buscarLogo());
         } catch (SQLException e) {
             contrato = null;
             html = "";

@@ -101,6 +101,27 @@ public final class ExportacaoDocumento {
         }
         if (!(no instanceof Element el)) return;
         String tag = el.normalName().toLowerCase(Locale.ROOT);
+        if (tag.equals("img") && el.attr("src").startsWith("data:image/")) {
+            try {
+                String fonte = el.attr("src");
+                int corte = fonte.indexOf(',');
+                if (corte > 0) {
+                    byte[] bytes = java.util.Base64.getDecoder().decode(fonte.substring(corte + 1));
+                    if (bytes.length <= 1_000_000) {
+                        int tipo = fonte.startsWith("data:image/png;")
+                                ? XWPFDocument.PICTURE_TYPE_PNG : XWPFDocument.PICTURE_TYPE_JPEG;
+                        try (java.io.ByteArrayInputStream entrada = new java.io.ByteArrayInputStream(bytes)) {
+                            p.createRun().addPicture(entrada, tipo, "logo",
+                                    org.apache.poi.util.Units.toEMU(160),
+                                    org.apache.poi.util.Units.toEMU(65));
+                        }
+                    }
+                }
+            } catch (Exception ignored) {
+                p.createRun().setText("[Imagem não disponível]");
+            }
+            return;
+        }
         if (tag.equals("br")) {
             p.createRun().addBreak();
             return;

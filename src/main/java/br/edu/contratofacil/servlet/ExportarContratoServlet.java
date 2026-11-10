@@ -41,7 +41,8 @@ public class ExportarContratoServlet extends HttpServlet {
                 resp.sendError(404, "Colaborador não encontrado.");
                 return;
             }
-            String conteudo = DocumentoService.preencher(contrato.getConteudo(), colaborador);
+            String conteudo = DocumentoService.preencher(contrato.getConteudo(), colaborador,
+                    new br.edu.contratofacil.dao.ConfiguracaoDocumentoDAO().buscarLogo());
             resp.setContentType("pdf".equals(formato) ? "application/pdf"
                 : "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
             resp.setHeader("X-Content-Type-Options", "nosniff");

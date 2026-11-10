@@ -50,6 +50,16 @@ public final class DocumentoService {
         return d.body().html();
     }
 
+    public static String preencher(String conteudo, Colaborador colaborador,
+            br.edu.contratofacil.dao.ConfiguracaoDocumentoDAO.Logo logo) {
+        String html = preencher(conteudo, colaborador);
+        String marcador = "[empresa.logo não informado]";
+        if (logo == null) return html.replace(marcador, "[Logo da empresa não cadastrado]");
+        String imagem = "<img alt=\"Logo da empresa\" style=\"width:160px;height:auto;\" src=\"data:"
+                + logo.mime() + ";base64," + java.util.Base64.getEncoder().encodeToString(logo.dados()) + "\"/>";
+        return html.replace(marcador, imagem);
+    }
+
     private static void coletar(Node no, List<TextNode> textos) {
         if(no instanceof TextNode texto) textos.add(texto);
         for(Node filho:no.childNodes()) coletar(filho,textos);

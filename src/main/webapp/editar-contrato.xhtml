@@ -83,6 +83,8 @@ xmlns:f="jakarta.faces.core" xmlns:p="primefaces">
 <button type="button" onclick="inserirTag('{{colaborador.cidade}}')">Cidade</button>
 <button type="button" onclick="inserirTag('{{documento.dataAtual}}')">Data atual</button>
 <button type="button" onclick="inserirTag('{{documento.assinatura}}')">Assinatura</button>
+<button type="button" onclick="inserirTag('{{empresa.logo}}')">Logo da empresa</button>
+<h:link outcome="/configuracao-documento.xhtml" value="Configurar logo" styleClass="link-acao-subtil"/>
 </div>
 <div class="acoes-formulario">
 <p:commandButton value="Salvar contrato" icon="pi pi-check" process="campos @this"
