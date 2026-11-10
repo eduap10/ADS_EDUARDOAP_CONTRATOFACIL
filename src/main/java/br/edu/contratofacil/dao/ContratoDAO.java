@@ -14,6 +14,14 @@ public class ContratoDAO {
    try(ResultSet r=p.executeQuery()){while(r.next())lista.add(mapear(r));}
   }return lista;
  }
+ public Contrato buscar(Long id) throws SQLException {
+  if(id==null)return null;
+  try(Connection c=Conexao.abrir();PreparedStatement p=c.prepareStatement(
+   "SELECT id,colaborador_id,modelo_id,titulo,conteudo,situacao,categoria FROM public.contratos WHERE id=?")){
+   p.setLong(1,id);
+   try(ResultSet rs=p.executeQuery()){return rs.next()?mapear(rs):null;}
+  }
+ }
  public void salvar(Contrato contrato) throws SQLException {
   boolean novo=contrato.getId()==null;
   String sql=novo

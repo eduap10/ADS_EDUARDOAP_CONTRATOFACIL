@@ -25,6 +25,17 @@ public class ContratoBean implements Serializable {
   modelos=new ModeloContratoDAO().listar("");
  }catch(SQLException e){erro(e);}}
  public void pesquisar(){try{lista=new ContratoDAO().listar(pesquisa);}catch(SQLException e){lista=new ArrayList<>();erro(e);}}
+ private Long idEdicao;
+ public Long getIdEdicao(){return idEdicao;}
+ public void setIdEdicao(Long v){idEdicao=v;}
+ public void carregarEdicao(){
+  if(idEdicao==null)return;
+  try{
+   Contrato encontrado=new ContratoDAO().buscar(idEdicao);
+   if(encontrado!=null){edicao=encontrado;atualizarOpcoes();}
+   else aviso(FacesMessage.SEVERITY_WARN,"Contrato não encontrado.");
+  }catch(SQLException e){erro(e);}
+ }
  public void novo(){edicao=new Contrato();atualizarOpcoes();PrimeFaces.current().resetInputs("form:campos");}
  public void editar(Contrato c){
   edicao=new Contrato();
@@ -48,7 +59,8 @@ public class ContratoBean implements Serializable {
     aviso(FacesMessage.SEVERITY_WARN,"Informe colaborador, titulo e conteudo.");return;
    }
    edicao.setTitulo(edicao.getTitulo().strip());
-   new ContratoDAO().salvar(edicao);novo();pesquisar();salvo=true;
+   edicao.setConteudo(br.edu.contratofacil.service.DocumentoService.sanitizar(edicao.getConteudo()));
+   new ContratoDAO().salvar(edicao);pesquisar();salvo=true;
    aviso(FacesMessage.SEVERITY_INFO,"Contrato salvo.");
   }catch(SQLException e){erro(e);}finally{PrimeFaces.current().ajax().addCallbackParam("salvo",salvo);}
  }

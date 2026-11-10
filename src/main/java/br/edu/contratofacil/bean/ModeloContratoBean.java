@@ -61,6 +61,7 @@ public class ModeloContratoBean implements Serializable {
                 return;
             }
 
+            edicao.setConteudo(br.edu.contratofacil.service.DocumentoService.sanitizar(edicao.getConteudo()));
             new ModeloContratoDAO().salvar(edicao);
             novo();
             pesquisar();
