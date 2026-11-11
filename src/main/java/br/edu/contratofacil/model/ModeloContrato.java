@@ -7,6 +7,9 @@ public class ModeloContrato implements Serializable {
     private String titulo;
     private String conteudo;
     private CategoriaDocumento categoria = CategoriaDocumento.OUTROS;
+    private Long tipoId;
+    public Long getTipoId() { return tipoId; }
+    public void setTipoId(Long tipoId) { this.tipoId = tipoId; }
     public CategoriaDocumento getCategoria() { return categoria; }
     public void setCategoria(CategoriaDocumento v) { categoria = v == null ? CategoriaDocumento.OUTROS : v; }
     public Long getId() { return id; }
