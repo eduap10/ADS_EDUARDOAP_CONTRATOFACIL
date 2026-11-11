@@ -43,15 +43,18 @@ public class ExportarContratoServlet extends HttpServlet {
             }
             String conteudo = DocumentoService.preencher(contrato.getConteudo(), colaborador,
                     new br.edu.contratofacil.dao.ConfiguracaoDocumentoDAO().buscarLogo());
+            java.io.ByteArrayOutputStream buffer = new java.io.ByteArrayOutputStream();
+            if ("pdf".equals(formato)) {
+                ExportacaoDocumento.pdf(contrato.getTitulo(), conteudo, buffer);
+            } else {
+                ExportacaoDocumento.docx(contrato.getTitulo(), conteudo, buffer);
+            }
             resp.setContentType("pdf".equals(formato) ? "application/pdf"
                 : "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
             resp.setHeader("X-Content-Type-Options", "nosniff");
             resp.setHeader("Content-Disposition", "attachment; filename=\"contrato-" + id + "." + formato + "\"");
-            if ("pdf".equals(formato)) {
-                ExportacaoDocumento.pdf(contrato.getTitulo(), conteudo, resp.getOutputStream());
-            } else {
-                ExportacaoDocumento.docx(contrato.getTitulo(), conteudo, resp.getOutputStream());
-            }
+            resp.setContentLength(buffer.size());
+            buffer.writeTo(resp.getOutputStream());
         } catch (SQLException e) {
             if (!resp.isCommitted()) resp.sendError(500, "Falha ao consultar o banco.");
         } catch (Exception e) {
