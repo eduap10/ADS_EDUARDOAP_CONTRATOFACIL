@@ -41,6 +41,15 @@ class DocumentoServiceTest {
         assertTrue(org.jsoup.Jsoup.parseBodyFragment(html).text().contains("não informado"), html);
     }
 
+    @Test void modeloSalvoMantemTagsAoGerarContrato() {
+        String salvo = DocumentoService.sanitizar(
+            "<p>Olá, <strong>{{colaborador.nome}}</strong>!</p>");
+        String gerado = DocumentoService.preencher(salvo, colaborador());
+        String texto = org.jsoup.Jsoup.parseBodyFragment(gerado).text();
+        assertTrue(texto.contains("Ana & João <Teste>"), "Falha no ciclo sanitizar/gravar/preencher: " + gerado);
+        assertFalse(texto.contains("{{colaborador.nome}}"));
+    }
+
     @Test void exportacaoPdfGeraCabecalhoPdfValido() throws Exception {
         ByteArrayOutputStream saida = new ByteArrayOutputStream();
         String html = DocumentoService.preencher(
