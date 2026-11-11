@@ -22,7 +22,7 @@ public final class DocumentoService {
         .allowCommonBlockElements().allowCommonInlineFormattingElements()
         .allowElements("span","div","h1","h2","h3","br","blockquote")
         .allowStyling()
-        .allowAttributes("class").matching(Pattern.compile("(?:ql-(?:align-(?:center|right|justify)|size-(?:small|large|huge)|indent-[1-8])\\s*)+"))
+        .allowAttributes("class").matching(Pattern.compile("(?:ql-(?:align-(?:center|right|justify)|size-(?:small|large|huge)|indent-[1-8]|font-(?:serif|monospace))\\s*)+"))
         .onElements("p","div","span","li","h1","h2","h3").toFactory();
 
     public static String sanitizar(String entrada) {
