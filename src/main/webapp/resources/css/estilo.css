@@ -1,63 +1,117 @@
-:root { font-family: Arial, sans-serif; color: #243044; background: #f5f7fa; }
-body { margin: 0; }
-header { background: #152b42; color: #fff; padding: 18px max(24px,calc((100vw - 1100px)/2)); }
-header h1 { margin: 0; font-size: 1.2rem; }
-nav { margin-top: 10px; display: flex; gap: 22px; flex-wrap: wrap; }
-nav a { color: #e6eff9; text-decoration: none; }
-main { max-width: 1100px; margin: 32px auto; padding: 0 20px; }
-.painel { background: #fff; border-radius: 10px; padding: 22px; box-shadow: 0 2px 12px #1b27321a; }
-.barra { display: flex; gap: 12px; align-items: end; flex-wrap: wrap; margin-bottom: 16px; }
-.barra .campo-busca { min-width: 240px; flex: 1; }
-.titulo { display: flex; justify-content: space-between; gap: 16px; align-items: center; flex-wrap: wrap; }
-.titulo h2 { margin: 0 0 16px; font-size: 1.35rem; }
-.campos { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.campos label { display: block; margin-bottom: 5px; font-weight: bold; }
-.campos .ui-inputfield { width: 100%; box-sizing: border-box; }
-.botao-tabela { margin-right: 6px !important; }
-.acoes-formulario { margin-top: 20px; }
-.status-banco { color: #556579; font-size: .88rem; margin-bottom: 14px; }
-@media(max-width:650px) { .campos { grid-template-columns: 1fr; } }
-
-/* Login e configuração inicial */
+:root {
+  font-family: "Segoe UI", Inter, Arial, sans-serif;
+  color: #233149;
+  background: #f4f7fb;
+  font-synthesis: none;
+  --azul: #184b73;
+  --azul-claro: #1979bf;
+  --borda: #dce5ed;
+}
+* { box-sizing: border-box; }
+body { margin: 0; color: #253349; background: #f4f7fb; min-height: 100vh; }
+header { background: #19334d; color: #fff; padding: 15px max(24px,calc((100vw - 1140px)/2)); box-shadow: 0 2px 10px #15355020; }
+header h1 { margin: 0 0 10px; font-size: 1.22rem; font-weight: 700; letter-spacing: -.025em; }
+nav { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+nav a, .form-sair a { display: inline-block; color: #e4edf6; text-decoration: none; font-size: .93rem; padding: 8px 12px; border-radius: 6px; }
+nav a:hover, .form-sair a:hover { color: #fff; background: #ffffff18; }
 .form-sair { display: inline-block; margin: 0; }
-.form-sair a { color: #e6eff9; text-decoration: none; }
-.form-sair a:hover, nav a:hover { text-decoration: underline; }
-.acesso { max-width: 420px; margin: 72px auto; padding: 0 16px; }
-.acesso .painel { padding: 32px; }
-.acesso h2 { margin-top: 0; font-size: 1.6rem; }
-.acesso p { color: #59677b; line-height: 1.5; }
-.campo-acesso { margin: 17px 0; }
+main { max-width: 1140px; margin: 28px auto; padding: 0 20px 32px; }
+.painel { background: #fff; border: 1px solid #e4eaf1; border-radius: 11px; padding: 26px; box-shadow: 0 5px 22px #1835530b; }
+.painel h2 { margin: 0 0 20px; letter-spacing: -.025em; font-size: 1.45rem; color: #1f3148; }
+.painel p { line-height: 1.55; }
+.painel a { color: #1169a9; }
+.titulo { display: flex; gap: 16px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-bottom: 15px; }
+.titulo h2 { margin: 0; }
+.titulo > div h2 { margin: 0 0 4px; }
+.barra { display: flex; gap: 12px; align-items: end; flex-wrap: wrap; margin: 18px 0; }
+.barra .campo-busca { min-width: 220px; flex: 1; }
+label { color: #34465c; font-size: .9rem; }
+.campo-busca label, .campos label { display: block; margin-bottom: 6px; font-weight: 600; }
+.campos { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px 18px; }
+.campos > div { min-width: 0; }
+.campos .ui-inputfield, .campos .ui-selectonemenu, .campos .ui-inputnumber,
+.campos .ui-calendar, .campos .ui-datepicker, .campo-busca .ui-inputfield {
+  width: 100%!important; max-width: 100%; min-height: 38px;
+}
+.ui-inputfield { border-radius: 6px!important; border-color: #cbd7e3!important; font-size: .94rem!important; }
+.ui-inputfield:focus { border-color: #2892d0!important; box-shadow: 0 0 0 2px #1781bf18!important; }
+.ui-button { border-radius: 6px!important; padding: .53rem .8rem!important; font-size: .9rem!important; }
+.ui-datatable { margin-top: 13px; }
+.ui-datatable table { font-size: .9rem; }
+.ui-datatable .ui-datatable-header, .ui-datatable thead th { background: #f4f7fa!important; color: #34445a!important; padding: 12px!important; }
+.ui-datatable tbody td { padding: 12px!important; border-color: #edf0f4!important; }
+.ui-datatable tbody tr:hover { background: #f9fbfd!important; }
+.ui-datatable .ui-button { margin: 3px 5px 3px 0!important; }
+.botao-tabela { margin-right: 6px!important; }
+.ui-dialog { max-width: calc(100vw - 22px)!important; border-radius: 10px!important; }
+.ui-dialog .ui-dialog-titlebar { background: #f8fafc; color: #25405a; border-bottom: 1px solid var(--borda); }
+.ui-dialog .ui-dialog-content { padding: 20px!important; }
+.acoes-formulario { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 22px; }
+.dialog-cadastro .ui-dialog-content { max-height: 78vh; overflow-y: auto; }
+.dialog-cadastro h3 { font-size: 1rem; border-bottom: 1px solid #e4eaf1; padding-bottom: 9px; margin: 24px 0 14px; }
+.dialog-cadastro .ui-inputfield, .dialog-cadastro .ui-selectonemenu { width: 100%; }
+.observacao-cadastro { color: #68778a; font-size: .82rem; }
+.status-banco { color: #556579; font-size: .88rem; margin-bottom: 14px; }
+.link-acao { display: inline-block; background: #187cc1; color: #fff!important; text-decoration: none; padding: 10px 15px; border-radius: 6px; font-size: .9rem; font-weight: 600; }
+.link-acao:hover { background: #13679f; }
+.link-acao-subtil { display: inline-block; border: 1px solid #d4e1ed; color: #155f96!important; background: #fff; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-size: .88rem; margin: 3px; }
+.link-acao-subtil:hover { background: #eff7fd; }
+.botao-imprimir { padding: 8px 12px; background: #fff; border: 1px solid #cfdfec; border-radius: 6px; color: #155f96; cursor: pointer; }
+.acesso { max-width: 445px; padding: 0 16px; margin: 64px auto; }
+.acesso .painel { padding: 34px; }
+.acesso h2 { font-size: 1.65rem; margin: 0 0 6px; }
+.acesso p { color: #63748a; font-size: .93rem; }
+.campo-acesso { margin: 18px 0; }
 .campo-acesso label { display: block; margin-bottom: 7px; font-weight: 600; }
-.campo-acesso input { box-sizing: border-box; width: 100%; padding: 11px 12px; border: 1px solid #bdc8d6; border-radius: 6px; font-size: 1rem; }
-.botao-acesso { cursor: pointer; padding: 12px 20px; width: 100%; color: #fff; background: #1e527d; border: 0; border-radius: 6px; font-size: 1rem; font-weight: 600; }
-.botao-acesso:hover { background: #173e5f; }
-.mensagens-acesso { margin: 12px 0; padding: 0 0 0 18px; color: #a72929; }
-.ajuda-acesso { margin-top: 18px; text-align: center; font-size: .9rem; }
-
-/* Editor de documentos e ficha de cadastro */
-.pagina-documento { max-width:1120px; }
-.subtitulo { margin-top:0; color:#64748b; }
-.campo-titulo { margin:16px 0; }
-.campo-titulo label,.pagina-documento label { display:block; margin-bottom:6px; font-weight:600; }
-.tags-documento { border:1px solid #d8e3ed; border-radius:9px; background:#f8fafc; padding:16px; margin-top:22px; }
-.tags-documento h3 { margin:0 0 5px; }
-.tags-documento p { color:#63748b; font-size:.9rem; }
-.tags-documento button,.botao-imprimir { background:#fff; border:1px solid #bbd0e2; color:#184d70; padding:8px 11px; border-radius:6px; cursor:pointer; margin:4px; }
-.link-acao { display:inline-block; background:#1882cf; color:#fff; text-decoration:none; padding:10px 15px; border-radius:6px; }
-.link-acao-subtil { display:inline-block; border:1px solid #dce6ef; color:#14577d; text-decoration:none; padding:8px 11px; border-radius:6px; margin:3px; }
-.barra-documento { display:flex; flex-wrap:wrap; gap:8px; margin:18px 0; }
-.folha-a4 { box-sizing:border-box; width:100%; max-width:794px; min-height:1050px; padding:70px 68px; margin:0 auto 30px; background:#fff; border:1px solid #e5e7eb; box-shadow:0 4px 20px #142b4115; overflow-wrap:anywhere; }
-.folha-a4 h3 { text-align:center; margin-bottom:30px; }
-.corpo-contrato { line-height:1.6; }
-.ql-align-center { text-align:center; }
-.ql-align-right { text-align:right; }
-.ql-align-justify { text-align:justify; }
-.ql-size-small { font-size:.75em; }
-.ql-size-large { font-size:1.5em; }
-.ql-size-huge { font-size:2em; }
-.observacao-cadastro { font-size:.83rem; color:#64748b; }
-.dialog-cadastro .ui-dialog-content { max-height:78vh; overflow-y:auto; }
-.dialog-cadastro h3 { margin:25px 0 13px; border-bottom:1px solid #e2e8f0; padding-bottom:8px; }
-.dialog-cadastro .ui-inputfield,.dialog-cadastro .ui-selectonemenu { width:100%; box-sizing:border-box; }
-@media(max-width:760px){main{margin:16px auto;} .painel{padding:15px;} .folha-a4{padding:22px 17px;min-height:0;} .dialog-cadastro{width:95vw!important;}}
-@media print {header,.titulo,.barra-documento{display:none!important;} body{background:#fff;} .folha-a4{border:0;box-shadow:none;max-width:none;min-height:0;margin:0;} }
+.campo-acesso input { width: 100%; border: 1px solid #c7d4e0; border-radius: 6px; padding: 12px; font-size: .95rem; }
+.campo-acesso input:focus { outline: 2px solid #2492cf40; border-color: #2492cf; }
+.botao-acesso { cursor: pointer; width: 100%; padding: 12px 14px; background: #187cc1; color: #fff; border: 0; border-radius: 6px; font-size: .96rem; font-weight: 600; }
+.botao-acesso:hover { background: #14669d; }
+.mensagens-acesso { padding-left: 20px; color: #aa3030; font-size: .88rem; }
+.ajuda-acesso { margin-top: 18px; text-align: center; font-size: .88rem; }
+.pagina-documento { max-width: 1150px; }
+.subtitulo { margin: 0; color: #708094; font-size: .9rem; }
+.campo-titulo { margin: 18px 0; }
+.campo-titulo label, .pagina-documento label { display: block; margin-bottom: 6px; font-weight: 600; }
+.tags-documento { border: 1px solid #dae5f0; border-radius: 8px; padding: 16px; margin-top: 18px; background: #f8fafc; }
+.tags-documento h3 { margin: 0 0 4px; font-size: 1.02rem; }
+.tags-documento p { font-size: .88rem; color: #64758b; margin: 0 0 11px; }
+.tags-documento button { border: 1px solid #c2d4e5; background: #fff; color: #155d8c; border-radius: 6px; padding: 8px 11px; margin: 3px 4px 3px 0; font-size: .85rem; cursor: pointer; }
+.tags-documento button:hover { background: #eaf5fd; }
+.ql-editor { min-height: 310px; font-size: 14px; line-height: 1.6; }
+.ql-toolbar.ql-snow { border-radius: 7px 7px 0 0; }
+.ql-container.ql-snow { border-radius: 0 0 7px 7px; }
+.ql-align-center { text-align: center; }
+.ql-align-right { text-align: right; }
+.ql-align-justify { text-align: justify; }
+.ql-size-small { font-size: .75em; }
+.ql-size-large { font-size: 1.5em; }
+.ql-size-huge { font-size: 2em; }
+.ql-font-serif { font-family: Georgia,serif; }
+.ql-font-monospace { font-family: Consolas,monospace; }
+.folha-a4 { box-sizing: border-box; background: #fff; color: #1f2c3f; padding: 65px 62px; border: 1px solid #e2e8f0; box-shadow: 0 6px 26px #162a3d17; margin: 0 auto 35px; max-width: 794px; min-height: 1050px; width: 100%; overflow-wrap: anywhere; }
+.folha-a4 h3 { text-align: center; font-size: 1.13rem; margin: 0 0 30px; }
+.corpo-contrato { font-size: .97rem; line-height: 1.6; }
+.barra-documento { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0; align-items: center; }
+.cartoes-inicio { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 16px; margin-top: 22px; }
+.cartoes-inicio a { display: block; text-decoration: none; border: 1px solid #e0e8f0; border-radius: 9px; padding: 19px; color: #243a53; background: #f9fbfd; transition: border-color .15s; }
+.cartoes-inicio a:hover { border-color: #77b3dd; background: #f0f8fe; }
+.cartoes-inicio strong { display: block; margin-bottom: 5px; font-size: 1rem; }
+.cartoes-inicio span { font-size: .88rem; color: #60738a; }
+@media(max-width:780px){
+  header { padding: 14px 18px; }
+  main { margin: 18px auto; padding: 0 12px 25px; }
+  .painel { padding: 16px; }
+  .campos, .cartoes-inicio { grid-template-columns: 1fr; }
+  .folha-a4 { min-height: auto; padding: 28px 20px; }
+  .ui-dialog { width: 96vw!important; }
+  .titulo { align-items: flex-start; }
+  nav { gap: 2px; }
+  nav a { padding: 7px 8px; }
+}
+@media print {
+  header,.titulo,.barra-documento { display: none!important; }
+  body { background: #fff; }
+  main { margin: 0; padding: 0; }
+  .folha-a4 { max-width: none; min-height: auto; margin: 0; padding: 0; border: 0; box-shadow: none; }
+}

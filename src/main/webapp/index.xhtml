@@ -7,9 +7,15 @@
 <h:link outcome="/modelos.xhtml" value="Modelos"/>
 <h:link outcome="/contratos.xhtml" value="Contratos"/>
 <h:form id="formSair" styleClass="form-sair"><h:commandLink action="#{loginBean.sair}" value="Sair"/></h:form>
-</nav></header><main><section class="painel">
-<h2>Bem-vindo ao ContratoFácil</h2><p>Cadastre colaboradores, crie modelos e elabore contratos com textos reutilizáveis.</p>
-<p><h:link outcome="/colaboradores.xhtml" value="Gerenciar colaboradores"/></p>
-<p><h:link outcome="/modelos.xhtml" value="Gerenciar modelos"/></p>
-<p><h:link outcome="/contratos.xhtml" value="Gerenciar contratos"/></p>
-</section></main></h:body></html>
+</nav></header>
+<main><section class="painel">
+<h2>Bem-vindo ao ContratoFácil</h2>
+<p>Organize colaboradores, prepare modelos reutilizáveis e elabore seus documentos em um único lugar.</p>
+<div class="cartoes-inicio">
+<h:link outcome="/colaboradores.xhtml">
+<strong>Colaboradores</strong><span>Ficha cadastral e dados profissionais.</span></h:link>
+<h:link outcome="/modelos.xhtml">
+<strong>Modelos</strong><span>Textos-base classificados por finalidade.</span></h:link>
+<h:link outcome="/contratos.xhtml">
+<strong>Contratos</strong><span>Editor visual, tags e exportação dos documentos.</span></h:link>
+</div></section></main></h:body></html>
