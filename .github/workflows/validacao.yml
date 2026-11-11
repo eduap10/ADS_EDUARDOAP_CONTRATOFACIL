@@ -1,0 +1,23 @@
+name: Validacao ContratoFacil
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  compilar-e-testar:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Obter codigo
+        uses: actions/checkout@v4
+      - name: Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Compilar e testar
+        run: mvn --batch-mode --no-transfer-progress clean verify
