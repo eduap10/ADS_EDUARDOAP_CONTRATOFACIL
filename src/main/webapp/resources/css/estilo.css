@@ -115,3 +115,12 @@ label { color: #34465c; font-size: .9rem; }
   main { margin: 0; padding: 0; }
   .folha-a4 { max-width: none; min-height: auto; margin: 0; padding: 0; border: 0; box-shadow: none; }
 }
+
+/* Gestão de tipos e ações compactas */
+.dois-paineis{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(280px,1fr);gap:24px;align-items:start}
+.painel-edicao-leve{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:20px}
+.painel-edicao-leve h3,.subtitulo-secao{font-size:1.03rem;margin:0 0 14px;color:#334155}
+.campo-formulario{margin:14px 0}
+.campo-formulario>label{display:block;margin-bottom:6px}
+.acao-icone.ui-button{width:34px!important;height:34px!important;min-width:34px!important;padding:0!important;margin:0 3px!important}
+@media(max-width:780px){.dois-paineis{grid-template-columns:1fr}}

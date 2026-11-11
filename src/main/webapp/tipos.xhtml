@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core" xmlns:p="primefaces">
+<h:head><title>ContratoFácil | Tipos de contrato</title>
+<h:outputStylesheet library="css" name="estilo.css"/></h:head>
+<h:body>
+<header><h1>ContratoFácil</h1><nav>
+<h:link outcome="/index.xhtml" value="Início"/>
+<h:link outcome="/colaboradores.xhtml" value="Colaboradores"/>
+<h:link outcome="/tipos.xhtml" value="Tipos"/>
+<h:link outcome="/modelos.xhtml" value="Modelos"/>
+<h:link outcome="/contratos.xhtml" value="Contratos"/>
+<h:form id="formSair" styleClass="form-sair"><h:commandLink action="#{loginBean.sair}" value="Sair"/></h:form>
+</nav></header>
+<main><h:form id="form">
+<section class="painel">
+<div class="titulo"><div><h2>Tipos de contrato</h2>
+<p class="subtitulo">Organize as finalidades dos documentos. Os tipos podem ser reutilizados em vários modelos.</p></div></div>
+<p:messages id="avisos" closable="true"/>
+<div class="dois-paineis">
+<div>
+<h3 class="subtitulo-secao">Tipos cadastrados</h3>
+<p:dataTable id="tabela" value="#{tipoContratoBean.lista}" var="tipo" rows="10"
+ paginator="true" reflow="true" emptyMessage="Nenhum tipo encontrado.">
+<p:column headerText="Tipo"><h:outputText value="#{tipo.nome}"/></p:column>
+<p:column headerText="Ativo"><h:outputText value="#{tipo.ativo ? 'Sim' : 'Não'}"/></p:column>
+<p:column headerText="Ações" style="width:110px">
+<p:commandButton icon="pi pi-pencil" title="Editar tipo" ariaLabel="Editar tipo"
+  styleClass="ui-button-secondary ui-button-flat ui-button-rounded acao-icone"
+  actionListener="#{tipoContratoBean.editar(tipo)}" process="@this"
+  update="edicao" resetValues="true"/>
+<p:commandButton icon="pi pi-trash" title="Excluir tipo" ariaLabel="Excluir tipo"
+  styleClass="ui-button-danger ui-button-flat ui-button-rounded acao-icone"
+  action="#{tipoContratoBean.excluir(tipo.id)}" process="@this" update="tabela avisos">
+<p:confirm header="Confirmar" message="Excluir este tipo? Se estiver em uso, a exclusão será recusada."/>
+</p:commandButton>
+</p:column>
+</p:dataTable>
+</div>
+<p:outputPanel id="edicao" styleClass="painel-edicao-leve">
+<div class="titulo"><h3>#{tipoContratoBean.edicao.id == null ? 'Novo tipo' : 'Editar tipo'}</h3>
+<p:commandButton type="button" value="" style="display:none"/>
+<p:commandButton icon="pi pi-plus" title="Novo tipo" ariaLabel="Novo tipo"
+  styleClass="ui-button-flat ui-button-rounded acao-icone"
+  actionListener="#{tipoContratoBean.novo}" process="@this" update="edicao" resetValues="true"/>
+</div>
+<div class="campo-formulario">
+<p:outputLabel for="nome" value="Nome do tipo *"/>
+<p:inputText id="nome" value="#{tipoContratoBean.edicao.nome}" required="true"
+ requiredMessage="Informe o nome." maxlength="100" style="width:100%"/>
+</div>
+<div class="campo-formulario">
+<p:outputLabel for="descricao" value="Descrição"/>
+<p:inputTextarea id="descricao" value="#{tipoContratoBean.edicao.descricao}"
+ maxlength="250" rows="4" autoResize="false" style="width:100%"/>
+</div>
+<div class="campo-formulario">
+<p:selectBooleanCheckbox id="ativo" value="#{tipoContratoBean.edicao.ativo}"/>
+<p:outputLabel for="ativo" value="Disponível para novos modelos"/>
+</div>
+<div class="acoes-formulario">
+<p:commandButton icon="pi pi-check" value="Salvar tipo" action="#{tipoContratoBean.salvar}"
+ process="edicao @this" update="edicao tabela avisos"/>
+</div>
+</p:outputPanel>
+</div>
+</section>
+<p:confirmDialog global="true">
+<p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes"/>
+<p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no"/>
+</p:confirmDialog>
+</h:form></main>
+</h:body></html>
