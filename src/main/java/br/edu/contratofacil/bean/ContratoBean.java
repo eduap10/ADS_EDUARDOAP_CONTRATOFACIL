@@ -22,6 +22,7 @@ public class ContratoBean implements Serializable {
 
     private String pesquisa = "";
     private Long idEdicao;
+    private Long modeloOriginalId;
     private Contrato edicao = new Contrato();
     private List<Contrato> lista = new ArrayList<>();
     private List<Colaborador> colaboradores = new ArrayList<>();
@@ -60,6 +61,7 @@ public class ContratoBean implements Serializable {
                 return;
             }
             edicao = encontrado;
+            modeloOriginalId = encontrado.getModeloId();
             atualizarPrevia();
         } catch (SQLException e) { erro(e); }
     }
@@ -73,14 +75,14 @@ public class ContratoBean implements Serializable {
         htmlPrevia = "";
         try {
             String conteudo = null;
-            if (edicao.getModeloId() != null) {
+            if (edicao.getId() != null && Objects.equals(modeloOriginalId, edicao.getModeloId())) {
+                // A prévia respeita o texto congelado na geração anterior.
+                conteudo = edicao.getConteudo();
+            } else if (edicao.getModeloId() != null) {
                 ModeloContrato modelo = new ModeloContratoDAO().buscar(edicao.getModeloId());
                 if (modelo != null && Objects.equals(modelo.getTipoId(), edicao.getTipoId())) {
                     conteudo = modelo.getConteudo();
                 }
-            } else if (edicao.getId() != null) {
-                // Contratos antigos sem modelo continuam disponíveis.
-                conteudo = edicao.getConteudo();
             }
             if (conteudo == null) return;
             Colaborador colaborador = edicao.getColaboradorId() == null
@@ -111,15 +113,16 @@ public class ContratoBean implements Serializable {
                     aviso(FacesMessage.SEVERITY_WARN, "Selecione um modelo válido para esse tipo.");
                     return null;
                 }
-                // O documento emitido guarda uma cópia do modelo neste momento.
-                // Se o modelo for alterado depois, o contrato salvo não muda.
-                edicao.setConteudo(DocumentoService.sanitizar(modelo.getConteudo()));
-                edicao.setCategoria(modelo.getCategoria());
+                // Contratos já emitidos preservam a versão do texto, a menos que o modelo seja trocado.
+                if (edicao.getId() == null || !Objects.equals(modeloOriginalId, edicao.getModeloId())) {
+                    edicao.setConteudo(DocumentoService.sanitizar(modelo.getConteudo()));
+                    edicao.setCategoria(modelo.getCategoria());
+                }
                 if (edicao.getTitulo() == null || edicao.getTitulo().isBlank()) {
                     edicao.setTitulo(modelo.getTitulo());
                 }
-            } else if (edicao.getId() == null || edicao.getConteudo() == null
-                    || edicao.getConteudo().isBlank()) {
+            } else if (edicao.getId() == null || modeloOriginalId != null
+                    || edicao.getConteudo() == null || edicao.getConteudo().isBlank()) {
                 aviso(FacesMessage.SEVERITY_WARN, "Selecione um modelo para gerar o contrato.");
                 return null;
             }
