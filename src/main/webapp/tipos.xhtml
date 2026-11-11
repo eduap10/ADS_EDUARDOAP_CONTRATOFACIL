@@ -39,7 +39,6 @@
 </div>
 <p:outputPanel id="edicao" styleClass="painel-edicao-leve">
 <div class="titulo"><h3>#{tipoContratoBean.edicao.id == null ? 'Novo tipo' : 'Editar tipo'}</h3>
-<p:commandButton type="button" value="" style="display:none"/>
 <p:commandButton icon="pi pi-plus" title="Novo tipo" ariaLabel="Novo tipo"
   styleClass="ui-button-flat ui-button-rounded acao-icone"
   actionListener="#{tipoContratoBean.novo}" process="@this" update="edicao" resetValues="true"/>

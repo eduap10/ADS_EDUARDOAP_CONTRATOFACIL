@@ -143,3 +143,12 @@ label { color: #34465c; font-size: .9rem; }
 .folha-miniatura p:first-child{margin-top:0}
 .pagina-execucao-contrato .ui-selectonemenu{width:100%!important;max-width:100%}
 @media(max-width:1000px){.pagina-execucao-contrato .editor-duas-colunas{grid-template-columns:1fr}}
+
+/* Detalhes finais de densidade e navegação */
+.cartoes-inicio{grid-template-columns:repeat(4,minmax(0,1fr))}
+.cartoes-inicio strong i{font-size:1.05rem;color:#1979bf;margin-right:5px}
+.ui-datatable tbody td .acao-icone.ui-button{vertical-align:middle}
+.painel .titulo .link-acao{font-size:.9rem;padding:9px 14px}
+.painel .ui-datatable tbody td{vertical-align:middle}
+@media(max-width:1020px){.cartoes-inicio{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.cartoes-inicio{grid-template-columns:1fr}}
