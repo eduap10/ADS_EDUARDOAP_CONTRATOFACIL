@@ -37,8 +37,8 @@ xmlns:f="jakarta.faces.core" xmlns:p="primefaces">
 <div><p:outputLabel for="modelo" value="Modelo de texto"/>
 <p:selectOneMenu id="modelo" value="#{contratoBean.edicao.modeloId}" style="width:100%">
 <f:selectItem itemLabel="Criar do zero" itemValue="#{null}" noSelectionOption="true"/>
-<f:selectItems value="#{contratoBean.modelosDaCategoria}" var="mod"
- itemLabel="#{mod.titulo}" itemValue="#{mod.id}"/>
+<f:selectItems value="#{contratoBean.modelosDaCategoria}" var="modeloOpcao"
+ itemLabel="#{modeloOpcao.titulo}" itemValue="#{modeloOpcao.id}"/>
 <p:ajax listener="#{contratoBean.carregarModelo}" update="titulo conteudo" process="@this"
  onstart="return confirm('Aplicar o modelo substitui o texto atual. Continuar?');"/>
 </p:selectOneMenu></div>
