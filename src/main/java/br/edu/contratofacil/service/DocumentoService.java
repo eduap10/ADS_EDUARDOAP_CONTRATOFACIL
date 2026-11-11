@@ -33,7 +33,9 @@ public final class DocumentoService {
     }
 
     public static String preencher(String entrada, Colaborador colaborador) {
-        Document d = Jsoup.parseBodyFragment(sanitizar(entrada));
+        // O sanitizador separa a abertura de tags {{...}} com um comentario HTML.
+        // Reconstruimos apenas esse marcador conhecido apos a sanitizacao.
+        Document d = Jsoup.parseBodyFragment(sanitizar(entrada).replace("{<!-- -->{", "{{"));
         Map<String,String> valores = valores(colaborador);
         List<TextNode> textos = new ArrayList<>();
         coletar(d.body(), textos);
