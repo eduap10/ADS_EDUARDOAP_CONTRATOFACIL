@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html"
 xmlns:f="jakarta.faces.core" xmlns:p="primefaces">
-<h:head><title>ContratoFácil | Contratos</title><h:outputStylesheet library="css" name="estilo.css"/></h:head>
+<h:head><title>ContratoFácil | Documentos emitidos</title>
+<h:outputStylesheet library="css" name="estilo.css"/></h:head>
 <h:body><header><h1>ContratoFácil</h1><nav>
 <h:link outcome="/index.xhtml" value="Início"/>
 <h:link outcome="/colaboradores.xhtml" value="Colaboradores"/>
@@ -11,24 +12,35 @@ xmlns:f="jakarta.faces.core" xmlns:p="primefaces">
 <h:form id="formSair" styleClass="form-sair"><h:commandLink action="#{loginBean.sair}" value="Sair"/></h:form>
 </nav></header>
 <main><h:form id="form"><section class="painel">
-<div class="titulo"><h2>Contratos</h2><h:link outcome="/editar-contrato.xhtml" value="Novo contrato" styleClass="link-acao"/></div>
+<div class="titulo"><div><h2>Contratos gerados</h2>
+<p class="subtitulo">Documentos vinculados aos colaboradores. Visualize e exporte quando precisar.</p></div>
+<h:link outcome="/editar-contrato.xhtml" value="＋ Gerar contrato" styleClass="link-acao"/>
+</div>
 <div class="barra"><div class="campo-busca">
-<p:outputLabel for="pesquisa" value="Pesquisar título, nome ou matrícula"/>
+<p:outputLabel for="pesquisa" value="Pesquisar por título, nome ou matrícula"/>
 <p:inputText id="pesquisa" value="#{contratoBean.pesquisa}" style="width:100%"/></div>
-<p:commandButton value="Pesquisar" process="pesquisa @this" action="#{contratoBean.pesquisar}" update="tabela avisos"/></div>
+<p:commandButton value="Pesquisar" icon="pi pi-search" process="pesquisa @this"
+ action="#{contratoBean.pesquisar}" update="tabela avisos" styleClass="ui-button-sm"/>
+</div>
 <p:messages id="avisos" closable="true"/>
-<p:dataTable id="tabela" value="#{contratoBean.lista}" var="c" paginator="true" rows="10" reflow="true" emptyMessage="Nenhum contrato cadastrado.">
-<p:column headerText="Título"><h:outputText value="#{c.titulo}"/></p:column>
-<p:column headerText="Categoria"><h:outputText value="#{c.categoria.rotulo}"/></p:column>
-<p:column headerText="Situação"><h:outputText value="#{c.situacao}"/></p:column>
-<p:column headerText="Ações">
-<h:link outcome="/editar-contrato.xhtml" value="Editar" styleClass="link-acao-subtil"><f:param name="id" value="#{c.id}"/></h:link>
-<h:link outcome="/visualizar-contrato.xhtml" value="Visualizar" styleClass="link-acao-subtil"><f:param name="id" value="#{c.id}"/></h:link>
-<p:commandButton value="Excluir" icon="pi pi-trash" styleClass="ui-button-danger"
- process="@this" action="#{contratoBean.excluir(c.id)}" update="tabela avisos">
-<p:confirm header="Confirmar" message="Excluir este contrato?"/></p:commandButton>
-</p:column></p:dataTable></section>
-<p:confirmDialog global="true">
+<p:dataTable id="tabela" var="contrato" value="#{contratoBean.lista}" paginator="true"
+ rows="10" reflow="true" emptyMessage="Nenhum contrato gerado.">
+<p:column headerText="Título"><h:outputText value="#{contrato.titulo}"/></p:column>
+<p:column headerText="Colaborador"><h:outputText value="#{contratoBean.nomeColaborador(contrato.colaboradorId)}"/></p:column>
+<p:column headerText="Tipo"><h:outputText value="#{contratoBean.nomeTipo(contrato.tipoId)}"/></p:column>
+<p:column headerText="Situação"><h:outputText value="#{contrato.situacao}"/></p:column>
+<p:column headerText="Ações" style="width:160px">
+<h:link outcome="/visualizar-contrato.xhtml" styleClass="link-acao-subtil" title="Visualizar documento">
+<f:param name="id" value="#{contrato.id}"/><i class="pi pi-eye"></i></h:link>
+<h:link outcome="/editar-contrato.xhtml" styleClass="link-acao-subtil" title="Atualizar contrato">
+<f:param name="id" value="#{contrato.id}"/><i class="pi pi-pencil"></i></h:link>
+<p:commandButton icon="pi pi-trash" title="Excluir contrato" ariaLabel="Excluir contrato"
+ styleClass="ui-button-danger ui-button-flat ui-button-rounded acao-icone"
+ process="@this" action="#{contratoBean.excluir(contrato.id)}" update="tabela avisos">
+<p:confirm header="Confirmar" message="Excluir definitivamente este contrato?"/>
+</p:commandButton>
+</p:column></p:dataTable>
+</section><p:confirmDialog global="true">
 <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes"/>
 <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no"/>
 </p:confirmDialog></h:form></main></h:body></html>

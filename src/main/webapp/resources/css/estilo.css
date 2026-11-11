@@ -134,3 +134,12 @@ label { color: #34465c; font-size: .9rem; }
 .area-previa-modelo h3{margin:0;font-size:1rem}
 .frame-previa{width:100%;height:640px;display:block;background:#fff;border:1px solid #d9e2ed;border-radius:5px;box-shadow:0 2px 12px #22344712}
 @media(max-width:1100px){.editor-duas-colunas{grid-template-columns:1fr}.frame-previa{height:420px}}
+
+/* Contratos: seleção e execução, separadas da edição do modelo */
+.pagina-execucao-contrato{max-width:1340px}
+.pagina-execucao-contrato .editor-duas-colunas{grid-template-columns:minmax(320px,.8fr) minmax(0,1.2fr)}
+.folha-miniatura{min-height:540px;background:#fff;border:1px solid #e0e7ef;
+ border-radius:4px;padding:30px 28px;line-height:1.65;overflow-wrap:anywhere;box-shadow:0 5px 18px #22344712}
+.folha-miniatura p:first-child{margin-top:0}
+.pagina-execucao-contrato .ui-selectonemenu{width:100%!important;max-width:100%}
+@media(max-width:1000px){.pagina-execucao-contrato .editor-duas-colunas{grid-template-columns:1fr}}
