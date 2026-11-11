@@ -41,6 +41,16 @@ class DocumentoServiceTest {
         assertTrue(org.jsoup.Jsoup.parseBodyFragment(html).text().contains("não informado"), html);
     }
 
+    @Test void exportacaoPdfGeraCabecalhoPdfValido() throws Exception {
+        ByteArrayOutputStream saida = new ByteArrayOutputStream();
+        String html = DocumentoService.preencher(
+            "<p>Contrato de {{colaborador.nome}}</p>", colaborador());
+        ExportacaoDocumento.pdf("Teste", html, saida);
+        assertTrue(saida.size() > 100, "PDF deve conter dados renderizados.");
+        assertEquals("%PDF-", new String(saida.toByteArray(), 0, 5,
+            java.nio.charset.StandardCharsets.US_ASCII));
+    }
+
     @Test void exportacaoDocxGeraArquivoZipValido() throws Exception {
         ByteArrayOutputStream saida = new ByteArrayOutputStream();
         ExportacaoDocumento.docx("Contrato de teste", "<p>Olá <strong>mundo</strong></p>", saida);
