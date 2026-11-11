@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core" xmlns:p="primefaces">
+<f:metadata>
+<f:viewParam name="id" value="#{modeloContratoBean.idEdicao}"/>
+<f:viewAction action="#{modeloContratoBean.carregarEdicao}"/>
+</f:metadata>
+<h:head><title>ContratoFácil | Editor de modelos</title>
+<h:outputStylesheet library="css" name="estilo.css"/></h:head>
+<h:body><header><h1>ContratoFácil</h1><nav>
+<h:link outcome="/index.xhtml" value="Início"/>
+<h:link outcome="/colaboradores.xhtml" value="Colaboradores"/>
+<h:link outcome="/tipos.xhtml" value="Tipos"/>
+<h:link outcome="/modelos.xhtml" value="Modelos"/>
+<h:link outcome="/contratos.xhtml" value="Contratos"/>
+<h:form id="formSair" styleClass="form-sair"><h:commandLink action="#{loginBean.sair}" value="Sair"/></h:form>
+</nav></header>
+<main class="pagina-editor-modelo">
+<section class="painel">
+<div class="titulo">
+<div><h2>Editor de modelos</h2>
+<p class="subtitulo">Monte o texto-base com tags. O modelo fica reutilizável para qualquer colaborador.</p></div>
+<h:link outcome="/modelos.xhtml" value="Voltar aos modelos" styleClass="link-acao-subtil"/>
+</div>
+<h:form id="form">
+<p:messages id="avisos" showDetail="true" closable="true"/>
+<div class="campos">
+<div><p:outputLabel for="tipo" value="Tipo de contrato *"/>
+<p:selectOneMenu id="tipo" value="#{modeloContratoBean.edicao.tipoId}" required="true"
+ requiredMessage="Selecione o tipo de contrato." style="width:100%">
+<f:selectItem itemLabel="Selecione..." itemValue="#{null}" noSelectionOption="true"/>
+<f:selectItems value="#{modeloContratoBean.tipos}" var="tipoOpcao"
+ itemLabel="#{tipoOpcao.nome}" itemValue="#{tipoOpcao.id}"/>
+</p:selectOneMenu></div>
+<div><p:outputLabel for="titulo" value="Nome do modelo *"/>
+<p:inputText id="titulo" value="#{modeloContratoBean.edicao.titulo}"
+ required="true" requiredMessage="Informe o título." maxlength="160" style="width:100%"/>
+</div></div>
+<div class="editor-duas-colunas">
+<div class="area-editor-modelo">
+<div class="subtitulo-secao">Construção do documento</div>
+<p:textEditor id="conteudo" widgetVar="modeloEditor" secure="true" allowImages="false"
+ value="#{modeloContratoBean.edicao.conteudo}" height="495" required="true"
+ requiredMessage="Digite o texto do modelo.">
+<f:facet name="toolbar">
+<span class="ql-formats"><select class="ql-font"></select><select class="ql-size"></select></span>
+<span class="ql-formats">
+<button type="button" class="ql-bold"></button><button type="button" class="ql-italic"></button>
+<button type="button" class="ql-underline"></button><button type="button" class="ql-strike"></button>
+</span>
+<span class="ql-formats">
+<select class="ql-align"></select><select class="ql-color"></select>
+<select class="ql-background"></select>
+</span>
+<span class="ql-formats">
+<button type="button" class="ql-list" value="ordered"></button>
+<button type="button" class="ql-list" value="bullet"></button>
+<button type="button" class="ql-indent" value="-1"></button>
+<button type="button" class="ql-indent" value="+1"></button>
+</span>
+<span class="ql-formats">
+<select class="ql-header"></select><button type="button" class="ql-clean"></button>
+</span>
+</f:facet>
+</p:textEditor>
+<div class="tags-documento">
+<h3>Inserir campos automáticos</h3>
+<p>As tags permanecem visíveis aqui e serão preenchidas ao gerar um contrato.</p>
+<button type="button" onclick="inserirTagModelo('{{colaborador.nome}}')">Nome</button>
+<button type="button" onclick="inserirTagModelo('{{colaborador.cpf}}')">CPF</button>
+<button type="button" onclick="inserirTagModelo('{{colaborador.matricula}}')">Matrícula</button>
+<button type="button" onclick="inserirTagModelo('{{colaborador.cargo}}')">Cargo</button>
+<button type="button" onclick="inserirTagModelo('{{colaborador.salario}}')">Salário</button>
+<button type="button" onclick="inserirTagModelo('{{colaborador.dataAdmissao}}')">Admissão</button>
+<button type="button" onclick="inserirTagModelo('{{colaborador.centroCustoDescricao}}')">Centro de custo</button>
+<button type="button" onclick="inserirTagModelo('{{documento.dataAtual}}')">Data</button>
+<button type="button" onclick="inserirTagModelo('{{documento.assinatura}}')">Assinatura</button>
+<button type="button" onclick="inserirTagModelo('{{empresa.logo}}')">Logo</button>
+<h:link outcome="/configuracao-documento.xhtml" value="Configurar logo" styleClass="link-acao-subtil"/>
+</div>
+</div>
+<div class="area-previa-modelo">
+<div class="titulo"><h3>Pré-visualização</h3><span class="subtitulo">Atualização enquanto digita</span></div>
+<iframe id="previaModelo" class="frame-previa" sandbox="" title="Pré-visualização do modelo"></iframe>
+<p class="subtitulo">Esta é a prévia do modelo, com as tags visíveis. Os dados reais entram na emissão.</p>
+</div>
+</div>
+<div class="acoes-formulario">
+<p:commandButton value="Salvar modelo" icon="pi pi-save" ajax="false"
+ action="#{modeloContratoBean.salvarERetornar}" />
+<h:link outcome="/modelos.xhtml" value="Cancelar" styleClass="link-acao-subtil"/>
+</div>
+</h:form>
+</section></main>
+<h:outputScript library="js" name="modelo-editor.js" target="body"/>
+</h:body></html>

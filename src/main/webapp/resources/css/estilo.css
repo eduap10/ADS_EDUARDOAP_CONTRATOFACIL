@@ -124,3 +124,13 @@ label { color: #34465c; font-size: .9rem; }
 .campo-formulario>label{display:block;margin-bottom:6px}
 .acao-icone.ui-button{width:34px!important;height:34px!important;min-width:34px!important;padding:0!important;margin:0 3px!important}
 @media(max-width:780px){.dois-paineis{grid-template-columns:1fr}}
+
+/* Página inteira de criação dos modelos */
+.pagina-editor-modelo{max-width:1500px}
+.editor-duas-colunas{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr);gap:22px;margin-top:22px}
+.editor-duas-colunas>div{min-width:0}
+.area-editor-modelo .ql-editor{min-height:460px}
+.area-previa-modelo{border-radius:9px;background:#eef3f8;padding:16px}
+.area-previa-modelo h3{margin:0;font-size:1rem}
+.frame-previa{width:100%;height:640px;display:block;background:#fff;border:1px solid #d9e2ed;border-radius:5px;box-shadow:0 2px 12px #22344712}
+@media(max-width:1100px){.editor-duas-colunas{grid-template-columns:1fr}.frame-previa{height:420px}}
