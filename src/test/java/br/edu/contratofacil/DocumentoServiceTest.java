@@ -21,7 +21,7 @@ class DocumentoServiceTest {
     @Test void substituiTagsSemExecutarHtmlDoColaborador() {
         String html = DocumentoService.preencher(
             "<p><strong>{{colaborador.nome}}</strong> - {{colaborador.cargo}}</p>", colaborador());
-        assertTrue(html.contains("Ana &amp; João &lt;Teste&gt;"));
+        assertTrue(org.jsoup.Jsoup.parseBodyFragment(html).text().contains("Ana & João <Teste>"), html);
         assertTrue(html.contains("Analista"));
         assertFalse(html.contains("<Teste>"));
         assertFalse(html.contains("{{colaborador.nome}}"));
@@ -38,7 +38,7 @@ class DocumentoServiceTest {
 
     @Test void tagsDesconhecidasSaoSinalizadas() {
         String html = DocumentoService.preencher("<p>{{colaborador.inexistente}}</p>", colaborador());
-        assertTrue(html.contains("não informado"));
+        assertTrue(org.jsoup.Jsoup.parseBodyFragment(html).text().contains("não informado"), html);
     }
 
     @Test void exportacaoDocxGeraArquivoZipValido() throws Exception {
