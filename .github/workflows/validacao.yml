@@ -21,3 +21,56 @@ jobs:
           cache: maven
       - name: Compilar e testar
         run: mvn --batch-mode --no-transfer-progress clean verify
+
+  validar-postgresql:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_PASSWORD: ci_postgres_temporary
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - name: Obter codigo
+        uses: actions/checkout@v4
+      - name: Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Preparar cliente PostgreSQL
+        run: command -v psql || (sudo apt-get update -qq && sudo apt-get install -y postgresql-client)
+      - name: Criar banco temporario de testes
+        env:
+          PGPASSWORD: ci_postgres_temporary
+        run: |
+          psql -X -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d postgres -c "CREATE ROLE contratofacil_app LOGIN PASSWORD 'ci_app_temporary';"
+          psql -X -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d postgres -c "CREATE DATABASE contratofacil OWNER contratofacil_app;"
+      - name: Aplicar migracoes e testes SQL
+        env:
+          PGPASSWORD: ci_app_temporary
+        run: |
+          set -e
+          for script in 01_schema.sql 04_modelos_contratos.sql 06_usuarios.sql 07_ficha_colaborador.sql 08_categorias_documentos.sql 09_logo_empresa.sql 11_tipos_contrato.sql 05_teste_cruds.sql 10_teste_ficha_categorias.sql 12_teste_fluxo_tipos.sql; do
+            echo "Validando $script"
+            psql -X -v ON_ERROR_STOP=1 -h 127.0.0.1 -p 5432 -U contratofacil_app -d contratofacil -f "database/$script" >/dev/null
+          done
+      - name: Exercitar persistencia JDBC
+        env:
+          RUN_DB_INTEGRATION: "true"
+          DB_HOST: 127.0.0.1
+          DB_PORT: "5432"
+          DB_NAME: contratofacil
+          DB_USER: contratofacil_app
+          DB_PASSWORD: ci_app_temporary
+        run: mvn --batch-mode --no-transfer-progress test
