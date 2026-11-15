@@ -7,13 +7,14 @@ if(!stage||!hidden)return;
 const LABEL={colaborador:"Colaborador",gestor:"Gestor",testemunha1:"Testemunha 1",testemunha2:"Testemunha 2",outro:"Outro participante"};
 const clamp=(v,min,max)=>Math.max(min,Math.min(max,Math.round(Number(v)||0)));
 let selected=null,drag=null,focusEditable=null,storedRange=null,examplesOn=true,timer;
+let loading=true,history=[],historyIndex=-1,historyTask,clipboard=null;
 function enc(txt){const b=new TextEncoder().encode(String(txt));let o="";for(let i=0;i<b.length;i+=8192)o+=String.fromCharCode(...b.slice(i,i+8192));return btoa(o);}
 function dec(txt){return new TextDecoder().decode(Uint8Array.from(atob(txt),c=>c.charCodeAt(0)));}
 function rect(el,s){el.style.left=s.x+"px";el.style.top=s.y+"px";el.style.width=s.w+"px";el.style.height=s.h+"px";}
 function object(tipo,extra={}){
  if(stage.querySelectorAll(".cf-canvas-obj").length>=MAX){alert("Limite de 100 elementos por página.");return null;}
  const n=stage.querySelectorAll(".cf-canvas-obj").length;
- const dimensions={text:[530,130],line:[400,42],table:[510,140],sign:[340,100]}[tipo];
+ const dimensions={text:[530,130],line:[400,42],table:[510,140],sign:[340,100],image:[300,180]}[tipo];
  const s={tipo,x:35+n*8%150,y:35+n*75%760,w:dimensions[0],h:dimensions[1],...extra};
  s.w=clamp(s.w,40,W);s.h=clamp(s.h,20,H);s.x=clamp(s.x,0,W-s.w);s.y=clamp(s.y,0,H-s.h);
  if(tipo==="text")s.html=s.html??"<p>Digite seu texto aqui...</p>";
@@ -25,33 +26,47 @@ function object(tipo,extra={}){
    s.cells=Array.from({length:s.rows},(_,r)=>Array.from({length:s.cols},(_,c)=>s.cells?.[r]?.[c]??""));
  }
  if(tipo==="sign")s.role=Object.hasOwn(LABEL,s.role)?s.role:"colaborador";
+ if(tipo==="image")s.src=/^data:image\/(?:png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(s.src||"")?s.src:"";
  return s;
 }
 function add(s,select=true){
- if(!s)return;
- const el=document.createElement("div");el.className="cf-canvas-obj cf-obj-"+s.tipo;el.cf=s;el.dataset.role=s.role||"";
- rect(el,s);
+ if(!s)return null;
+ const el=document.createElement("div");el.className="cf-canvas-obj cf-obj-"+s.tipo;
+ el.cf=s;el.tabIndex=0;el.dataset.role=s.role||"";rect(el,s);
  const move=document.createElement("button"),resize=document.createElement("button"),inside=document.createElement("div");
- move.type="button";move.className="cf-move";move.textContent="⠿";move.title="Arrastar livremente";
- resize.type="button";resize.className="cf-resize";resize.textContent="↘";resize.title="Arrastar para redimensionar";
- inside.className="cf-obj-conteudo";el.append(move,inside,resize);stage.append(el);
- render(el);
- el.addEventListener("pointerdown",()=>choose(el));
+ move.type="button";move.className="cf-move";move.textContent="⠿";move.title="Arrastar";
+ resize.type="button";resize.className="cf-resize";resize.textContent="↘";resize.title="Redimensionar";
+ inside.className="cf-obj-conteudo";el.append(move,inside,resize);
+ for(const dir of ["nw","n","ne","e","se","s","sw","w"]){
+  const handle=document.createElement("button");handle.type="button";handle.className="cf-resize-handle";
+  handle.dataset.dir=dir;handle.title="Redimensionar pelo lado "+dir;handle.setAttribute("aria-label",handle.title);
+  handle.addEventListener("pointerdown",e=>beginPointer(e,el,"size",dir));el.append(handle);
+ }
+ stage.append(el);render(el);
+ el.addEventListener("pointerdown",e=>{
+  if(e.target.closest(".cf-resize-handle,.cf-move,.cf-resize"))return;
+  if(el.classList.contains("cf-editing")&&e.target.closest('[contenteditable="true"]')&&!e.altKey){
+    choose(el);return;
+  }
+  beginPointer(e,el,"move");
+ });
  move.addEventListener("pointerdown",e=>beginPointer(e,el,"move"));
- resize.addEventListener("pointerdown",e=>beginPointer(e,el,"size"));
+ resize.addEventListener("pointerdown",e=>beginPointer(e,el,"size","se"));
+ el.addEventListener("dblclick",e=>{
+  if(["text","table"].includes(s.tipo))enterEditing(el,e.target);
+ });
  if(select)choose(el);
- updatePreview();
- return el;
+ updatePreview();if(!loading)markHistory();return el;
 }
 function render(el){
  const s=el.cf,area=el.querySelector(".cf-obj-conteudo");area.textContent="";
  if(s.tipo==="text"){
-  const div=document.createElement("div");div.className="cf-texto";div.contentEditable="true";div.tabIndex=0;div.innerHTML=s.html;
+  const div=document.createElement("div");div.className="cf-texto";div.contentEditable=el.classList.contains("cf-editing")?"true":"false";div.tabIndex=0;div.innerHTML=s.html;
   area.append(div);
   div.addEventListener("focus",()=>{focusEditable=div;choose(el);});
   div.addEventListener("click",()=>{focusEditable=div;choose(el);remember();});
   div.addEventListener("keyup",remember);div.addEventListener("mouseup",remember);
-  div.addEventListener("input",()=>{s.html=div.innerHTML;updatePreview();});
+  div.addEventListener("input",()=>{s.html=div.innerHTML;updatePreview();scheduleHistory();});
  }else if(s.tipo==="line"){
   const line=document.createElement("div");line.className="cf-real-line cf-"+s.orient;
   line.style.borderColor="#"+s.color;line.style.borderWidth=s.weight+"px";area.append(line);
@@ -65,28 +80,110 @@ function render(el){
   for(let r=0;r<s.rows;r++){
     const tr=document.createElement("tr");
     for(let c=0;c<s.cols;c++){
-      const td=document.createElement(s.header&&r===0?"th":"td");td.contentEditable="true";td.tabIndex=0;
+      const td=document.createElement(s.header&&r===0?"th":"td");td.contentEditable=el.classList.contains("cf-editing")?"true":"false";td.tabIndex=0;
       td.dataset.r=r;td.dataset.c=c;td.textContent=s.cells[r][c];
       td.addEventListener("focus",()=>{focusEditable=td;choose(el);});
       td.addEventListener("keyup",remember);td.addEventListener("mouseup",remember);
-      td.addEventListener("input",()=>{s.cells[r][c]=td.innerText.replace(/[\r\n|\u001f]/g," ").slice(0,500);updatePreview();});
+      td.addEventListener("input",()=>{s.cells[r][c]=td.innerText.replace(/[\r\n|\u001f]/g," ").slice(0,500);updatePreview();scheduleHistory();});
       tr.append(td);
     }
     body.append(tr);
   }
   t.append(body);area.append(t);
+ }else if(s.tipo==="image"){
+  const img=document.createElement("img");img.src=s.src||"";img.alt="Imagem inserida no documento";img.draggable=false;area.append(img);
  }
 }
+function enterEditing(el,target){
+ if(!el || !["text","table"].includes(el.cf.tipo))return;
+ choose(el);el.classList.add("cf-editing");
+ el.querySelectorAll(".cf-texto,.cf-edit-table td,.cf-edit-table th")
+   .forEach(c=>c.contentEditable="true");
+ const box=target?.closest?.(".cf-texto,.cf-edit-table td,.cf-edit-table th")||
+   el.querySelector(".cf-texto,.cf-edit-table td,.cf-edit-table th");
+ focusEditable=box||null;storedRange=null;if(box){box.focus();remember();}
+}
+function exitEditing(){
+ if(!selected)return;
+ selected.classList.remove("cf-editing");
+ selected.querySelectorAll(".cf-texto,.cf-edit-table td,.cf-edit-table th")
+   .forEach(c=>c.contentEditable="false");
+ focusEditable=null;storedRange=null;selected.focus({preventScroll:true});
+}
 function choose(el){
- if(selected&&selected!==el)selected.classList.remove("cf-selected");
- selected=el;if(selected)selected.classList.add("cf-selected");toolbar();
+ if(selected && selected!==el){
+  selected.classList.remove("cf-selected","cf-editing");
+  selected.querySelectorAll(".cf-texto,.cf-edit-table td,.cf-edit-table th")
+    .forEach(c=>c.contentEditable="false");
+  storedRange=null;
+ }
+ selected=el;if(selected){
+  selected.classList.add("cf-selected");
+  focusEditable=selected.cf.tipo==="text"?selected.querySelector(".cf-texto"):
+   selected.cf.tipo==="table"?selected.querySelector(".cf-edit-table td,.cf-edit-table th"):null;
+ }
+ toolbar();
 }
 function toolbar(){
- $("cfProperties").hidden=!selected;
- if(!selected)return;
+ $("cfProperties").hidden=!selected;if(!selected)return;
  const s=selected.cf;
- $("cfObjectKind").textContent={text:"Texto",line:"Linha",table:"Tabela",sign:"Assinatura"}[s.tipo];
+ $("cfObjectKind").textContent={text:"Texto",line:"Linha",table:"Tabela",sign:"Assinatura",image:"Imagem"}[s.tipo];
  for(const key of ["x","y","w","h"])$("cf"+key.toUpperCase()).value=s[key];
+ document.querySelectorAll("[data-cf-panel]").forEach(node=>node.hidden=node.dataset.cfPanel!==s.tipo);
+ if(s.tipo==="line"){$("cfLineColor").value="#"+s.color;$("cfLineWeight").value=s.weight;$("cfLineOrient").value=s.orient;}
+ if(s.tipo==="table"){$("cfTableStyle").value=s.style;$("cfTableHeader").checked=s.header;}
+ if(s.tipo==="sign")$("cfSignRole").value=s.role;
+}
+function change(props,redraw=true){
+ if(!selected)return;
+ const s=selected.cf;Object.assign(s,props);
+ s.w=clamp(s.w,40,W);s.h=clamp(s.h,20,H);s.x=clamp(s.x,0,W-s.w);s.y=clamp(s.y,0,H-s.h);
+ rect(selected,s);if(redraw)render(selected);toolbar();updatePreview();markHistory();
+}
+function beginPointer(e,el,action,dir="se"){
+ if(e.button!=null&&e.button!==0)return;
+ e.preventDefault();e.stopPropagation();choose(el);
+ if(el.classList.contains("cf-editing"))exitEditing();
+ el.focus({preventScroll:true});
+ drag={id:e.pointerId,el,action,dir,mouseX:e.clientX,mouseY:e.clientY,moved:false,
+  start:{x:el.cf.x,y:el.cf.y,w:el.cf.w,h:el.cf.h}};
+ try{e.currentTarget.setPointerCapture(e.pointerId);}catch(_){}
+}
+document.addEventListener("pointermove",e=>{
+ if(!drag||drag.id!==e.pointerId)return;
+ const scale=stage.getBoundingClientRect().width/W;
+ const dx=(e.clientX-drag.mouseX)/scale,dy=(e.clientY-drag.mouseY)/scale;
+ if(Math.abs(dx)+Math.abs(dy)<2&&!drag.moved)return;
+ drag.moved=true;const d=drag.el.cf,s=drag.start;
+ if(drag.action==="move"){
+   d.x=clamp(s.x+dx,0,W-d.w);d.y=clamp(s.y+dy,0,H-d.h);
+ }else{
+   const dir=drag.dir;
+   if(dir.includes("e"))d.w=clamp(s.w+dx,40,W-s.x);
+   if(dir.includes("s"))d.h=clamp(s.h+dy,20,H-s.y);
+   if(dir.includes("w")){d.x=clamp(s.x+dx,0,s.x+s.w-40);d.w=s.w+s.x-d.x;}
+   if(dir.includes("n")){d.y=clamp(s.y+dy,0,s.y+s.h-20);d.h=s.h+s.y-d.y;}
+ }
+ rect(drag.el,d);toolbar();
+});
+document.addEventListener("pointerup",e=>{
+ if(drag?.id!==e.pointerId)return;
+ if(drag.moved){updatePreview();markHistory();}
+ drag=null;
+});
+stage.addEventListener("pointerdown",e=>{
+ if(e.target!==stage)return;
+ selected?.classList.remove("cf-selected","cf-editing");
+ selected=null;focusEditable=null;storedRange=null;toolbar();
+});
+stage.addEventListener("dblclick",e=>{
+ if(e.target!==stage)return;
+ const bounds=stage.getBoundingClientRect(),scale=bounds.width/W;
+ const x=clamp((e.clientX-bounds.left)/scale,0,W-160),y=clamp((e.clientY-bounds.top)/scale,0,H-80);
+ const el=add(object("text",{x,y,w:clamp(W-x-16,160,530),h:120,html:"<p></p>"}));
+ if(el)enterEditing(el);
+});
+for(const key of ["x","y","w","h"])$("cf"+key.toUpperCase()).value=s[key];
  document.querySelectorAll("[data-cf-panel]").forEach(node=>node.hidden=node.dataset.cfPanel!==s.tipo);
  if(s.tipo==="line"){$("cfLineColor").value="#"+s.color;$("cfLineWeight").value=s.weight;$("cfLineOrient").value=s.orient;}
  if(s.tipo==="table"){$("cfTableStyle").value=s.style;$("cfTableHeader").checked=s.header;}
@@ -122,9 +219,9 @@ $("cfLineWeight").addEventListener("change",e=>change({weight:clamp(e.target.val
 $("cfTableStyle").addEventListener("change",e=>change({style:e.target.value}));
 $("cfTableHeader").addEventListener("change",e=>change({header:e.target.checked}));
 $("cfSignRole").addEventListener("change",e=>change({role:e.target.value}));
-$("cfRemove").addEventListener("click",()=>{if(selected){selected.remove();selected=null;toolbar();updatePreview();}});
-$("cfFront").addEventListener("click",()=>{if(selected){stage.append(selected);updatePreview();}});
-$("cfBack").addEventListener("click",()=>{if(selected){stage.prepend(selected);updatePreview();}});
+$("cfRemove").addEventListener("click",removeSelected);
+$("cfFront").addEventListener("click",()=>{if(selected){stage.append(selected);updatePreview();markHistory();}});
+$("cfBack").addEventListener("click",()=>{if(selected){stage.prepend(selected);updatePreview();markHistory();}});
 function grid(rows,cols){
  if(!selected||selected.cf.tipo!=="table")return;
  const s=selected.cf;rows=clamp(rows,1,12);cols=clamp(cols,1,8);
