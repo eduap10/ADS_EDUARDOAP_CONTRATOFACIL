@@ -53,52 +53,18 @@
 <div class="editor-duas-colunas">
 <div class="area-editor-modelo">
 <div class="subtitulo-secao">Composição livre do documento</div>
-<p class="subtitulo">Página A4: insira elementos, arraste pelo ícone ⠿ e redimensione pelo canto ↘. As posições são salvas no modelo.</p>
+<p class="subtitulo">Edite o texto diretamente na página. Selecione um objeto para mover, arraste as bordas para redimensionar ou dê dois cliques para editar seu conteúdo. A barra de texto permanece fixa acima da folha.</p>
 <h:inputHidden id="conteudo" value="#{modeloContratoBean.edicao.conteudo}"/>
 <div class="cf-toolkit" role="toolbar" aria-label="Adicionar elementos">
-<button type="button" data-cf-add="text" title="Adicionar caixa de texto">＋ Texto</button>
+<button type="button" data-cf-add="text" title="Adicionar outra caixa de texto">＋ Caixa de texto</button>
 <button type="button" data-cf-add="line" title="Adicionar linha redimensionável">＋ Linha</button>
 <button type="button" data-cf-add="table" title="Adicionar tabela editável">＋ Tabela</button>
 <button type="button" data-cf-add="sign" title="Adicionar linha de assinatura">＋ Assinatura</button>
+<button type="button" id="cfAddImage" title="Inserir imagem do computador, como logotipo, carimbo ou ilustração">＋ Imagem</button>
+<input id="cfImageFile" type="file" accept="image/png,image/jpeg" style="display:none" aria-label="Selecionar imagem PNG ou JPEG"/>
 </div>
-<div id="cfProperties" class="cf-properties" hidden="hidden">
-<div class="cf-props-head"><strong id="cfObjectKind">Objeto selecionado</strong>
-<button type="button" id="cfRemove" title="Excluir objeto selecionado">Excluir</button>
-<button type="button" id="cfFront" title="Trazer para frente">Trazer à frente</button>
-<button type="button" id="cfBack" title="Enviar para trás">Enviar atrás</button>
-</div>
-<div class="cf-props-row">
-<label for="cfX">X <input id="cfX" type="number" min="0" max="642"/></label>
-<label for="cfY">Y <input id="cfY" type="number" min="0" max="907"/></label>
-<label for="cfW">Largura <input id="cfW" type="number" min="40" max="642"/></label>
-<label for="cfH">Altura <input id="cfH" type="number" min="20" max="907"/></label>
-</div>
-<div class="cf-props-row" data-cf-panel="line" hidden="hidden">
-<label for="cfLineOrient">Orientação <select id="cfLineOrient">
-<option value="horizontal">Horizontal</option><option value="vertical">Vertical</option>
-<option value="diagonal">Diagonal</option></select></label>
-<label for="cfLineColor">Cor <input id="cfLineColor" type="color" value="#334155"/></label>
-<label for="cfLineWeight">Espessura <input id="cfLineWeight" type="number" min="1" max="12" value="2"/></label>
-</div>
-<div class="cf-props-row" data-cf-panel="table" hidden="hidden">
-<label for="cfTableStyle">Estilo <select id="cfTableStyle">
-<option value="grade">Grade tradicional</option>
-<option value="listrado">Linhas alternadas</option>
-<option value="simples">Minimalista</option></select></label>
-<label><input type="checkbox" id="cfTableHeader" checked="checked"/> Primeira linha é cabeçalho</label>
-<button type="button" id="cfRowPlus">＋ Linha</button>
-<button type="button" id="cfRowMinus">− Linha</button>
-<button type="button" id="cfColPlus">＋ Coluna</button>
-<button type="button" id="cfColMinus">− Coluna</button>
-</div>
-<div class="cf-props-row" data-cf-panel="sign" hidden="hidden">
-<label for="cfSignRole">Papel <select id="cfSignRole">
-<option value="colaborador">Colaborador</option><option value="gestor">Gestor</option>
-<option value="testemunha1">Testemunha 1</option><option value="testemunha2">Testemunha 2</option>
-<option value="outro">Outro participante</option></select></label>
-<span class="subtitulo">O nome será informado na emissão, abaixo da linha.</span>
-</div>
-<div class="cf-word-ribbon" data-cf-panel="text" hidden="hidden" role="toolbar" aria-label="Formatação de texto">
+<div class="cf-toolbar-sticky">
+<div class="cf-word-ribbon" id="cfTextRibbon" role="toolbar" aria-label="Formatação de texto">
 <div class="cf-ribbon-group cf-font-group" aria-label="Fonte e tamanho">
 <label class="cf-sr-only" for="cfFontFamily">Família da fonte</label>
 <select id="cfFontFamily" title="Família da fonte" aria-label="Família da fonte">
@@ -167,11 +133,50 @@
 <div class="cf-ribbon-hint">Selecione uma palavra ou trecho para formatar. Sem seleção, a opção se aplica à caixa de texto.</div>
 </div>
 </div>
+<div id="cfProperties" class="cf-properties" hidden="hidden">
+<div class="cf-props-head"><strong id="cfObjectKind">Objeto selecionado</strong>
+<button type="button" id="cfRemove" title="Excluir objeto selecionado">Excluir</button>
+<button type="button" id="cfFront" title="Trazer para frente">Trazer à frente</button>
+<button type="button" id="cfBack" title="Enviar para trás">Enviar atrás</button>
+</div>
+<div class="cf-props-row">
+<label for="cfX">X <input id="cfX" type="number" min="0" max="642"/></label>
+<label for="cfY">Y <input id="cfY" type="number" min="0" max="907"/></label>
+<label for="cfW">Largura <input id="cfW" type="number" min="40" max="642"/></label>
+<label for="cfH">Altura <input id="cfH" type="number" min="20" max="907"/></label>
+</div>
+<div class="cf-props-row" data-cf-panel="line" hidden="hidden">
+<label for="cfLineOrient">Orientação <select id="cfLineOrient">
+<option value="horizontal">Horizontal</option><option value="vertical">Vertical</option>
+<option value="diagonal">Diagonal</option></select></label>
+<label for="cfLineColor">Cor <input id="cfLineColor" type="color" value="#334155"/></label>
+<label for="cfLineWeight">Espessura <input id="cfLineWeight" type="number" min="1" max="12" value="2"/></label>
+</div>
+<div class="cf-props-row" data-cf-panel="table" hidden="hidden">
+<label for="cfTableStyle">Estilo <select id="cfTableStyle">
+<option value="grade">Grade tradicional</option>
+<option value="listrado">Linhas alternadas</option>
+<option value="simples">Minimalista</option></select></label>
+<label><input type="checkbox" id="cfTableHeader" checked="checked"/> Primeira linha é cabeçalho</label>
+<button type="button" id="cfRowPlus">＋ Linha</button>
+<button type="button" id="cfRowMinus">− Linha</button>
+<button type="button" id="cfColPlus">＋ Coluna</button>
+<button type="button" id="cfColMinus">− Coluna</button>
+</div>
+<div class="cf-props-row" data-cf-panel="sign" hidden="hidden">
+<label for="cfSignRole">Papel <select id="cfSignRole">
+<option value="colaborador">Colaborador</option><option value="gestor">Gestor</option>
+<option value="testemunha1">Testemunha 1</option><option value="testemunha2">Testemunha 2</option>
+<option value="outro">Outro participante</option></select></label>
+<span class="subtitulo">O nome será informado na emissão, abaixo da linha.</span>
+</div>
+</div>
+
 <div class="cf-stage-scroll">
-<div id="cfCanvas" class="cf-canvas-stage" role="region" aria-label="Página de criação do documento">
+<div id="cfCanvas" class="cf-canvas-stage" role="region" aria-label="Página de criação do documento" tabindex="0">
 </div>
 </div>
-<p class="cf-hint" id="cfSaveWarning">O documento usa posicionamento livre em uma página A4. Para assinaturas, defina os nomes na emissão.</p>
+<p class="cf-hint" id="cfSaveWarning">Um clique seleciona, arraste o objeto pela própria superfície, use as oito alças para redimensionar e dê dois cliques para editar texto/tabela. Delete exclui o objeto selecionado; Esc sai da edição; setas movem; Ctrl+D duplica; Ctrl+Z desfaz.</p>
 <div class="tags-documento catalogo-campos" id="catalogoCampos">
 <div class="titulo catalogo-cabecalho">
 <div><h3><i class="pi pi-database"></i> Campos da ficha</h3>
