@@ -9,7 +9,7 @@ const labels=["cfX","cfY","cfW","cfH","cfLineOrient","cfLineColor","cfLineWeight
  "cfHighlightColor","cfParagraphStyle","cfFontGrow","cfFontShrink","cfFormatReset",
  "cfIndentLess","cfIndentMore"];
 function fixture(initial){
-  const html='<!doctype html><html><body><div id="cfCanvas"></div>'
+  const html='<!doctype html><html><body><div id="cfCanvas" tabindex="0"></div>'
    +'<input type="hidden" id="form:conteudo"><div id="cfProperties" hidden>'
    +'<strong id="cfObjectKind"></strong>'
    +labels.map(id=>'<input id="'+id+'" value="11">').join("")
@@ -23,6 +23,7 @@ function fixture(initial){
    +'<button type="button" data-cf-add="line"></button>'
    +'<button type="button" data-cf-add="table"></button>'
    +'<button type="button" data-cf-add="sign"></button>'
+   +'<button id="cfAddImage"></button><input id="cfImageFile" type="file">'
    +'<button id="modoExemplo"></button><button id="modoTags"></button>'
    +'<input id="buscaCampo"><input id="grupoCampo">'
    +'<div id="catalogoCampos"><div id="listaCampos">'
@@ -88,6 +89,21 @@ doc.dispatchEvent(new reopened.window.MouseEvent("pointermove",{bubbles:true,cli
 doc.dispatchEvent(new reopened.window.MouseEvent("pointerup",{bubbles:true,clientX:230,clientY:245}));
 assert.equal(item.cf.w,iniW+30);
 assert.equal(item.cf.h,iniH+45);
+assert.equal(item.querySelectorAll(".cf-resize-handle").length,8);
+const area=item.querySelector(".cf-obj-conteudo");
+const px=item.cf.x,py=item.cf.y;
+area.dispatchEvent(new reopened.window.MouseEvent("pointerdown",{bubbles:true,clientX:100,clientY:100}));
+doc.dispatchEvent(new reopened.window.MouseEvent("pointermove",{bubbles:true,clientX:128,clientY:115}));
+doc.dispatchEvent(new reopened.window.MouseEvent("pointerup",{bubbles:true,clientX:128,clientY:115}));
+assert.equal(item.cf.x,px+28);
+assert.equal(item.cf.y,py+15);
+const priorWidth=item.cf.w,priorLeft=item.cf.x;
+const handleWest=item.querySelector('[data-dir="w"]');
+handleWest.dispatchEvent(new reopened.window.MouseEvent("pointerdown",{bubbles:true,clientX:100,clientY:100}));
+doc.dispatchEvent(new reopened.window.MouseEvent("pointermove",{bubbles:true,clientX:115,clientY:100}));
+doc.dispatchEvent(new reopened.window.MouseEvent("pointerup",{bubbles:true,clientX:115,clientY:100}));
+assert.equal(item.cf.x,priorLeft+15);
+assert.equal(item.cf.w,priorWidth-15);
 const editor=doc.querySelector(".cf-obj-text .cf-texto");
 editor.focus();
 doc.querySelector(".botao-campo").click();
@@ -113,10 +129,24 @@ assert.match(editor.innerHTML,/background-color:\s*rgb\(255, 238, 0\)|background
 press(reopened,"line");
 assert.equal(count(reopened,"line"),2);
 assert.equal(reopened.window.CFCanvas.salvar(),true);
+const newLine=Array.from(doc.querySelectorAll(".cf-obj-line")).at(-1);
+newLine.focus();
+doc.dispatchEvent(new reopened.window.KeyboardEvent("keydown",{key:"Delete",bubbles:true}));
+assert.equal(count(reopened,"line"),1);
+doc.dispatchEvent(new reopened.window.KeyboardEvent("keydown",{key:"z",ctrlKey:true,bubbles:true}));
+assert.equal(count(reopened,"line"),2);
 const styleSaved=reopened.window.document.getElementById("form:conteudo").value;
 const styleReopened=fixture(styleSaved);
 assert.match(styleReopened.window.document.querySelector(".cf-obj-text .cf-texto").innerHTML,/font-family:\s*Georgia/i);
 assert.match(styleReopened.window.document.querySelector(".cf-obj-text .cf-texto").innerHTML,/font-size:\s*18pt/i);
 styleReopened.window.close();
+const png="iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAFklEQVR4nGPkCtjCwMDAxMDAwMDAAAAMKAESBnDZDAAAAABJRU5ErkJggg==";
+const imageFixture=fixture("CFCANVAS1\nI|40|60|120|100|image/png|"+png+"\n");
+assert.equal(count(imageFixture,"image"),1);
+assert.equal(imageFixture.window.CFCanvas.salvar(),true);
+const imageSaved=fixture(imageFixture.window.document.getElementById("form:conteudo").value);
+assert.equal(count(imageSaved,"image"),1);
+assert.match(imageSaved.window.document.querySelector(".cf-obj-image img").src,/^data:image\/png;base64,/);
+imageSaved.window.close();imageFixture.window.close();
 console.log("Editor canvas: importação legada, criação, drag, resize, tags, salvamento e reabertura OK.");
 dom.window.close();reopened.window.close();
