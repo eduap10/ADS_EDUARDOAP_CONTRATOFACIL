@@ -232,17 +232,18 @@ function duplicateSelected(item=selected){
  return add(object(data.tipo,data));
 }
 document.addEventListener("keydown",e=>{
- if(!selected)return;
  const active=document.activeElement;
  const typing=active?.matches?.('input,textarea,select,[contenteditable="true"]');
- if(e.key==="Escape"&&selected.classList.contains("cf-editing")){
+ if(!selected&&active!==stage)return;
+ if(e.key==="Escape"&&selected?.classList.contains("cf-editing")){
    e.preventDefault();exitEditing();return;
  }
- if(typing || (active!==selected && active!==stage && !selected.contains(active)))return;
+ if(typing || (active!==stage && (!selected || active!==selected && !selected.contains(active))))return;
  const mod=e.ctrlKey||e.metaKey;
  if(mod&&(e.key.toLowerCase()==="z"||e.key.toLowerCase()==="y")){
    e.preventDefault();restoreHistory(e.key.toLowerCase()==="z"&&!e.shiftKey?-1:1);return;
  }
+ if(!selected)return;
  if(mod&&e.key.toLowerCase()==="d"){e.preventDefault();duplicateSelected();return;}
  if(mod&&e.key.toLowerCase()==="c"){e.preventDefault();clipboard=JSON.parse(JSON.stringify(selected.cf));return;}
  if(mod&&e.key.toLowerCase()==="v"&&clipboard){
