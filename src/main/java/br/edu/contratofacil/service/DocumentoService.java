@@ -19,11 +19,11 @@ public final class DocumentoService {
     private static final Pattern HTML = Pattern.compile("(?is)<\\s*(p|div|span|strong|em|u|br|h[1-6]|ul|ol|li|blockquote)\\b");
 
     private static final Pattern MARCADOR_LINHA = Pattern.compile(
-        "\\{\\{visual\\.linha\\.(horizontal|vertical|diagonal|livre)(?:\\.w(\\d{2,3})\\.t(\\d{1,2})\\.c([a-fA-F0-9]{6}))?\\}\\}");
+        "\\{\\{visual\\.linha\\.(horizontal|vertical|diagonal|livre)(?:\\.w(\\d{2,3})\\.t(\\d{1,2})\\.c([a-fA-F0-9]{6})(?:\\.x(\\d{1,2}))?)?\\}\\}");
     private static final Pattern MARCADOR_ASSINATURA = Pattern.compile(
-        "\\{\\{assinatura\\.(colaborador|gestor|testemunha1|testemunha2|outro)\\.w(\\d{2,3})\\}\\}");
-    private static final Pattern MARCADOR_TABELA =
-        Pattern.compile("\\{\\{visual\\.tabela\\.inicio\\.(\\d{1,2})x(\\d{1,2})\\.w(\\d{2,3})\\.h(\\d{2,3})(?:\\.s(grade|listrado|simples)\\.k([01]))?\\}\\}");
+        "\\{\\{assinatura\\.(colaborador|gestor|testemunha1|testemunha2|outro)\\.w(\\d{2,3})(?:\\.x(\\d{1,2}))?\\}\\}");
+    private static final Pattern MARCADOR_TABELA = Pattern.compile(
+        "\\{\\{visual\\.tabela\\.inicio\\.(\\d{1,2})x(\\d{1,2})\\.w(\\d{2,3})\\.h(\\d{2,3})(?:\\.s(grade|listrado|simples)\\.k([01])(?:\\.x(\\d{1,2}))?)?\\}\\}");
     private static final String FIM_TABELA = "{{visual.tabela.fim}}";
     private static final Set<String> BLOCOS = Set.of("p", "div", "h1", "h2", "h3", "h4", "h5", "h6", "li", "blockquote");
     private static final PolicyFactory POLITICA = new HtmlPolicyBuilder()
@@ -152,6 +152,7 @@ public final class DocumentoService {
         for (Element visual : new ArrayList<>(documento.select("div.cf-visual-bloco"))) {
             String tipo = visual.attr("data-cf-kind");
             int largura = numero(visual.attr("data-cf-width"), 80, 40, 100);
+            int deslocamento = Math.min(numero(visual.attr("data-cf-offset"), 0, 0, 60), 100 - largura);
             String nome;
             if ("linha".equals(tipo)) {
                 String orientacao = visual.attr("data-cf-orient");
@@ -162,14 +163,14 @@ public final class DocumentoService {
                 String cor = visual.attr("data-cf-color");
                 if (!cor.matches("[0-9a-fA-F]{6}")) cor = "334155";
                 nome = "{{visual.linha." + orientacao + ".w" + largura
-                    + ".t" + espessura + ".c" + cor.toUpperCase(Locale.ROOT) + "}}";
+                    + ".t" + espessura + ".c" + cor.toUpperCase(Locale.ROOT) + ".x" + deslocamento + "}}";
                 visual.replaceWith(new Element("p").text(nome));
             } else if ("assinatura".equals(tipo)) {
                 String papel = visual.attr("data-cf-role");
                 if (!Set.of("colaborador","gestor","testemunha1","testemunha2","outro").contains(papel)) {
                     visual.remove(); continue;
                 }
-                visual.replaceWith(new Element("p").text("{{assinatura." + papel + ".w" + largura + "}}"));
+                visual.replaceWith(new Element("p").text("{{assinatura." + papel + ".w" + largura + ".x" + deslocamento + "}}"));
             } else if ("tabela".equals(tipo)) {
                 String estilo = visual.attr("data-cf-style");
                 if (!Set.of("grade","listrado","simples").contains(estilo)) estilo = "grade";
@@ -182,7 +183,7 @@ public final class DocumentoService {
                 List<Element> marcadores = new ArrayList<>();
                 marcadores.add(new Element("p").text("{{visual.tabela.inicio."
                     + linhas.size() + "x" + colunas + ".w" + largura + ".h" + altura
-                    + ".s" + estilo + ".k" + (cabecalho ? "1" : "0") + "}}"));
+                    + ".s" + estilo + ".k" + (cabecalho ? "1" : "0") + ".x" + deslocamento + "}}"));
                 for (Element linha : linhas) {
                     List<Element> celulas = linha.select("td,th");
                     List<String> textos = new ArrayList<>();
@@ -211,9 +212,10 @@ public final class DocumentoService {
                 int largura = numero(linha.group(2), 80, 40, 100);
                 int espessura = numero(linha.group(3), 2, 1, 12);
                 String cor = linha.group(4) == null ? "334155" : linha.group(4);
+                int deslocamento = Math.min(numero(linha.group(5), 0, 0, 60), 100 - largura);
                 Element separador = new Element("div").addClass("cf-linha");
                 separador.addClass("cf-linha-" + linha.group(1));
-                String tamanho = "width:" + largura + "%;";
+                String tamanho = "width:" + largura + "%;margin-left:" + deslocamento + "%;";
                 if (linha.group(1).equals("vertical")) tamanho += "height:90px;";
                 separador.attr("style", tamanho + "border-color:#" + cor
                     + ";border-width:" + espessura + "px;");
@@ -224,6 +226,7 @@ public final class DocumentoService {
             if (assinatura.matches()) {
                 String papel = assinatura.group(1);
                 int largura = numero(assinatura.group(2), 70, 40, 100);
+                int deslocamento = Math.min(numero(assinatura.group(3), 0, 0, 60), 100 - largura);
                 String rotulo = switch (papel) {
                     case "colaborador" -> "Colaborador";
                     case "gestor" -> "Gestor";
@@ -235,7 +238,7 @@ public final class DocumentoService {
                 String nome = texto.contains(":") ? texto.substring(texto.indexOf(':') + 1).strip()
                     : "Não informado";
                 Element bloco = new Element("div").addClass("cf-assinatura")
-                    .attr("style", "width:" + largura + "%;margin-top:24px;text-align:center;");
+                    .attr("style", "width:" + largura + "%;margin-left:" + deslocamento + "%;margin-top:24px;text-align:center;");
                 bloco.appendElement("div").addClass("cf-assinatura-linha")
                     .attr("style", "border-bottom:1px solid #334155;height:36px;");
                 bloco.appendElement("p").addClass("cf-assinatura-nome").text(rotulo + ": " + nome);
@@ -250,6 +253,7 @@ public final class DocumentoService {
             int altura = Integer.parseInt(tabela.group(4));
             String estilo = tabela.group(5) == null ? "grade" : tabela.group(5);
             boolean cabecalho = "1".equals(tabela.group(6));
+            int deslocamento = Math.min(numero(tabela.group(7), 0, 0, 60), 100 - largura);
             if (linhas < 1 || linhas > 12 || colunas < 1 || colunas > 8
                     || largura < 40 || largura > 100 || altura < 20 || altura > 90) continue;
             List<Element> originais = new ArrayList<>();
@@ -263,7 +267,7 @@ public final class DocumentoService {
                     || !FIM_TABELA.equals(cursor.text().strip())) continue;
             Element resultado = new Element("table").addClass("cf-tabela")
                 .addClass("cf-tabela-" + estilo)
-                .attr("style", "border-collapse:collapse;width:" + largura + "%;");
+                .attr("style", "border-collapse:collapse;width:" + largura + "%;margin-left:" + deslocamento + "%;");
             Element corpo = resultado.appendElement("tbody");
             for (int i = 0; i < originais.size(); i++) {
                 Element tr = corpo.appendElement("tr");
