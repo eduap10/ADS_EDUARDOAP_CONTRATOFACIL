@@ -50,6 +50,12 @@ function press(dom,kind){
 function count(dom,kind){
  return dom.window.document.querySelectorAll(".cf-obj-"+kind).length;
 }
+const fresh=fixture("");
+assert.equal(count(fresh,"text"),1,"Página nova deve conter área pronta para digitação.");
+assert.equal(fresh.window.document.querySelector(".cf-obj-text .cf-texto").contentEditable,"true",
+ "Novo documento deve aceitar digitação imediatamente.");
+fresh.window.close();
+
 const old="<p>{{visual.linha.horizontal}}</p>"
  +"<p>{{visual.tabela.inicio.2x2.w100.h36}}</p>"
  +"<p>Nome | Cargo</p><p> | </p><p>{{visual.tabela.fim}}</p>"
