@@ -5,12 +5,18 @@ const {JSDOM}=require("jsdom");
 const code=fs.readFileSync("src/main/webapp/resources/js/canvas-modelo.js","utf8");
 const labels=["cfX","cfY","cfW","cfH","cfLineOrient","cfLineColor","cfLineWeight",
  "cfTableStyle","cfTableHeader","cfSignRole","cfRemove","cfFront","cfBack",
- "cfRowPlus","cfRowMinus","cfColPlus","cfColMinus","cfTextColor","cfFontSize","cfAlign"];
+ "cfRowPlus","cfRowMinus","cfColPlus","cfColMinus","cfTextColor","cfFontSize",
+ "cfHighlightColor","cfParagraphStyle","cfFontGrow","cfFontShrink","cfFormatReset",
+ "cfIndentLess","cfIndentMore"];
 function fixture(initial){
   const html='<!doctype html><html><body><div id="cfCanvas"></div>'
    +'<input type="hidden" id="form:conteudo"><div id="cfProperties" hidden>'
    +'<strong id="cfObjectKind"></strong>'
-   +labels.map(id=>'<input id="'+id+'" value="2">').join("")
+   +labels.map(id=>'<input id="'+id+'" value="11">').join("")
+   +'<select id="cfFontFamily"><option value="Arial">Arial</option><option value="Georgia">Georgia</option><option value="Calibri">Calibri</option></select>'
+   +'<button data-cf-format="bold"></button><button data-cf-format="italic"></button><button data-cf-format="underline"></button><button data-cf-format="strikeThrough"></button>'
+   +'<button data-cf-align="center"></button><button data-cf-align="justify"></button>'
+   +'<button data-cf-list="ul"></button><button data-cf-list="ol"></button>'
    +'<div data-cf-panel="line"></div><div data-cf-panel="text"></div>'
    +'<div data-cf-panel="table"></div><div data-cf-panel="sign"></div></div>'
    +'<button type="button" data-cf-add="text"></button>'
@@ -86,8 +92,31 @@ const editor=doc.querySelector(".cf-obj-text .cf-texto");
 editor.focus();
 doc.querySelector(".botao-campo").click();
 assert.ok(editor.textContent.includes("{{colaborador.nome}}"),"Inserção de tags no texto visual falhou");
+// Estilo aplicado apenas à seleção, não a todo o documento.
+const paragraph=editor.querySelector("p");
+const textNode=paragraph.firstChild;
+const range=doc.createRange();
+range.setStart(textNode,0);
+range.setEnd(textNode,Math.min(5,textNode.textContent.length));
+const sel=reopened.window.getSelection();sel.removeAllRanges();sel.addRange(range);
+editor.dispatchEvent(new reopened.window.MouseEvent("mouseup",{bubbles:true}));
+const family=doc.getElementById("cfFontFamily");
+family.value="Georgia";
+family.dispatchEvent(new reopened.window.Event("change",{bubbles:true}));
+assert.match(editor.innerHTML,/font-family:\s*Georgia/i,"Fonte não aplicada à seleção");
+const size=doc.getElementById("cfFontSize");size.value="18";
+size.dispatchEvent(new reopened.window.Event("change",{bubbles:true}));
+assert.match(editor.innerHTML,/font-size:\s*18pt/i,"Tamanho numérico não persistiu");
+const highlight=doc.getElementById("cfHighlightColor");highlight.value="#ffee00";
+highlight.dispatchEvent(new reopened.window.Event("change",{bubbles:true}));
+assert.match(editor.innerHTML,/background-color:\s*rgb\(255, 238, 0\)|background-color:\s*#ffee00/i,"Marca-texto não aplicado");
 press(reopened,"line");
 assert.equal(count(reopened,"line"),2);
 assert.equal(reopened.window.CFCanvas.salvar(),true);
+const styleSaved=reopened.window.document.getElementById("form:conteudo").value;
+const styleReopened=fixture(styleSaved);
+assert.match(styleReopened.window.document.querySelector(".cf-obj-text .cf-texto").innerHTML,/font-family:\s*Georgia/i);
+assert.match(styleReopened.window.document.querySelector(".cf-obj-text .cf-texto").innerHTML,/font-size:\s*18pt/i);
+styleReopened.window.close();
 console.log("Editor canvas: importação legada, criação, drag, resize, tags, salvamento e reabertura OK.");
 dom.window.close();reopened.window.close();
