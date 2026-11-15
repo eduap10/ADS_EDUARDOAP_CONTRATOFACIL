@@ -178,9 +178,15 @@ public final class ExportacaoDocumento {
             return;
         }
         XWPFParagraph p = doc.createParagraph();
-        if (el.hasClass("ql-align-center") || "center".equals(el.attr("align"))) p.setAlignment(ParagraphAlignment.CENTER);
-        else if (el.hasClass("ql-align-right")) p.setAlignment(ParagraphAlignment.RIGHT);
-        else if (el.hasClass("ql-align-justify")) p.setAlignment(ParagraphAlignment.BOTH);
+        String alinhamento = estiloCss(el,"text-align");
+        if ("center".equals(alinhamento) || el.hasClass("ql-align-center")
+                || "center".equals(el.attr("align"))) p.setAlignment(ParagraphAlignment.CENTER);
+        else if ("right".equals(alinhamento) || el.hasClass("ql-align-right")) p.setAlignment(ParagraphAlignment.RIGHT);
+        else if ("justify".equals(alinhamento) || el.hasClass("ql-align-justify")) p.setAlignment(ParagraphAlignment.BOTH);
+        else p.setAlignment(ParagraphAlignment.LEFT);
+        String recuo = estiloCss(el,"margin-left");
+        java.util.regex.Matcher mRecuo = java.util.regex.Pattern.compile("([0-9]{1,3})px").matcher(recuo);
+        if (mRecuo.matches()) p.setIndentationLeft(Integer.parseInt(mRecuo.group(1))*15);
         p.setSpacingAfter(140);
         if (tag.equals("h1") || tag.equals("h2") || tag.equals("h3")) {
             p.setAlignment(ParagraphAlignment.CENTER);
@@ -196,51 +202,107 @@ public final class ExportacaoDocumento {
         catch (NumberFormatException e) { return 0; }
     }
 
+    private record Formato(boolean negrito,boolean italico,boolean sublinhado,
+            boolean tachado,String fonte,int tamanho,String cor,String fundo) {
+        static Formato padrao(boolean forte,boolean italico,boolean sublinhado) {
+            return new Formato(forte,italico,sublinhado,false,"Arial",
+                    forte ? 14 : 11,null,null);
+        }
+        Formato herdar(Element el) {
+            String tipo=el.normalName().toLowerCase(Locale.ROOT);
+            String peso=estiloCss(el,"font-weight");
+            String inclinacao=estiloCss(el,"font-style");
+            String decoracao=estiloCss(el,"text-decoration");
+            String familia=estiloCss(el,"font-family").replace("\"","").replace("'","");
+            if(familia.contains(",")) familia=familia.split(",")[0];
+            if(familia.length()>64 || familia.isBlank()) familia=fonte;
+            String tamanhoCss=estiloCss(el,"font-size");
+            int pontos=tamanho;
+            var n=java.util.regex.Pattern.compile("(\\d{1,3})(pt|px)",java.util.regex.Pattern.CASE_INSENSITIVE)
+                    .matcher(tamanhoCss);
+            if(n.matches()) {
+                int i=Integer.parseInt(n.group(1));
+                pontos="px".equalsIgnoreCase(n.group(2)) ? Math.round(i*0.75f) : i;
+                pontos=Math.max(6,Math.min(96,pontos));
+            }
+            String foreground=corHtml(estiloCss(el,"color"));
+            String highlight=corHtml(estiloCss(el,"background-color"));
+            return new Formato(negrito || tipo.equals("b") || tipo.equals("strong") ||
+                        peso.equals("bold") || peso.equals("700"),
+                    italico || tipo.equals("em") || tipo.equals("i") || inclinacao.equals("italic"),
+                    sublinhado || tipo.equals("u") || decoracao.contains("underline"),
+                    tachado || tipo.equals("s") || tipo.equals("strike") || decoracao.contains("line-through"),
+                    familia,pontos,foreground==null?cor:foreground,
+                    highlight==null?fundo:highlight);
+        }
+    }
+
+    private static String estiloCss(Element el,String chave) {
+        var m=java.util.regex.Pattern.compile("(?i)(?:^|;)\\s*"+java.util.regex.Pattern.quote(chave)
+                +"\\s*:\\s*([^;]+)").matcher(el.attr("style"));
+        return m.find() ? m.group(1).strip() : "";
+    }
+
+    private static String corHtml(String entrada) {
+        var hex=java.util.regex.Pattern.compile("#([a-fA-F0-9]{6})").matcher(entrada);
+        if(hex.matches())return hex.group(1).toUpperCase(Locale.ROOT);
+        var rgb=java.util.regex.Pattern.compile("rgb\\(\\s*(\\d{1,3})\\s*,\\s*(\\d{1,3})\\s*,\\s*(\\d{1,3})\\s*\\)",
+                java.util.regex.Pattern.CASE_INSENSITIVE).matcher(entrada);
+        if(rgb.matches()) {
+            int r=Integer.parseInt(rgb.group(1)),g=Integer.parseInt(rgb.group(2)),b=Integer.parseInt(rgb.group(3));
+            if(r<=255&&g<=255&&b<=255)return String.format(Locale.ROOT,"%02X%02X%02X",r,g,b);
+        }
+        return null;
+    }
+
     private static void adicionarConteudo(XWPFParagraph p, Node no,
             boolean forte, boolean italico, boolean sublinhado) {
-        if (no instanceof TextNode texto) {
-            String valor = texto.getWholeText();
-            if (!valor.isEmpty()) {
-                XWPFRun run = p.createRun();
+        adicionarConteudo(p,no,Formato.padrao(forte,italico,sublinhado));
+    }
+
+    private static void adicionarConteudo(XWPFParagraph p, Node no, Formato formato) {
+        if(no instanceof TextNode texto) {
+            String valor=texto.getWholeText();
+            if(!valor.isEmpty()) {
+                XWPFRun run=p.createRun();
                 run.setText(valor);
-                run.setFontFamily("Arial");
-                run.setFontSize(forte ? 14 : 11);
-                run.setBold(forte);
-                run.setItalic(italico);
-                if (sublinhado) run.setUnderline(UnderlinePatterns.SINGLE);
+                run.setFontFamily(formato.fonte());
+                run.setFontSize(formato.tamanho());
+                run.setBold(formato.negrito());
+                run.setItalic(formato.italico());
+                if(formato.sublinhado())run.setUnderline(UnderlinePatterns.SINGLE);
+                if(formato.tachado())run.setStrikeThrough(true);
+                if(formato.cor()!=null)run.setColor(formato.cor());
+                if(formato.fundo()!=null) {
+                    var pr=run.getCTR().isSetRPr()?run.getCTR().getRPr():run.getCTR().addNewRPr();
+                    pr.addNewShd().setFill(formato.fundo());
+                }
             }
             return;
         }
-        if (!(no instanceof Element el)) return;
-        String tag = el.normalName().toLowerCase(Locale.ROOT);
-        if (tag.equals("img") && el.attr("src").startsWith("data:image/")) {
+        if(!(no instanceof Element el))return;
+        String tag=el.normalName().toLowerCase(Locale.ROOT);
+        if(tag.equals("img") && el.attr("src").startsWith("data:image/")) {
             try {
-                String fonte = el.attr("src");
-                int corte = fonte.indexOf(',');
-                if (corte > 0) {
-                    byte[] bytes = java.util.Base64.getDecoder().decode(fonte.substring(corte + 1));
-                    if (bytes.length <= 1_000_000) {
-                        int tipo = fonte.startsWith("data:image/png;")
-                                ? XWPFDocument.PICTURE_TYPE_PNG : XWPFDocument.PICTURE_TYPE_JPEG;
-                        try (java.io.ByteArrayInputStream entrada = new java.io.ByteArrayInputStream(bytes)) {
-                            p.createRun().addPicture(entrada, tipo, "logo",
-                                    org.apache.poi.util.Units.toEMU(160),
-                                    org.apache.poi.util.Units.toEMU(65));
+                String fonte=el.attr("src");
+                int corte=fonte.indexOf(',');
+                if(corte>0) {
+                    byte[] bytes=java.util.Base64.getDecoder().decode(fonte.substring(corte+1));
+                    if(bytes.length<=1_000_000) {
+                        int tipo=fonte.startsWith("data:image/png;")
+                            ?XWPFDocument.PICTURE_TYPE_PNG:XWPFDocument.PICTURE_TYPE_JPEG;
+                        try(var stream=new java.io.ByteArrayInputStream(bytes)) {
+                            p.createRun().addPicture(stream,tipo,"logo",
+                                org.apache.poi.util.Units.toEMU(160),
+                                org.apache.poi.util.Units.toEMU(65));
                         }
                     }
                 }
-            } catch (Exception ignored) {
-                p.createRun().setText("[Imagem não disponível]");
-            }
+            }catch(Exception e){p.createRun().setText("[Imagem não disponível]");}
             return;
         }
-        if (tag.equals("br")) {
-            p.createRun().addBreak();
-            return;
-        }
-        boolean b = forte || tag.equals("b") || tag.equals("strong");
-        boolean i = italico || tag.equals("i") || tag.equals("em");
-        boolean u = sublinhado || tag.equals("u");
-        for (Node filho : el.childNodes()) adicionarConteudo(p, filho, b, i, u);
+        if(tag.equals("br")){p.createRun().addBreak();return;}
+        Formato prox=formato.herdar(el);
+        for(Node child:el.childNodes())adicionarConteudo(p,child,prox);
     }
 }
