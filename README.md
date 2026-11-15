@@ -125,6 +125,14 @@ A edição dos modelos usa um **canvas A4 de composição livre**, com objetos p
 
 A prévia é demonstrativa; durante a geração do contrato os campos são preenchidos no servidor a partir do colaborador selecionado. O projeto preserva JSF + PrimeFaces + PostgreSQL e não adiciona dependências ao frontend.
 
+### Edição direta, teclado e imagens
+
+A barra de formatação permanece **fixa acima da página A4**, mesmo sem objetos selecionados. Um clique seleciona o componente e permite **arrastá-lo por sua superfície**. As alças aparecem nas quatro bordas e nos quatro cantos para ajustar posição/tamanho. **Dois cliques** entram no modo de edição de textos e células; **Esc** sai da edição para voltar a mover. Para texto novo, a folha já contém uma caixa inicial; dar dois cliques no espaço vazio também cria uma caixa naquele ponto.
+
+Quando um objeto está selecionado e fora do modo de digitação, **Delete/Backspace** remove o objeto; **setas** movem 1 unidade (Shift + seta move 10), **Ctrl+D** duplica, **Ctrl+C/V** copia e cola componentes dentro da página, e **Ctrl+Z/Ctrl+Y** desfaz/refaz operações de layout. Enquanto digita, as teclas operam normalmente sobre os caracteres do texto.
+
+A ferramenta **＋ Imagem**, junto das opções de inserir texto, linha, tabela e assinatura, permite colocar qualquer imagem PNG/JPEG de até 8 MB de origem, compactada pelo navegador e armazenada no conteúdo do modelo (limite aproximado de **270 KB por imagem após compressão**, e 2 MB por documento). O backend verifica o conteúdo real do arquivo e não aceita SVG. As imagens aparecem na prévia e no PDF/DOCX; o DOCX é editável, mas continua reordenando os objetos pelo fluxo vertical.
+
 ### Formatação de texto no Canvas
 
 Ao selecionar uma caixa de **Texto**, aparece uma faixa compacta semelhante à de um editor de documentos: 23 famílias de fonte (Aptos, Calibri, Cambria, Arial, Times New Roman, Georgia, Garamond e outras), tamanho numérico **6 a 96 pt**, aumento/redução por pontos, negrito, itálico, sublinhado, tachado, cor da fonte, marca-texto, limpar formatação, alinhamento, estilo de parágrafo, listas e recuo.
