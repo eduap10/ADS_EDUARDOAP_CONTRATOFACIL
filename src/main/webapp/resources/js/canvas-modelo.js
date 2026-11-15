@@ -233,6 +233,61 @@ $("cfRowMinus").addEventListener("click",()=>grid(selected.cf.rows-1,selected.cf
 $("cfColPlus").addEventListener("click",()=>grid(selected.cf.rows,selected.cf.cols+1));
 $("cfColMinus").addEventListener("click",()=>grid(selected.cf.rows,selected.cf.cols-1));
 document.querySelectorAll("[data-cf-add]").forEach(b=>b.addEventListener("click",()=>add(object(b.dataset.cfAdd))));
+function removeSelected(){
+ if(!selected)return;
+ selected.remove();selected=null;focusEditable=null;storedRange=null;
+ toolbar();stage.focus();updatePreview();markHistory();
+}
+function markHistory(){
+ if(loading)return;
+ const serialized=serialize();
+ if(history[historyIndex]===serialized)return;
+ history=history.slice(0,historyIndex+1);history.push(serialized);
+ if(history.length>20)history.shift();historyIndex=history.length-1;
+}
+function scheduleHistory(){clearTimeout(historyTask);historyTask=setTimeout(markHistory,400);}
+function restoreHistory(step){
+ clearTimeout(historyTask);
+ const now=serialize();if(history[historyIndex]!==now)markHistory();
+ const index=historyIndex+step;if(index<0||index>=history.length)return;
+ historyIndex=index;const prior=loading;loading=true;
+ stage.replaceChildren();selected=null;focusEditable=null;storedRange=null;
+ loadSaved(history[index]);loading=prior;toolbar();preview();stage.focus();
+}
+function duplicateSelected(item=selected){
+ if(!item)return;
+ const data=JSON.parse(JSON.stringify(item.cf));
+ data.x=Math.min(W-data.w,data.x+16);data.y=Math.min(H-data.h,data.y+16);
+ return add(object(data.tipo,data));
+}
+document.addEventListener("keydown",e=>{
+ if(!selected)return;
+ const active=document.activeElement;
+ const typing=active?.matches?.('input,textarea,select,[contenteditable="true"]');
+ if(e.key==="Escape"&&selected.classList.contains("cf-editing")){
+   e.preventDefault();exitEditing();return;
+ }
+ if(typing || (active!==selected && active!==stage && !selected.contains(active)))return;
+ const mod=e.ctrlKey||e.metaKey;
+ if(mod&&(e.key.toLowerCase()==="z"||e.key.toLowerCase()==="y")){
+   e.preventDefault();restoreHistory(e.key.toLowerCase()==="z"&&!e.shiftKey?-1:1);return;
+ }
+ if(mod&&e.key.toLowerCase()==="d"){e.preventDefault();duplicateSelected();return;}
+ if(mod&&e.key.toLowerCase()==="c"){e.preventDefault();clipboard=JSON.parse(JSON.stringify(selected.cf));return;}
+ if(mod&&e.key.toLowerCase()==="v"&&clipboard){
+   e.preventDefault();duplicateSelected({cf:clipboard});return;
+ }
+ if(e.key==="Delete"||e.key==="Backspace"){e.preventDefault();removeSelected();return;}
+ if((e.key==="Enter"||e.key==="F2")&&["text","table"].includes(selected.cf.tipo)){
+   e.preventDefault();enterEditing(selected);return;
+ }
+ const delta={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];
+ if(delta){
+   e.preventDefault();const unit=e.shiftKey?10:1;
+   change({x:selected.cf.x+delta[0]*unit,y:selected.cf.y+delta[1]*unit},false);
+ }
+});
+
 // A faixa de formatação opera sobre a seleção DOM (não sobre o bloco inteiro).
 // O intervalo é lembrado antes de o usuário tocar na barra, pois os selects
 // e campos de cores retiram naturalmente o foco do contenteditable.
