@@ -30,6 +30,12 @@ class FluxoVisualTest {
         assertTrue(editor.contains("cfSignRole"));
         assertTrue(editor.contains("data-cf-add=\"text\""));
         assertTrue(editor.contains("CFCanvas.salvar()"));
+        assertTrue(editor.contains("id=\"cfTextRibbon\""),"Barra de texto ausente.");
+        assertTrue(editor.indexOf("id=\"cfTextRibbon\"") < editor.indexOf("id=\"cfProperties\""),
+                "Barra de formatação deve ser fixa, independente da seleção.");
+        assertTrue(editor.contains("id=\"cfAddImage\""),"Botão de inserir imagem ausente.");
+        assertTrue(editor.contains("id=\"cfImageFile\""),"Upload de imagem ausente.");
+        assertTrue(editor.contains("data-cf-add=\"text\""),"Caixa de texto ausente.");
         assertTrue(editor.contains("data-catalogo-grupo=\"personalizado\""));
         xhtmlValido("contratos.xhtml");
         xhtmlValido("editar-contrato.xhtml");
