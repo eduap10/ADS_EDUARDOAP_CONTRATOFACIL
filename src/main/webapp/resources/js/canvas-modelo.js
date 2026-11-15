@@ -632,7 +632,7 @@ function importLegacy(raw){
   block.push(children[i]);
  }
  flush();
- if(!stage.querySelector(".cf-canvas-obj"))add(object("text",{x:35,y:40,w:570,h:130,html:"<p>Digite seu contrato aqui...</p>"}),false);
+ if(!stage.querySelector(".cf-canvas-obj"))add(object("text",{x:35,y:40,w:570,h:220,html:"<p></p>"}),false);
 }
 try{
  if(hidden.value.startsWith(PREFIX))loadSaved(hidden.value);
@@ -643,6 +643,10 @@ try{
  window.CFCanvas={salvar:()=>false};return;
 }
 loading=false;markHistory();filterTags();preview();
+if(!hidden.value.trim()){
+ const inicial=stage.querySelector(".cf-obj-text");
+ if(inicial)enterEditing(inicial);
+}
 window.CFCanvas={salvar(){
  if(!stage.querySelector(".cf-canvas-obj")){alert("Adicione ao menos um elemento.");return false;}
  try{clearTimeout(historyTask);markHistory();hidden.value=serialize();return true;}
