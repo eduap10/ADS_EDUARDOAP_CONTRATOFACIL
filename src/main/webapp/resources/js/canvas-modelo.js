@@ -338,7 +338,7 @@ function syncFormatted(edit){
      selected.cf.cells[r][c]=cell.textContent.replace(/[\u001f\r\n|]/g," ").slice(0,500);
    }));
  }
- updatePreview();
+ updatePreview();scheduleHistory();
 }
 function applyInline(property,value){
  const edit=editableReady();if(!edit)return;
@@ -487,8 +487,9 @@ bindButton("cfFormatReset",clearTextFormat);
 function insertTag(tag){
  if(!selected || !["text","table"].includes(selected.cf.tipo))add(object("text",{html:"<p></p>",w:420,h:100}));
  let edit=focusEditable;
- if(!edit?.isConnected||!selected.contains(edit)){edit=selected.querySelector("[contenteditable=true]");focusEditable=edit;storedRange=null;}
+ if(!edit?.isConnected||!selected.contains(edit)){edit=selected.querySelector(".cf-texto,.cf-edit-table td,.cf-edit-table th");focusEditable=edit;storedRange=null;}
  if(!edit)return;
+ if(selected)enterEditing(selected,edit);
  edit.focus();const sel=window.getSelection();
  if(storedRange && edit.contains(storedRange.commonAncestorContainer)){sel.removeAllRanges();sel.addRange(storedRange);}
  const local=sel.rangeCount && edit.contains(sel.getRangeAt(0).commonAncestorContainer);
@@ -503,7 +504,7 @@ function insertTag(tag){
  remember();
  if(selected.cf.tipo==="text")selected.cf.html=edit.innerHTML;
  else selected.cf.cells[Number(edit.dataset.r)][Number(edit.dataset.c)]=edit.innerText;
- updatePreview();
+ updatePreview();markHistory();
 }
 $("catalogoCampos").addEventListener("click",e=>{const b=e.target.closest(".botao-campo");if(b)insertTag(b.dataset.tag);});
 function filterTags(){
@@ -624,10 +625,10 @@ try{
  $("cfSaveWarning").textContent="Erro ao abrir o conteúdo. O salvamento foi bloqueado para preservar o modelo.";
  window.CFCanvas={salvar:()=>false};return;
 }
-filterTags();preview();
+loading=false;markHistory();filterTags();preview();
 window.CFCanvas={salvar(){
  if(!stage.querySelector(".cf-canvas-obj")){alert("Adicione ao menos um elemento.");return false;}
- try{hidden.value=serialize();return true;}
+ try{clearTimeout(historyTask);markHistory();hidden.value=serialize();return true;}
  catch(err){alert("Não foi possível salvar: "+err.message);return false;}
 }};
 })();
