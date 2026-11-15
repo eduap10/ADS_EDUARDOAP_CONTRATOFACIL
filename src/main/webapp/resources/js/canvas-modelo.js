@@ -496,7 +496,7 @@ function insertTag(tag){
  let edit=focusEditable;
  if(!edit?.isConnected||!selected.contains(edit)){edit=selected.querySelector(".cf-texto,.cf-edit-table td,.cf-edit-table th");focusEditable=edit;storedRange=null;}
  if(!edit)return;
- if(selected)enterEditing(selected,edit);
+ if(selected && !selected.classList.contains("cf-editing"))enterEditing(selected,edit);
  edit.focus();const sel=window.getSelection();
  if(storedRange && edit.contains(storedRange.commonAncestorContainer)){sel.removeAllRanges();sel.addRange(storedRange);}
  const local=sel.rangeCount && edit.contains(sel.getRangeAt(0).commonAncestorContainer);
