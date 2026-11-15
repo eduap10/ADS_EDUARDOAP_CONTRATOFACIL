@@ -183,35 +183,6 @@ stage.addEventListener("dblclick",e=>{
  const el=add(object("text",{x,y,w:clamp(W-x-16,160,530),h:120,html:"<p></p>"}));
  if(el)enterEditing(el);
 });
-for(const key of ["x","y","w","h"])$("cf"+key.toUpperCase()).value=s[key];
- document.querySelectorAll("[data-cf-panel]").forEach(node=>node.hidden=node.dataset.cfPanel!==s.tipo);
- if(s.tipo==="line"){$("cfLineColor").value="#"+s.color;$("cfLineWeight").value=s.weight;$("cfLineOrient").value=s.orient;}
- if(s.tipo==="table"){$("cfTableStyle").value=s.style;$("cfTableHeader").checked=s.header;}
- if(s.tipo==="sign")$("cfSignRole").value=s.role;
-}
-function change(props,redraw=true){
- if(!selected)return;
- const s=selected.cf;Object.assign(s,props);
- s.w=clamp(s.w,40,W);s.h=clamp(s.h,20,H);s.x=clamp(s.x,0,W-s.w);s.y=clamp(s.y,0,H-s.h);
- rect(selected,s);if(redraw)render(selected);toolbar();updatePreview();
-}
-function beginPointer(e,el,action){
- e.preventDefault();e.stopPropagation();choose(el);
- drag={id:e.pointerId,el,action,mouseX:e.clientX,mouseY:e.clientY,
-  start:{x:el.cf.x,y:el.cf.y,w:el.cf.w,h:el.cf.h}};
- e.currentTarget.setPointerCapture(e.pointerId);
-}
-document.addEventListener("pointermove",e=>{
- if(!drag||drag.id!==e.pointerId)return;
- const scale=stage.getBoundingClientRect().width/W;
- const dx=(e.clientX-drag.mouseX)/scale,dy=(e.clientY-drag.mouseY)/scale;
- const d=drag.el.cf,s=drag.start;
- if(drag.action==="move"){d.x=clamp(s.x+dx,0,W-d.w);d.y=clamp(s.y+dy,0,H-d.h);}
- else{d.w=clamp(s.w+dx,40,W-d.x);d.h=clamp(s.h+dy,20,H-d.y);}
- rect(drag.el,d);toolbar();
-});
-document.addEventListener("pointerup",e=>{if(drag?.id===e.pointerId){drag=null;updatePreview();}});
-stage.addEventListener("pointerdown",e=>{if(e.target===stage){selected?.classList.remove("cf-selected");selected=null;toolbar();}});
 for(const key of ["x","y","w","h"])$("cf"+key.toUpperCase()).addEventListener("change",e=>change({[key]:Number(e.target.value)},false));
 $("cfLineOrient").addEventListener("change",e=>change({orient:e.target.value}));
 $("cfLineColor").addEventListener("input",e=>change({color:e.target.value.slice(1)}));
