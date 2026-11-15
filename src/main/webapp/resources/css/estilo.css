@@ -177,3 +177,22 @@ label { color: #34465c; font-size: .9rem; }
 .alternar-previa button.ativo{background:#156eab;border-color:#156eab;color:#fff;font-weight:650}
 .aviso-previa{margin:6px 0 12px!important;color:#536b80;font-size:.81rem!important}
 @media(max-width:680px){.filtros-campos{grid-template-columns:1fr}.grupo-campo{display:none}}
+
+/* Elementos prontos do editor */
+.blocos-modelo{border:1px solid #dbe7f1;background:#f8fafc;border-radius:9px;padding:15px;margin:15px 0}
+.blocos-modelo h3{font-size:1rem;margin:0 0 8px}
+.barra-blocos{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.barra-blocos button,.dialog-componente .acoes-formulario button{border:1px solid #bad1e4;border-radius:6px;background:#fff;color:#165b85;padding:9px 12px;cursor:pointer}
+.barra-blocos button:hover{background:#e7f3fc}
+.dialog-componente{border:1px solid #d6e4f0;border-radius:12px;background:#fff;box-shadow:0 16px 60px #1f293755;width:min(620px,94vw);max-height:85vh;overflow:auto;padding:24px;color:#243a52}
+.dialog-componente::backdrop{background:#172e42aa}
+.dialog-componente h3{margin:0 0 18px}
+.dialog-componente label{display:block;font-weight:600;margin:10px 0 5px}
+.dialog-componente select,.dialog-componente input{width:100%;padding:9px;border-radius:6px;border:1px solid #cbd5e1}
+.grade-entrada{display:grid;gap:5px;overflow-x:auto;padding:10px 0}
+.grade-entrada input{min-width:85px;font-size:.85rem}
+.cf-tabela{border-collapse:collapse;margin:12px 0}
+.cf-tabela td{border:1px solid #64748b;padding:5px;vertical-align:top}
+.cf-linha-horizontal{border-bottom:1px solid #475569}
+.cf-linha-vertical{border-left:1px solid #475569;width:16px}
+.cf-linha-diagonal{font-style:italic}

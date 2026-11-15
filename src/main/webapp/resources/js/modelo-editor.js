@@ -51,7 +51,8 @@
                 const inicio = match.index, fim = inicio + match[0].length;
                 const a = indice(inicio), b = indice(fim - 1);
                 if (a < 0 || b < 0) continue;
-                const valor = exemplos.get(match[0]) || "[Campo não reconhecido]";
+                const valor = exemplos.get(match[0]) || (match[1].startsWith("visual.")
+                    || match[1].startsWith("assinatura.") ? match[0] : "[Campo não reconhecido]");
                 const di = inicio - inicios[a], df = fim - inicios[b];
                 if (a === b) {
                     const texto = nos[a].nodeValue;
@@ -71,6 +72,7 @@
         if (!frame || !editor) return;
         const copia = editor.root.cloneNode(true);
         if (modoExemplo) substituirExemplos(copia);
+        montarComponentesPreview(copia);
         const estilo = "body{font:15px/1.6 Arial,sans-serif;padding:28px;color:#1e293b;overflow-wrap:anywhere;}"
             + ".ql-align-center{text-align:center}.ql-align-right{text-align:right}"
             + ".ql-align-justify{text-align:justify}.ql-size-small{font-size:12px}"
@@ -109,6 +111,130 @@
         }
         const contador = document.getElementById("contadorCampos");
         if (contador) contador.textContent = encontrados + " campo(s)";
+    }
+
+
+    function montarComponentesPreview(root) {
+        const linhaRegex = /^\{\{visual\.linha\.(horizontal|vertical|diagonal|livre)\}\}$/;
+        const tabelaRegex = /^\{\{visual\.tabela\.inicio\.(\d{1,2})x(\d{1,2})\.w(\d{2,3})\.h(\d{2,3})\}\}$/;
+        for (const inicio of Array.from(root.children)) {
+            if (inicio.parentElement !== root) continue;
+            const texto = inicio.textContent.trim();
+            const lm = texto.match(linhaRegex);
+            if (lm) {
+                const p = document.createElement("p");
+                p.className = "cf-linha-" + lm[1];
+                if (lm[1] === "vertical") p.innerHTML = "|<br/>|<br/>|<br/>|";
+                else p.textContent = lm[1] === "diagonal" ? "╱           ╱           ╱"
+                    : lm[1] === "livre" ? "________________________"
+                    : "________________________________________";
+                inicio.replaceWith(p);
+                continue;
+            }
+            const m = texto.match(tabelaRegex);
+            if (!m) continue;
+            const nlin = Number(m[1]), ncol = Number(m[2]), largura = Number(m[3]), altura = Number(m[4]);
+            if (nlin < 1 || nlin > 12 || ncol < 1 || ncol > 8 ||
+                    largura < 40 || largura > 100 || altura < 20 || altura > 90) continue;
+            const linhas = [];
+            let cursor = inicio.nextElementSibling;
+            while (cursor && linhas.length < nlin && cursor.textContent.trim() !== "{{visual.tabela.fim}}") {
+                linhas.push(cursor);
+                cursor = cursor.nextElementSibling;
+            }
+            if (!cursor || cursor.textContent.trim() !== "{{visual.tabela.fim}}" || linhas.length !== nlin) continue;
+            const tabela = document.createElement("table");
+            tabela.className = "cf-tabela";
+            tabela.style.width = largura + "%";
+            tabela.style.borderCollapse = "collapse";
+            for (const linha of linhas) {
+                const tr = tabela.insertRow();
+                const valores = linha.textContent.split("|");
+                for (let coluna = 0; coluna < ncol; coluna++) {
+                    const celula = tr.insertCell();
+                    celula.textContent = (valores[coluna] || "").trim();
+                    celula.style.cssText = "border:1px solid #64748b;padding:5px;vertical-align:top;height:" + altura + "px";
+                }
+            }
+            inicio.replaceWith(tabela);
+            linhas.forEach(l => l.remove());
+            cursor.remove();
+        }
+    }
+
+    function configurarComponentes() {
+        const abrir = (id) => document.getElementById(id)?.showModal();
+        document.getElementById("abrirLinha")?.addEventListener("click", () => abrir("dialogLinha"));
+        document.getElementById("abrirTabela")?.addEventListener("click", () => {
+            criarGrade();
+            abrir("dialogTabela");
+        });
+        document.getElementById("abrirAssinatura")?.addEventListener("click", () => abrir("dialogAssinatura"));
+        document.querySelectorAll(".cancelar-componente").forEach(el => el.addEventListener("click",
+            () => el.closest("dialog")?.close()));
+        document.getElementById("confirmarLinha")?.addEventListener("click", () => {
+            const tipo = document.getElementById("tipoLinha").value;
+            if (!["horizontal","vertical","diagonal","livre"].includes(tipo)) return;
+            inserir("\n{{visual.linha." + tipo + "}}\n");
+            document.getElementById("dialogLinha").close();
+        });
+        for (const id of ["linhasTabela","colunasTabela"]) {
+            document.getElementById(id)?.addEventListener("input", criarGrade);
+        }
+        document.getElementById("confirmarTabela")?.addEventListener("click", () => {
+            const int = (id, min, max) => {
+                const v = Number(document.getElementById(id)?.value);
+                return Number.isInteger(v) && v >= min && v <= max ? v : null;
+            };
+            const linhas = int("linhasTabela",1,12), colunas = int("colunasTabela",1,8),
+                largura = int("larguraTabela",40,100), altura = int("alturaTabela",20,90);
+            if (!linhas || !colunas || !largura || !altura) {
+                window.alert("Confira os limites de linhas, colunas e tamanhos.");
+                return;
+            }
+            const linhasTexto = [];
+            for (let i = 0; i < linhas; i++) {
+                const celulas = [];
+                for (let j = 0; j < colunas; j++) {
+                    const input = document.querySelector('[data-celula="' + i + '-' + j + '"]');
+                    celulas.push((input?.value || "").replace(/[|\r\n]/g," ").trim());
+                }
+                linhasTexto.push(celulas.join(" | "));
+            }
+            inserir("\n{{visual.tabela.inicio." + linhas + "x" + colunas +
+                ".w" + largura + ".h" + altura + "}}\n" + linhasTexto.join("\n")
+                + "\n{{visual.tabela.fim}}\n");
+            document.getElementById("dialogTabela").close();
+        });
+        document.getElementById("confirmarAssinatura")?.addEventListener("click", () => {
+            const papel = document.getElementById("papelAssinante").value;
+            if (!["colaborador","gestor","testemunha1","testemunha2","outro"].includes(papel)) return;
+            inserir("\n{{assinatura." + papel + "}}\n");
+            document.getElementById("dialogAssinatura").close();
+        });
+    }
+
+    function criarGrade() {
+        const linhas = Math.max(1,Math.min(12,Number(document.getElementById("linhasTabela")?.value)||2));
+        const colunas = Math.max(1,Math.min(8,Number(document.getElementById("colunasTabela")?.value)||2));
+        const root = document.getElementById("gradeEntrada");
+        if (!root) return;
+        const salvos = new Map(Array.from(root.querySelectorAll("[data-celula]"))
+            .map(e => [e.dataset.celula,e.value]));
+        root.textContent = "";
+        root.style.gridTemplateColumns = "repeat(" + colunas + ", minmax(85px, 1fr))";
+        for (let i = 0; i < linhas; i++) {
+            for (let j = 0; j < colunas; j++) {
+                const input = document.createElement("input");
+                input.type = "text";
+                input.dataset.celula = i + "-" + j;
+                input.setAttribute("aria-label","Linha " + (i+1) + ", coluna " + (j+1));
+                input.placeholder = (i+1) + " × " + (j+1);
+                input.maxLength = 250;
+                input.value = salvos.get(input.dataset.celula) || "";
+                root.append(input);
+            }
+        }
     }
 
     function configurarCampos() {
@@ -164,6 +290,7 @@
             timerPrevia = window.setTimeout(atualizarPrevia, 140);
         });
         configurarCampos();
+        configurarComponentes();
         configurarPrevia();
         atualizarPrevia();
     }

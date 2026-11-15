@@ -77,6 +77,55 @@
 </span>
 </f:facet>
 </p:textEditor>
+
+<div class="blocos-modelo">
+<h3><i class="pi pi-th-large"></i> Componentes do documento</h3>
+<p class="subtitulo">Adicione linhas, tabelas com células editáveis e espaços para assinatura. Passe o mouse para ver o uso.</p>
+<div class="barra-blocos">
+<button type="button" id="abrirLinha" title="Adiciona separador horizontal, vertical, diagonal ou livre">＋ Linha/separador</button>
+<button type="button" id="abrirTabela" title="Cria uma tabela com dimensões, largura e altura configuráveis">＋ Tabela/grade</button>
+<button type="button" id="abrirAssinatura" title="Insere o espaço de assinatura para uma função; os nomes serão informados ao emitir">＋ Assinatura</button>
+</div>
+<p class="subtitulo">Para editar uma tabela depois de inserida, altere o conteúdo entre os marcadores, separando as células com o caractere |. Na prévia, a grade aparece formatada.</p>
+</div>
+<dialog id="dialogLinha" class="dialog-componente">
+<h3>Inserir separador</h3>
+<label for="tipoLinha">Orientação</label>
+<select id="tipoLinha">
+<option value="horizontal">Horizontal</option><option value="vertical">Vertical</option>
+<option value="diagonal">Diagonal</option><option value="livre">Linha livre</option>
+</select>
+<p class="subtitulo">O separador fica no texto e será renderizado na prévia, no PDF e no DOCX.</p>
+<div class="acoes-formulario"><button type="button" id="confirmarLinha">Inserir</button>
+<button type="button" class="cancelar-componente">Cancelar</button></div>
+</dialog>
+<dialog id="dialogTabela" class="dialog-componente">
+<h3>Inserir tabela editável</h3>
+<div class="campos">
+<div><label for="linhasTabela">Linhas (1 a 12)</label><input id="linhasTabela" type="number" min="1" max="12" value="2"/></div>
+<div><label for="colunasTabela">Colunas (1 a 8)</label><input id="colunasTabela" type="number" min="1" max="8" value="2"/></div>
+<div><label for="larguraTabela">Largura (%)</label><input id="larguraTabela" type="number" min="40" max="100" value="100"/></div>
+<div><label for="alturaTabela">Altura de cada linha (px)</label><input id="alturaTabela" type="number" min="20" max="90" value="36"/></div>
+</div>
+<p class="subtitulo">Preencha as células com textos ou tags (ex.: {{colaborador.nome}}).</p>
+<div class="grade-entrada" id="gradeEntrada"></div>
+<div class="acoes-formulario"><button type="button" id="confirmarTabela">Inserir tabela</button>
+<button type="button" class="cancelar-componente">Cancelar</button></div>
+</dialog>
+<dialog id="dialogAssinatura" class="dialog-componente">
+<h3>Inserir campo de assinatura</h3>
+<label for="papelAssinante">Quem deve assinar?</label>
+<select id="papelAssinante">
+<option value="colaborador">Colaborador do contrato</option>
+<option value="gestor">Gestor responsável</option>
+<option value="testemunha1">Testemunha 1</option>
+<option value="testemunha2">Testemunha 2</option>
+<option value="outro">Outro participante</option>
+</select>
+<p class="subtitulo">A pessoa do contrato é identificada automaticamente. Para gestor e testemunhas, o nome será escolhido ou informado na geração, permitindo reutilizar este modelo.</p>
+<div class="acoes-formulario"><button type="button" id="confirmarAssinatura">Inserir campo</button>
+<button type="button" class="cancelar-componente">Cancelar</button></div>
+</dialog>
 <div class="tags-documento catalogo-campos" id="catalogoCampos">
 <div class="titulo catalogo-cabecalho">
 <div><h3><i class="pi pi-database"></i> Campos da ficha</h3>
