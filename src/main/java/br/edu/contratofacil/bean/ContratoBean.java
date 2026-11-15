@@ -91,7 +91,8 @@ public class ContratoBean implements Serializable {
                 htmlPrevia = DocumentoService.sanitizar(conteudo);
             } else {
                 htmlPrevia = DocumentoService.preencher(conteudo, colaborador,
-                        new ConfiguracaoDocumentoDAO().buscarLogo());
+                        new ConfiguracaoDocumentoDAO().buscarLogo(),
+                        new TagPersonalizadaDAO().valores(colaborador));
             }
         } catch (SQLException e) { erro(e); }
     }

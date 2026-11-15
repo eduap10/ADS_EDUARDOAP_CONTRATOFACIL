@@ -36,8 +36,19 @@ public final class DocumentoService {
     }
 
     public static String preencher(String entrada, Colaborador colaborador) {
+        return preencher(entrada, colaborador, Map.of());
+    }
+
+    public static String preencher(String entrada, Colaborador colaborador, Map<String,String> extras) {
         Document d = Jsoup.parseBodyFragment(sanitizar(entrada));
         Map<String,String> valores = CatalogoCampos.valores(colaborador);
+        if (extras != null) {
+            for (Map.Entry<String,String> entradaExtra : extras.entrySet()) {
+                if (entradaExtra.getKey().startsWith("personalizada.")) {
+                    valores.put(entradaExtra.getKey(), entradaExtra.getValue());
+                }
+            }
+        }
         Map<Node,List<TextNode>> grupos = new LinkedHashMap<>();
         List<TextNode> textos = new ArrayList<>();
         coletar(d.body(), textos);
@@ -51,7 +62,12 @@ public final class DocumentoService {
 
     public static String preencher(String conteudo, Colaborador colaborador,
             ConfiguracaoDocumentoDAO.Logo logo) {
-        String html = preencher(conteudo, colaborador);
+        return preencher(conteudo, colaborador, logo, Map.of());
+    }
+
+    public static String preencher(String conteudo, Colaborador colaborador,
+            ConfiguracaoDocumentoDAO.Logo logo, Map<String,String> extras) {
+        String html = preencher(conteudo, colaborador, extras);
         String marcador = "[empresa.logo não informado]";
         if (logo == null) return html.replace(marcador, "[Logo da empresa não cadastrado]");
         if (!"image/png".equals(logo.mime()) && !"image/jpeg".equals(logo.mime())) {

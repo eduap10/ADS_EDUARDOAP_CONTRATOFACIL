@@ -28,12 +28,15 @@ public class ModeloContratoBean implements Serializable {
     private ModeloContrato edicao = new ModeloContrato();
     private List<ModeloContrato> lista = new ArrayList<>();
     private List<TipoContrato> tipos = new ArrayList<>();
+    private List<br.edu.contratofacil.model.TagPersonalizada> tags = new ArrayList<>();
 
     @PostConstruct
     public void iniciar() {
         pesquisar();
-        try { tipos = new TipoContratoDAO().listar(false); }
-        catch (SQLException e) { erroBanco(e); }
+        try {
+            tipos = new TipoContratoDAO().listar(false);
+            tags = new br.edu.contratofacil.dao.TagPersonalizadaDAO().listar(true);
+        } catch (SQLException e) { erroBanco(e); }
     }
 
     public void pesquisar() {
@@ -111,6 +114,7 @@ public class ModeloContratoBean implements Serializable {
     public void setEdicao(ModeloContrato edicao) { this.edicao = edicao; }
     public List<ModeloContrato> getLista() { return lista; }
     public List<TipoContrato> getTipos() { return tipos; }
+    public List<br.edu.contratofacil.model.TagPersonalizada> getTagsPersonalizadas() { return tags; }
     public java.util.List<br.edu.contratofacil.service.CatalogoCampos.Campo> getCampos() {
         return br.edu.contratofacil.service.CatalogoCampos.todos();
     }

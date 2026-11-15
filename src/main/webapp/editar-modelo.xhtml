@@ -12,6 +12,7 @@
 <h:link outcome="/colaboradores.xhtml" value="Colaboradores"/>
 <h:link outcome="/tipos.xhtml" value="Tipos"/>
 <h:link outcome="/modelos.xhtml" value="Modelos"/>
+<h:link outcome="/tags.xhtml" value="Tags"/>
 <h:link outcome="/contratos.xhtml" value="Contratos"/>
 <h:form id="formSair" styleClass="form-sair"><h:commandLink action="#{loginBean.sair}" value="Sair"/></h:form>
 </nav></header>
@@ -93,6 +94,7 @@
 <option value="Endereço">Endereço</option>
 <option value="Dados contratuais">Dados contratuais</option>
 <option value="Documento">Documento</option>
+<option value="Personalizados">Personalizados</option>
 </select>
 </div>
 <div class="lista-campos" id="listaCampos">
@@ -105,11 +107,20 @@ aria-label="Inserir #{campo.rotulo}: #{campo.descricao}">
 <span class="grupo-campo">#{campo.grupo}</span>
 </button>
 </ui:repeat>
+<ui:repeat value="#{modeloContratoBean.tagsPersonalizadas}" var="tagOpcao">
+<button type="button" class="botao-campo" data-tag="#{tagOpcao.tag}"
+data-grupo="Personalizados" data-exemplo="#{tagOpcao.tipo == 'TEXTO_FIXO' ? tagOpcao.valorFixo : 'Valor automático'}"
+data-descricao="#{tagOpcao.descricao}" title="#{tagOpcao.descricao}"
+aria-label="Inserir #{tagOpcao.nome}">
+<span class="nome-campo">#{tagOpcao.nome}</span><span class="grupo-campo">Personalizados</span>
+</button>
+</ui:repeat>
 </div>
 <p class="ajuda-campo" id="descricaoCampo" aria-live="polite">
 <strong>Dica:</strong> “Nome completo” insere a tag <code>{{colaborador.nome}}</code>, preenchida com o nome do colaborador escolhido na emissão.
 </p>
 <h:link outcome="/configuracao-documento.xhtml" value="Configurar logo" styleClass="link-acao-subtil"/>
+<h:link outcome="/tags.xhtml" value="Criar ou editar tags" styleClass="link-acao-subtil"/>
 </div>
 </div>
 <div class="area-previa-modelo">
