@@ -46,9 +46,10 @@ function add(s,select=true){
 function render(el){
  const s=el.cf,area=el.querySelector(".cf-obj-conteudo");area.textContent="";
  if(s.tipo==="text"){
-  const div=document.createElement("div");div.className="cf-texto";div.contentEditable="true";div.innerHTML=s.html;
+  const div=document.createElement("div");div.className="cf-texto";div.contentEditable="true";div.tabIndex=0;div.innerHTML=s.html;
   area.append(div);
   div.addEventListener("focus",()=>{focusEditable=div;choose(el);});
+  div.addEventListener("click",()=>{focusEditable=div;choose(el);remember();});
   div.addEventListener("keyup",remember);div.addEventListener("mouseup",remember);
   div.addEventListener("input",()=>{s.html=div.innerHTML;updatePreview();});
  }else if(s.tipo==="line"){
@@ -64,7 +65,7 @@ function render(el){
   for(let r=0;r<s.rows;r++){
     const tr=document.createElement("tr");
     for(let c=0;c<s.cols;c++){
-      const td=document.createElement(s.header&&r===0?"th":"td");td.contentEditable="true";
+      const td=document.createElement(s.header&&r===0?"th":"td");td.contentEditable="true";td.tabIndex=0;
       td.dataset.r=r;td.dataset.c=c;td.textContent=s.cells[r][c];
       td.addEventListener("focus",()=>{focusEditable=td;choose(el);});
       td.addEventListener("keyup",remember);td.addEventListener("mouseup",remember);
