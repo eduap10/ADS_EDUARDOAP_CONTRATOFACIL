@@ -125,6 +125,14 @@ A edição dos modelos usa um **canvas A4 de composição livre**, com objetos p
 
 A prévia é demonstrativa; durante a geração do contrato os campos são preenchidos no servidor a partir do colaborador selecionado. O projeto preserva JSF + PrimeFaces + PostgreSQL e não adiciona dependências ao frontend.
 
+### Formatação de texto no Canvas
+
+Ao selecionar uma caixa de **Texto**, aparece uma faixa compacta semelhante à de um editor de documentos: 23 famílias de fonte (Aptos, Calibri, Cambria, Arial, Times New Roman, Georgia, Garamond e outras), tamanho numérico **6 a 96 pt**, aumento/redução por pontos, negrito, itálico, sublinhado, tachado, cor da fonte, marca-texto, limpar formatação, alinhamento, estilo de parágrafo, listas e recuo.
+
+**Selecione uma palavra ou trecho** dentro da caixa de texto e use a formatação. Sem seleção de texto, os estilos são aplicados aos parágrafos da caixa. O HTML formatado é sanitizado no Java, salvo no modelo e usado nas exportações PDF/DOCX. No Word, a fonte e a altura dos trechos formatados são preservadas. A fidelidade visual no PDF e no DOCX depende de as fontes estarem disponíveis na máquina que renderiza o documento; **não há fontes licenciadas incorporadas**. As células de tabela aceitam texto e tags, mas a formatação rica individual de cada célula ainda não é persistida.
+
+A faixa não depende de bibliotecas externas e preserva a arquitetura Java 21 + JSF + PrimeFaces + PostgreSQL.
+
 ### Compatibilidade e persistência
 
 O novo formato `CFCANVAS1` é validado e salvo **na mesma coluna** `conteudo` usada pelos modelos antigos. A conversão de um modelo antigo para canvas só é persistida **ao salvar** no editor novo. Os marcadores legados continuam renderizados no servidor para contratos já emitidos, sem migração de banco. Faça backup antes de converter modelos valiosos.
