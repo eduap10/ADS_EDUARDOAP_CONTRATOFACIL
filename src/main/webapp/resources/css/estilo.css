@@ -278,3 +278,30 @@ label { color: #34465c; font-size: .9rem; }
 .cf-properties input[type=color]{width:36px;height:30px;padding:2px}
 .cf-properties select{padding:6px;border:1px solid #b9cedf;border-radius:5px;background:#fff}
 @media(max-width:700px){.cf-stage-scroll{padding:8px}.cf-canvas-stage{margin:0}.cf-properties{position:static}}
+
+
+/* Barra de formatação compacta estilo editor de documentos */
+.cf-word-ribbon{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:7px 4px;border-top:1px solid #c9deed;background:#f7fbff}
+.cf-word-ribbon[hidden]{display:none!important}
+.cf-ribbon-group{display:flex;align-items:center;gap:3px;min-height:32px;padding:0 7px 0 0;border-right:1px solid #c9d9e7}
+.cf-ribbon-group:last-of-type{border-right:0}
+.cf-font-group #cfFontFamily{width:156px;max-width:45vw}
+.cf-font-group #cfFontSize{width:55px;min-width:55px;text-align:center}
+.cf-word-ribbon select,.cf-word-ribbon input[type=number]{height:29px;padding:3px 5px;border:1px solid #c3d4e2;border-radius:4px;background:#fff;color:#1a3045;font-size:12px;min-width:0}
+.cf-properties .cf-word-ribbon button.cf-mini-icon{width:29px;height:29px;min-width:29px;padding:0;display:inline-flex;justify-content:center;align-items:center;border:1px solid transparent;border-radius:4px;background:transparent;color:#27425b;font-size:12px;line-height:1}
+.cf-properties .cf-word-ribbon button.cf-mini-icon:hover,.cf-properties .cf-word-ribbon button.cf-mini-icon:focus-visible{background:#e1eef9;border-color:#9fbfd7}
+.cf-word-ribbon .cf-mini-icon i{font-size:13px}
+.cf-word-ribbon .cf-inline-group .cf-mini-icon s{font-size:9px}
+.cf-word-ribbon .cf-color-action{height:29px;display:flex;align-items:center;position:relative;border-radius:4px}
+.cf-word-ribbon .cf-color-action label{width:22px;min-width:22px;justify-content:center;display:flex;flex-direction:column;gap:0;align-items:center;cursor:pointer}
+.cf-word-ribbon .cf-color-action label i{font-size:13px}
+.cf-word-ribbon .cf-color-accent{font-size:10px;font-weight:700;line-height:10px}
+.cf-word-ribbon .cf-color-action input[type=color]{height:29px;width:26px;padding:1px;border:1px solid #cad8e6;cursor:pointer}
+.cf-word-ribbon #cfParagraphStyle{width:91px}
+.cf-ribbon-hint{flex-basis:100%;margin-left:3px;color:#64748b;font-size:11px}
+.cf-sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+.cf-properties .cf-props-head{align-items:center}
+.cf-properties .cf-props-head>button{font-size:12px;padding:5px 8px}
+.cf-properties .cf-props-row{gap:7px}
+.cf-properties .cf-props-row:not(.cf-word-ribbon) input[type=number]{height:30px}
+@media(max-width:860px){.cf-word-ribbon{gap:5px}.cf-ribbon-group{border-right:0;border-bottom:1px solid #dbe5ed;padding-bottom:4px}.cf-ribbon-hint{font-size:10px}}

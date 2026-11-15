@@ -98,16 +98,74 @@
 <option value="outro">Outro participante</option></select></label>
 <span class="subtitulo">O nome será informado na emissão, abaixo da linha.</span>
 </div>
-<div class="cf-props-row" data-cf-panel="text" hidden="hidden">
-<button type="button" data-cf-format="bold" title="Negrito"><strong>N</strong></button>
-<button type="button" data-cf-format="italic" title="Itálico"><em>I</em></button>
-<button type="button" data-cf-format="underline" title="Sublinhado"><u>S</u></button>
-<label for="cfTextColor">Cor <input id="cfTextColor" type="color"/></label>
-<label for="cfFontSize">Tamanho <select id="cfFontSize">
-<option value="2">Pequeno</option><option value="3" selected="selected">Normal</option><option value="5">Grande</option></select></label>
-<label for="cfAlign">Alinhamento <select id="cfAlign">
-<option value="justifyLeft">Esquerda</option><option value="justifyCenter">Centro</option>
-<option value="justifyRight">Direita</option><option value="justifyFull">Justificado</option></select></label>
+<div class="cf-word-ribbon" data-cf-panel="text" hidden="hidden" role="toolbar" aria-label="Formatação de texto">
+<div class="cf-ribbon-group cf-font-group" aria-label="Fonte e tamanho">
+<label class="cf-sr-only" for="cfFontFamily">Família da fonte</label>
+<select id="cfFontFamily" title="Família da fonte" aria-label="Família da fonte">
+<option value="Arial">Arial</option>
+<option value="Aptos">Aptos</option>
+<option value="Calibri">Calibri</option>
+<option value="Cambria">Cambria</option>
+<option value="Candara">Candara</option>
+<option value="Segoe UI">Segoe UI</option>
+<option value="Times New Roman">Times New Roman</option>
+<option value="Georgia">Georgia</option>
+<option value="Garamond">Garamond</option>
+<option value="Palatino Linotype">Palatino Linotype</option>
+<option value="Book Antiqua">Book Antiqua</option>
+<option value="Century Gothic">Century Gothic</option>
+<option value="Franklin Gothic Medium">Franklin Gothic</option>
+<option value="Arial Narrow">Arial Narrow</option>
+<option value="Verdana">Verdana</option>
+<option value="Tahoma">Tahoma</option>
+<option value="Trebuchet MS">Trebuchet MS</option>
+<option value="Lucida Sans Unicode">Lucida Sans Unicode</option>
+<option value="Consolas">Consolas</option>
+<option value="Courier New">Courier New</option>
+<option value="Lucida Console">Lucida Console</option>
+<option value="Impact">Impact</option>
+<option value="Comic Sans MS">Comic Sans MS</option>
+</select>
+<label class="cf-sr-only" for="cfFontSize">Tamanho da fonte em pontos</label>
+<input id="cfFontSize" type="number" min="6" max="96" step="1" value="11" title="Tamanho da fonte em pontos (6 a 96)" aria-label="Tamanho da fonte em pontos"/>
+<button type="button" id="cfFontGrow" class="cf-mini-icon" title="Aumentar tamanho da fonte" aria-label="Aumentar fonte"><i class="pi pi-plus"></i></button>
+<button type="button" id="cfFontShrink" class="cf-mini-icon" title="Diminuir tamanho da fonte" aria-label="Diminuir fonte"><i class="pi pi-minus"></i></button>
+</div>
+<div class="cf-ribbon-group cf-inline-group" aria-label="Estilo dos caracteres">
+<button type="button" class="cf-mini-icon" data-cf-format="bold" title="Negrito (Ctrl+B)" aria-label="Negrito"><strong>N</strong></button>
+<button type="button" class="cf-mini-icon" data-cf-format="italic" title="Itálico (Ctrl+I)" aria-label="Itálico"><em>I</em></button>
+<button type="button" class="cf-mini-icon" data-cf-format="underline" title="Sublinhado (Ctrl+U)" aria-label="Sublinhado"><u>S</u></button>
+<button type="button" class="cf-mini-icon" data-cf-format="strikeThrough" title="Tachado" aria-label="Tachado"><s>abc</s></button>
+<span class="cf-color-action">
+<label for="cfTextColor" title="Cor da fonte"><i class="pi pi-palette"></i><span class="cf-color-accent">A</span></label>
+<input id="cfTextColor" type="color" value="#172b41" title="Cor da fonte" aria-label="Cor do texto selecionado"/>
+</span>
+<span class="cf-color-action">
+<label for="cfHighlightColor" title="Marca-texto"><i class="pi pi-pencil"></i><span class="cf-color-accent">▰</span></label>
+<input id="cfHighlightColor" type="color" value="#fff176" title="Marca-texto" aria-label="Cor de destaque do texto selecionado"/>
+</span>
+<button type="button" id="cfFormatReset" class="cf-mini-icon" title="Remover formatação da seleção" aria-label="Limpar formatação"><i class="pi pi-eraser"></i></button>
+</div>
+<div class="cf-ribbon-group cf-paragraph-group" aria-label="Parágrafo">
+<label class="cf-sr-only" for="cfParagraphStyle">Estilo de parágrafo</label>
+<select id="cfParagraphStyle" title="Estilo de parágrafo" aria-label="Estilo de parágrafo">
+<option value="normal">Normal</option>
+<option value="title">Título</option>
+<option value="subtitle">Subtítulo</option>
+<option value="heading1">Título 1</option>
+<option value="heading2">Título 2</option>
+</select>
+<button type="button" class="cf-mini-icon" data-cf-align="left" title="Alinhar à esquerda" aria-label="Alinhar à esquerda"><i class="pi pi-align-left"></i></button>
+<button type="button" class="cf-mini-icon" data-cf-align="center" title="Centralizar" aria-label="Centralizar"><i class="pi pi-align-center"></i></button>
+<button type="button" class="cf-mini-icon" data-cf-align="right" title="Alinhar à direita" aria-label="Alinhar à direita"><i class="pi pi-align-right"></i></button>
+<button type="button" class="cf-mini-icon" data-cf-align="justify" title="Justificar texto" aria-label="Justificar texto"><i class="pi pi-align-justify"></i></button>
+<button type="button" class="cf-mini-icon" data-cf-list="ul" title="Marcadores" aria-label="Lista com marcadores"><i class="pi pi-list"></i></button>
+<button type="button" class="cf-mini-icon" data-cf-list="ol" title="Numeração" aria-label="Lista numerada"><i class="pi pi-sort-numeric-down"></i></button>
+<button type="button" class="cf-mini-icon" id="cfIndentLess" title="Diminuir recuo" aria-label="Diminuir recuo"><i class="pi pi-angle-double-left"></i></button>
+<button type="button" class="cf-mini-icon" id="cfIndentMore" title="Aumentar recuo" aria-label="Aumentar recuo"><i class="pi pi-angle-double-right"></i></button>
+</div>
+<div class="cf-ribbon-hint">Selecione uma palavra ou trecho para formatar. Sem seleção, a opção se aplica à caixa de texto.</div>
+</div>
 </div>
 </div>
 <div class="cf-stage-scroll">
