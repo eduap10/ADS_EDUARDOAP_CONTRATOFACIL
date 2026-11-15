@@ -27,6 +27,11 @@ public final class ExportacaoDocumento {
            + ".ql-align-justify{text-align:justify}"
            + ".ql-size-small{font-size:9pt}.ql-size-large{font-size:15pt}"
            + ".ql-size-huge{font-size:20pt}"
+           + "table.cf-tabela{border-collapse:collapse;margin:10px 0;}"
+           + "table.cf-tabela td{border:1px solid #64748b;padding:5px;}"
+           + "p.cf-linha-horizontal{border-bottom:1px solid #333;}"
+           + "p.cf-linha-vertical{border-left:1px solid #333;}"
+
            + "</style></head><body><h2>" + org.jsoup.nodes.Entities.escape(titulo)
            + "</h2>" + doc.body().html() + "</body></html>";
         PdfRendererBuilder builder = new PdfRendererBuilder();
@@ -61,6 +66,21 @@ public final class ExportacaoDocumento {
         }
         if (!(no instanceof Element el)) return;
         String tag = el.normalName();
+        if (tag.equals("table")) {
+            java.util.List<Element> linhas = el.select("tr");
+            int colunas = linhas.stream().mapToInt(l -> l.select("td,th").size()).max().orElse(1);
+            if (!linhas.isEmpty() && colunas > 0) {
+                XWPFTable tabela = doc.createTable(linhas.size(), colunas);
+                tabela.setWidth("100%");
+                for (int i = 0; i < linhas.size(); i++) {
+                    java.util.List<Element> celulas = linhas.get(i).select("td,th");
+                    for (int j = 0; j < celulas.size(); j++) {
+                        tabela.getRow(i).getCell(j).setText(celulas.get(j).text());
+                    }
+                }
+            }
+            return;
+        }
         if (tag.equals("ul") || tag.equals("ol")) {
             int indice = 1;
             for (Element filho : el.children()) {

@@ -83,6 +83,37 @@ class DocumentoServiceTest {
         assertTrue(org.jsoup.Jsoup.parseBodyFragment(html).text().contains("Não informado"));
     }
 
+
+    @Test void geraTabelaEditavelNaPreviaEEmpacotaDocx() throws Exception {
+        String modelo = "<p>{{visual.tabela.inicio.2x2.w80.h30}}</p>"
+            + "<p>Nome | Cargo</p><p>{{colaborador.nome}} | {{colaborador.cargo}}</p>"
+            + "<p>{{visual.tabela.fim}}</p>";
+        String html = DocumentoService.preencher(modelo, colaborador());
+        var doc = org.jsoup.Jsoup.parseBodyFragment(html);
+        assertEquals(1, doc.select("table.cf-tabela").size(), html);
+        assertEquals(4, doc.select("table.cf-tabela td").size(), html);
+        assertTrue(doc.select("table.cf-tabela").text().contains("Analista"));
+        ByteArrayOutputStream word = new ByteArrayOutputStream();
+        ExportacaoDocumento.docx("Tabela", html, word);
+        try (var zip = new ZipInputStream(new java.io.ByteArrayInputStream(word.toByteArray()))) {
+            java.util.zip.ZipEntry e;
+            String xml = "";
+            while ((e = zip.getNextEntry()) != null) {
+                if ("word/document.xml".equals(e.getName())) {
+                    xml = new String(zip.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+                }
+            }
+            assertTrue(xml.contains("<w:tbl>"), "DOCX precisa manter a grade como tabela: " + xml.substring(0,Math.min(300,xml.length())));
+        }
+    }
+
+    @Test void separadoresSaoConvertidosEmElementosVisuais() {
+        String html = DocumentoService.preencher("<p>{{visual.linha.horizontal}}</p><p>{{visual.linha.vertical}}</p>",
+            colaborador());
+        assertTrue(html.contains("cf-linha-horizontal"), html);
+        assertTrue(html.contains("cf-linha-vertical"), html);
+    }
+
     @Test void exportacaoPdfGeraCabecalhoPdfValido() throws Exception {
         ByteArrayOutputStream saida = new ByteArrayOutputStream();
         String html = DocumentoService.preencher(
