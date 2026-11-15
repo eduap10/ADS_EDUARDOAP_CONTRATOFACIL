@@ -9,6 +9,35 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PersistenciaIntegracaoTest {
+    @Test void tagsPersonalizadasUsamFichaEVariaveisDoSistema() throws Exception {
+        Assumptions.assumeTrue("true".equals(System.getenv("RUN_DB_INTEGRATION")));
+        TagPersonalizada tag = new TagPersonalizada();
+        tag.setCodigo("ci_" + Long.toString(System.nanoTime(), 36));
+        tag.setNome("Tag automatizada da integração");
+        tag.setTipo("TEXTO_FIXO");
+        tag.setValorFixo("Valor acadêmico");
+        TagPersonalizadaDAO dao = new TagPersonalizadaDAO();
+        dao.salvar(tag);
+        assertNotNull(tag.getId());
+        Colaborador pessoa = new Colaborador();
+        pessoa.setNome("Maria de Teste");
+        String textoFixo = br.edu.contratofacil.service.DocumentoService.preencher(
+            "<p>" + tag.getTag() + "</p>", pessoa, dao.valores(pessoa));
+        assertTrue(textoFixo.contains("Valor acadêmico"), textoFixo);
+        tag.setTipo("CAMPO_FICHA");
+        tag.setReferencia("colaborador.nome");
+        dao.salvar(tag);
+        String campoFicha = br.edu.contratofacil.service.DocumentoService.preencher(
+            "<p>" + tag.getTag() + "</p>", pessoa, dao.valores(pessoa));
+        assertTrue(campoFicha.contains("Maria de Teste"), campoFicha);
+        tag.setTipo("ANO_ATUAL");
+        dao.salvar(tag);
+        String ano = br.edu.contratofacil.service.DocumentoService.preencher(
+            "<p>" + tag.getTag() + "</p>", pessoa, dao.valores(pessoa));
+        assertTrue(ano.contains(Integer.toString(java.time.ZonedDateTime.now(
+            java.time.ZoneId.of("America/Sao_Paulo")).getYear())), ano);
+    }
+
     @Test void criaModeloEGeraContratoComTipoEColaborador() throws Exception {
         Assumptions.assumeTrue("true".equals(System.getenv("RUN_DB_INTEGRATION")),
                 "Teste de banco executado somente no job PostgreSQL da integração.");

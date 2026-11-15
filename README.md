@@ -117,3 +117,40 @@ A geração DOCX preserva **formatação textual básica** (negrito, itálico, s
 **Template Manhattan:** os arquivos do template da disciplina ainda não foram disponibilizados; o layout atual é CSS/PrimeFaces próprio e não deve ser apresentado como o Manhattan oficial.
 
 **Privacidade:** o cadastro contempla campos pessoais e sensíveis. Para a demonstração acadêmica, use exclusivamente registros fictícios; o projeto não tem uma política completa de retenção, consentimento e auditoria de dados.
+
+
+## Ferramentas de composição de documentos (versão atual)
+
+### Tags personalizadas
+
+Após aplicar a migração `database/13_tags_personalizadas.sql`, use a nova aba **Tags** para cadastrar um identificador em letras minúsculas/números e sublinhado, nome amigável, descrição e origem:
+
+- Texto fixo (por exemplo, nome da empresa)
+- Campo vinculado à ficha de colaborador
+- Data, hora, data e hora ou ano do sistema, no fuso de Brasília.
+
+Uma tag criada com código `nome_empresa` aparece no editor como `{{personalizada.nome_empresa}}`. O catálogo permite pesquisar e inserir a tag no cursor. Campos dinâmicos são resolvidos no servidor na prévia do contrato e na exportação. Não é permitido executar SQL ou JavaScript por uma tag.
+
+### Linhas e tabelas
+
+No editor de **Modelos** existe o painel **Componentes do documento**. Os separadores disponíveis são horizontal, vertical, diagonal e livre. As orientações diagonal e livre têm representação simples, e não são ferramentas de desenho à mão.
+
+**Tabela/grade:** informe linhas (1–12), colunas (1–8), largura (%) e altura das linhas (px). Edite o conteúdo das células no próprio formulário e, após inseri-la, altere seu conteúdo entre os marcadores no editor, usando `|` para separar as colunas. A prévia renderiza a grade. A exportação DOCX produz uma tabela nativa do Word e o PDF usa tabela HTML. **Não há arraste de bordas para redimensionamento direto na página**, apenas os controles numéricos e os marcadores. Isso evita incluir um editor externo incompatível com a arquitetura do projeto.
+
+### Assinaturas
+
+O botão **Assinatura** no Editor de Modelos abre uma janela para selecionar **colaborador**, **gestor**, **testemunha 1**, **testemunha 2** ou **outro participante**. Ao gerar um contrato, os nomes desses participantes podem ser digitados ou selecionados pela busca de colaboradores.
+
+Os nomes são armazenados no registro emitido, após a migração `database/14_assinaturas_contrato.sql`. O campo de assinatura é **um espaço para assinatura manual**, não uma assinatura eletrônica ou certificada. O sistema não possui processo de assinatura digital.
+
+### Atualização de uma base existente
+
+Após backup do PostgreSQL, execute uma vez, na ordem:
+
+```powershell
+$psql = "C:\Program Files\PostgreSQL\18\bin\psql.exe"
+& $psql -X -W -v ON_ERROR_STOP=1 -h 127.0.0.1 -p 5432 -U contratofacil_app -d contratofacil -f .\database\13_tags_personalizadas.sql
+& $psql -X -W -v ON_ERROR_STOP=1 -h 127.0.0.1 -p 5432 -U contratofacil_app -d contratofacil -f .\database\14_assinaturas_contrato.sql
+```
+
+Não apague as tabelas antigas. Depois compile `mvn -U clean verify` e reinicie apenas o Tomcat local do ContratoFácil. A CI valida Java, XHTML, JavaScript e a persistência usando PostgreSQL temporário. Teste o funcionamento das telas no notebook antes de considerar a versão pronta.

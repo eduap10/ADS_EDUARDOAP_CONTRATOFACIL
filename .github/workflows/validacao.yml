@@ -19,6 +19,8 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: maven
+      - name: Validar JavaScript do editor
+        run: node --check src/main/webapp/resources/js/modelo-editor.js
       - name: Compilar e testar
         run: mvn --batch-mode --no-transfer-progress clean verify
 
