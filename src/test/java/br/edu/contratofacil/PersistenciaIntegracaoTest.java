@@ -21,15 +21,33 @@ class PersistenciaIntegracaoTest {
         colaborador.setNome("Colaborador de Teste CI");
         colaborador.setMatricula("CI" + System.nanoTime() % 100000000000000000L);
         colaborador.setCargo("Analista");
+        colaborador.setCidade("Passo Fundo");
+        colaborador.setEstadoCivil("Solteiro(a)");
+        colaborador.setComplemento("Apto 42");
+        colaborador.setSalario(new java.math.BigDecimal("3250.75"));
         ModeloContrato modelo = new ModeloContrato();
         modelo.setTitulo("Modelo da integração");
-        modelo.setConteudo("<p>Olá {{colaborador.nome}}</p>");
+        modelo.setConteudo("<p>Olá {{colaborador.nome}}. Cidade: {{colaborador.cidade}}. "
+            + "Estado civil: {{colaborador.estadoCivil}}. "
+            + "Complemento: {{colaborador.complemento}}. "
+            + "Salário: {{colaborador.salario}}</p>");
         modelo.setTipoId(tipoId);
         Contrato contrato = new Contrato();
         try {
             new ColaboradorDAO().salvar(colaborador);
             assertNotNull(colaborador.getId());
-            assertEquals("Analista", new ColaboradorDAO().buscar(colaborador.getId()).getCargo());
+            Colaborador ficha = new ColaboradorDAO().buscar(colaborador.getId());
+            assertEquals("Analista", ficha.getCargo());
+            assertEquals("Passo Fundo", ficha.getCidade());
+            String preenchido = br.edu.contratofacil.service.DocumentoService.preencher(
+                modelo.getConteudo(), ficha);
+            String texto = org.jsoup.Jsoup.parseBodyFragment(preenchido).text();
+            assertTrue(texto.contains("Colaborador de Teste CI"), texto);
+            assertTrue(texto.contains("Passo Fundo"), texto);
+            assertTrue(texto.contains("Solteiro(a)"), texto);
+            assertTrue(texto.contains("Apto 42"), texto);
+            assertTrue(texto.contains("3.250,75"), texto);
+            assertFalse(texto.contains("{{colaborador."), texto);
 
             new ModeloContratoDAO().salvar(modelo);
             assertNotNull(modelo.getId());
@@ -46,7 +64,7 @@ class PersistenciaIntegracaoTest {
 
             modelo.setConteudo("<p>Texto novo que não pode alterar contrato antigo</p>");
             new ModeloContratoDAO().salvar(modelo);
-            assertEquals("<p>Olá {{colaborador.nome}}</p>",
+            assertEquals(contrato.getConteudo(),
                     new ContratoDAO().buscar(contrato.getId()).getConteudo());
 
             colaborador.setCargo("Coordenador");

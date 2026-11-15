@@ -24,11 +24,22 @@
 </div>
 <h:form id="form">
 <p:messages id="avisos" showDetail="true" closable="true"/>
+<details class="tutorial-editor">
+<summary><i class="pi pi-question-circle"></i> Como gerar um contrato com os dados da ficha?</summary>
+<ol>
+<li>Pesquise o colaborador pelo nome ou matrícula e selecione o registro correto.</li>
+<li>Escolha o tipo e o modelo criado na aba Modelos.</li>
+<li>Confira a prévia à direita: os marcadores do modelo, como <code>{{colaborador.nome}}</code>, são substituídos pelos dados cadastrados.</li>
+<li>Clique em <strong>Gerar e visualizar</strong> para salvar o documento e acessar PDF ou DOCX.</li>
+</ol>
+<p>Se a ficha tiver informações em branco, o documento mostrará “Não informado”. Volte ao cadastro do colaborador para completar o campo.</p>
+</details>
 <div class="editor-duas-colunas">
 <div class="painel-edicao-leve">
 <h3 class="subtitulo-secao">Dados do documento</h3>
 <div class="campo-formulario">
 <p:outputLabel for="colaborador" value="Colaborador *"/>
+<span class="icone-ajuda" title="Procure pelo nome ou matrícula. Os valores serão obtidos da ficha salva no banco." aria-label="Ajuda: colaborador">ⓘ</span>
 <p:selectOneMenu id="colaborador" value="#{contratoBean.edicao.colaboradorId}"
  filter="true" filterMatchMode="contains" required="true"
  requiredMessage="Selecione um colaborador." style="width:100%">
@@ -40,6 +51,7 @@
 </div>
 <div class="campo-formulario">
 <p:outputLabel for="tipo" value="Tipo de contrato *"/>
+<span class="icone-ajuda" title="Classificação cadastrada em Tipos. Limita os modelos apresentados abaixo." aria-label="Ajuda: tipo de contrato">ⓘ</span>
 <p:selectOneMenu id="tipo" value="#{contratoBean.edicao.tipoId}"
  required="true" requiredMessage="Selecione o tipo." style="width:100%">
 <f:selectItem itemLabel="Selecione o tipo..." itemValue="#{null}" noSelectionOption="true"/>
@@ -51,6 +63,7 @@
 </div>
 <div class="campo-formulario">
 <p:outputLabel for="modelo" value="Modelo de documento *"/>
+<span class="icone-ajuda" title="Texto-base montado no Editor de Modelos. As tags serão substituídas quando o colaborador for escolhido." aria-label="Ajuda: modelo">ⓘ</span>
 <p:selectOneMenu id="modelo" value="#{contratoBean.edicao.modeloId}"
  style="width:100%">
 <f:selectItem itemLabel="Selecione o modelo..." itemValue="#{null}" noSelectionOption="true"/>
@@ -62,11 +75,13 @@
 </div>
 <div class="campo-formulario">
 <p:outputLabel for="titulo" value="Título do contrato"/>
+<span class="icone-ajuda" title="Título exibido no documento gerado. Deixe vazio para usar o nome do modelo." aria-label="Ajuda: título">ⓘ</span>
 <p:inputText id="titulo" value="#{contratoBean.edicao.titulo}" maxlength="160"
  style="width:100%" placeholder="Em branco, usa o título do modelo"/>
 </div>
 <div class="campo-formulario">
 <p:outputLabel for="situacao" value="Situação"/>
+<span class="icone-ajuda" title="Rascunho é documento em elaboração; Finalizado indica concluído. Não representa assinatura digital." aria-label="Ajuda: situação">ⓘ</span>
 <p:selectOneMenu id="situacao" value="#{contratoBean.edicao.situacao}" style="width:100%">
 <f:selectItems value="#{contratoBean.situacoes}" var="situacaoOpcao"
  itemLabel="#{situacaoOpcao}" itemValue="#{situacaoOpcao}"/>
@@ -80,7 +95,9 @@
 </div>
 </div>
 <div class="area-previa-modelo">
-<div class="titulo"><h3>Prévia com dados do colaborador</h3></div>
+<div class="titulo"><h3>Prévia com dados do colaborador</h3>
+<span class="subtitulo" title="Esta prévia utiliza os dados reais do colaborador selecionado.">Dados da ficha cadastrada ⓘ</span>
+</div>
 <p:outputPanel id="previa" layout="block" styleClass="folha-miniatura">
 <h:panelGroup rendered="#{empty contratoBean.htmlPrevia}">
 <p class="subtitulo">Escolha o modelo e o colaborador para visualizar o documento preenchido.</p>

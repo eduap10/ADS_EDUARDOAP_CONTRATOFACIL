@@ -67,7 +67,7 @@ A página de primeiro acesso só aceita conexões locais e deixa de permitir nov
 
 1. **Colaboradores:** mantenha a ficha cadastral de quem receberá os documentos.
 2. **Tipos:** crie as finalidades, como contrato de trabalho ou descrição de cargo. Cinco opções iniciais e "Outros" são sugeridas pela migração, mas você pode criar outras.
-3. **Modelos:** clique em "Criar modelo". Uma página completa apresenta a edição formatada com tags e uma prévia isolada que acompanha a digitação. Salve o modelo vinculado ao tipo desejado.
+3. **Modelos:** clique em "Criar modelo". A tela contém um **catálogo pesquisável de campos** com filtros por identificação, dados pessoais, endereço, dados contratuais e documento. Clique no campo para inseri-lo no cursor, sem digitar manualmente o código. Ao passar o mouse, o sistema mostra o significado e um exemplo. A prévia alterna entre **Exemplo preenchido** (dados exclusivamente fictícios) e **Ver tags**. O botão de ajuda mostra um passo a passo. Salve o modelo vinculado ao tipo desejado.
 4. **Contratos:** clique em "Gerar contrato". Pesquise pelo nome/matrícula do colaborador, selecione tipo e modelo. A prévia utiliza os dados do colaborador.
 5. Clique em **Gerar e visualizar** para criar o registro e abrir a versão final. A exportação PDF/DOCX fica na visualização.
 6. Editar um contrato emitido não reescreve automaticamente seu texto se o modelo original tiver sido alterado. Para atualizar a base do texto, selecione outro modelo.
@@ -91,7 +91,9 @@ Algumas tags disponíveis:
 | `{{documento.assinatura}}` | Linha de assinatura |
 | `{{empresa.logo}}` | Logo previamente cadastrado |
 
-As tags permanecem no texto salvo e são substituídas **somente na visualização/exportação**. Tag desconhecida aparece como campo não informado. Para manter os marcadores íntegros, evite formatar apenas parte de uma tag no editor.
+As tags permanecem no texto salvo. O editor oferece **prévia demonstrativa em tempo real**, sem consultar colaboradores verdadeiros. Na aba Contratos, a prévia, a visualização e as exportações consultam a ficha real selecionada e fazem o preenchimento no servidor.
+
+O catálogo é mantido no Java em `CatalogoCampos.java`: ele define a chave, o rótulo, a descrição, o exemplo fictício e a leitura do campo. Os campos da ficha incluem sexo, raça/cor, estado civil, nacionalidade, escolaridade, gênero, endereço completo, centro de custo e salário, além dos dados tradicionais. Use dados sensíveis somente quando necessários ao documento. Tag desconhecida aparece como campo não informado. Para manter os marcadores íntegros, evite formatar apenas parte de uma tag no editor.
 
 Para enviar o logo, abra **Configurar logo** no editor. O arquivo fica salvo na tabela de configuração do próprio projeto. O editor não permite upload arbitrário de HTML/imagens: logo é inserido por tag.
 
