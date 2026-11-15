@@ -118,4 +118,10 @@ public class ModeloContratoBean implements Serializable {
     public java.util.List<br.edu.contratofacil.service.CatalogoCampos.Campo> getCampos() {
         return br.edu.contratofacil.service.CatalogoCampos.todos();
     }
+    public java.util.List<br.edu.contratofacil.service.CatalogoCampos.Campo> getCamposDaFicha() {
+        return getCampos().stream().filter(c -> !"Documento".equals(c.getGrupo())).toList();
+    }
+    public java.util.List<br.edu.contratofacil.service.CatalogoCampos.Campo> getCamposDoSistema() {
+        return getCampos().stream().filter(c -> "Documento".equals(c.getGrupo())).toList();
+    }
 }

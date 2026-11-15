@@ -185,13 +185,27 @@
 <section class="grupo-catalogo" data-catalogo-grupo="padrao">
 <h4>Campos da ficha</h4>
 <div class="campos-catalogo">
-<ui:repeat value="#{modeloContratoBean.campos}" var="campo">
+<ui:repeat value="#{modeloContratoBean.camposDaFicha}" var="campo">
 <button type="button" class="botao-campo" data-tag="#{campo.tag}"
 data-grupo="#{campo.grupo}" data-exemplo="#{campo.exemplo}"
 data-descricao="#{campo.descricao}" title="#{campo.descricao}"
 aria-label="Inserir #{campo.rotulo}: #{campo.descricao}">
 <span class="nome-campo">#{campo.rotulo}</span>
 <span class="grupo-campo">#{campo.grupo}</span>
+</button>
+</ui:repeat>
+</div>
+</section>
+<section class="grupo-catalogo" data-catalogo-grupo="sistema">
+<h4>Variáveis do sistema</h4>
+<div class="campos-catalogo">
+<ui:repeat value="#{modeloContratoBean.camposDoSistema}" var="campo">
+<button type="button" class="botao-campo" data-tag="#{campo.tag}"
+data-grupo="#{campo.grupo}" data-exemplo="#{campo.exemplo}"
+data-descricao="#{campo.descricao}" title="#{campo.descricao}"
+aria-label="Inserir #{campo.rotulo}: #{campo.descricao}">
+<span class="nome-campo">#{campo.rotulo}</span>
+<span class="grupo-campo">Sistema</span>
 </button>
 </ui:repeat>
 </div>
