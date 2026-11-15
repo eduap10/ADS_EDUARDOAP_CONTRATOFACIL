@@ -162,8 +162,15 @@ function insertTag(tag){
  if(!edit)return;
  edit.focus();const sel=window.getSelection();
  if(storedRange && edit.contains(storedRange.commonAncestorContainer)){sel.removeAllRanges();sel.addRange(storedRange);}
- if(sel.rangeCount){const r=sel.getRangeAt(0);r.deleteContents();const txt=document.createTextNode(tag);r.insertNode(txt);r.setStartAfter(txt);r.collapse(true);sel.removeAllRanges();sel.addRange(r);}
- else edit.append(document.createTextNode(tag));
+ const local=sel.rangeCount && edit.contains(sel.getRangeAt(0).commonAncestorContainer);
+ if(local){
+  const r=sel.getRangeAt(0);r.deleteContents();const txt=document.createTextNode(tag);
+  r.insertNode(txt);r.setStartAfter(txt);r.collapse(true);sel.removeAllRanges();sel.addRange(r);
+ } else {
+  const txt=document.createTextNode(tag);edit.append(txt);
+  const r=document.createRange();r.setStartAfter(txt);r.collapse(true);
+  sel.removeAllRanges();sel.addRange(r);
+ }
  remember();
  if(selected.cf.tipo==="text")selected.cf.html=edit.innerHTML;
  else selected.cf.cells[Number(edit.dataset.r)][Number(edit.dataset.c)]=edit.innerText;
