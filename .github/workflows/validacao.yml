@@ -23,6 +23,7 @@ jobs:
         run: |
           node --check src/main/webapp/resources/js/modelo-editor.js
           node --check src/main/webapp/resources/js/blocos-visuais.js
+          node --check src/main/webapp/resources/js/canvas-modelo.js
       - name: Compilar e testar
         run: mvn --batch-mode --no-transfer-progress clean verify
 

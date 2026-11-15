@@ -126,7 +126,7 @@ $("cfFront").addEventListener("click",()=>{if(selected){stage.append(selected);u
 $("cfBack").addEventListener("click",()=>{if(selected){stage.prepend(selected);updatePreview();}});
 function grid(rows,cols){
  if(!selected||selected.cf.tipo!=="table")return;
- const s=selected.cf;r​ows=clamp(rows,1,12);cols=clamp(cols,1,8);
+ const s=selected.cf;rows=clamp(rows,1,12);cols=clamp(cols,1,8);
  const cells=Array.from({length:rows},(_,r)=>Array.from({length:cols},(_,c)=>s.cells?.[r]?.[c]||""));
  change({rows,cols,cells});
 }
