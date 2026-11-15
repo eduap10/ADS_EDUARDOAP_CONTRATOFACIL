@@ -126,6 +126,43 @@ class DocumentoServiceTest {
         assertFalse(html.contains("<Teste>"), "Os nomes não podem ser executados como HTML.");
     }
 
+    @Test void blocosVisuaisPersistemSemHtmlPerigoso() throws Exception {
+        String html = "<p>Documento</p>"
+            + "<div class='cf-visual-bloco' data-cf-kind='linha' "
+            + "data-cf-orient='horizontal' data-cf-width='75' data-cf-thick='4' data-cf-color='112233'>"
+            + "<script>alert(1)</script><span>linha</span></div>"
+            + "<div class='cf-visual-bloco' data-cf-kind='assinatura' data-cf-role='gestor' data-cf-width='70'></div>"
+            + "<div class='cf-visual-bloco' data-cf-kind='tabela' data-cf-width='90' "
+            + "data-cf-height='36' data-cf-style='listrado' data-cf-header='1'>"
+            + "<table><tr><th>Nome</th><th>Cargo</th></tr>"
+            + "<tr><td>{{colaborador.nome}}</td><td>{{colaborador.cargo}}</td></tr></table></div>";
+        String salvo = DocumentoService.sanitizar(html);
+        assertFalse(salvo.contains("<script"), salvo);
+        assertTrue(salvo.contains("visual.linha.horizontal.w75.t4.c112233"), salvo);
+        assertTrue(salvo.contains("assinatura.gestor.w70"), salvo);
+        assertTrue(salvo.contains("visual.tabela.inicio.2x2.w90.h36.slistrado.k1"), salvo);
+        var contrato = new br.edu.contratofacil.model.Contrato();
+        contrato.setGestorNome("Gestora Teste");
+        String renderizado = DocumentoService.preencher(salvo, colaborador(),
+            br.edu.contratofacil.service.AssinaturaService.combinar(
+                java.util.Map.of(), contrato, colaborador()));
+        var doc = org.jsoup.Jsoup.parseBodyFragment(renderizado);
+        assertEquals(1, doc.select("table.cf-tabela-listrado").size(), renderizado);
+        assertEquals(2, doc.select("table th").size(), renderizado);
+        assertEquals(1, doc.select(".cf-assinatura-nome").size(), renderizado);
+        assertTrue(doc.select(".cf-assinatura-nome").text().contains("Gestora Teste"));
+        assertEquals(1, doc.select(".cf-linha-horizontal").size(), renderizado);
+        assertTrue(doc.select("table").text().contains("Analista"));
+        ByteArrayOutputStream arquivo = new ByteArrayOutputStream();
+        ExportacaoDocumento.docx("Teste",renderizado,arquivo);
+        try (var word = new org.apache.poi.xwpf.usermodel.XWPFDocument(
+                new java.io.ByteArrayInputStream(arquivo.toByteArray()))) {
+            assertFalse(word.getTables().isEmpty());
+            assertEquals("Nome",word.getTables().get(0).getRow(0).getCell(0).getText());
+            assertTrue(word.getParagraphs().stream().anyMatch(p -> p.getText().contains("Gestora Teste")));
+        }
+    }
+
     @Test void exportacaoPdfGeraCabecalhoPdfValido() throws Exception {
         ByteArrayOutputStream saida = new ByteArrayOutputStream();
         String html = DocumentoService.preencher(

@@ -31,6 +31,16 @@ public final class ExportacaoDocumento {
            + "table.cf-tabela td{border:1px solid #64748b;padding:5px;}"
            + "p.cf-linha-horizontal{border-bottom:1px solid #333;}"
            + "p.cf-linha-vertical{border-left:1px solid #333;}"
+           + ".cf-linha{margin:8px 0 18px;min-height:12px;}"
+           + ".cf-linha-horizontal,.cf-linha-livre{border-bottom-style:solid;}"
+           + ".cf-linha-vertical{border-left-style:solid;height:90px;}"
+           + ".cf-linha-diagonal{border-bottom-style:solid;transform:rotate(-9deg);}"
+           + ".cf-assinatura{margin-top:25px;margin-bottom:18px;}"
+           + ".cf-assinatura-linha{border-bottom:1px solid #334155;height:35px;}"
+           + ".cf-assinatura-nome{text-align:center;font-size:10pt;margin-top:6px;}"
+           + ".cf-tabela th{background:#e2e8f0;font-weight:bold;border:1px solid #64748b;padding:5px;}"
+           + ".cf-tabela-listrado tr:nth-child(even){background:#f1f5f9;}"
+           + ".cf-tabela-simples td,.cf-tabela-simples th{border:none;border-bottom:1px solid #d7e1e9;}"
 
            + "</style></head><body><h2>" + org.jsoup.nodes.Entities.escape(titulo)
            + "</h2>" + doc.body().html() + "</body></html>";
@@ -71,14 +81,52 @@ public final class ExportacaoDocumento {
             int colunas = linhas.stream().mapToInt(l -> l.select("td,th").size()).max().orElse(1);
             if (!linhas.isEmpty() && colunas > 0) {
                 XWPFTable tabela = doc.createTable(linhas.size(), colunas);
-                tabela.setWidth("100%");
+                java.util.regex.Matcher largura = java.util.regex.Pattern.compile("width:(\\d{2,3})%")
+                    .matcher(el.attr("style"));
+                tabela.setWidth(largura.find() ? largura.group(1) + "%" : "100%");
                 for (int i = 0; i < linhas.size(); i++) {
                     java.util.List<Element> celulas = linhas.get(i).select("td,th");
                     for (int j = 0; j < celulas.size(); j++) {
-                        tabela.getRow(i).getCell(j).setText(celulas.get(j).text());
+                        Element origem = celulas.get(j);
+                        XWPFTableCell destino = tabela.getRow(i).getCell(j);
+                        destino.setText(origem.text());
+                        if (origem.normalName().equals("th")) {
+                            destino.setColor("E2E8F0");
+                            for (XWPFParagraph paragrafo : destino.getParagraphs()) {
+                                for (XWPFRun run : paragrafo.getRuns()) run.setBold(true);
+                            }
+                        } else if (el.hasClass("cf-tabela-listrado") && i % 2 == 1) {
+                            destino.setColor("F1F5F9");
+                        }
                     }
                 }
             }
+            return;
+        }
+        if (el.hasClass("cf-assinatura")) {
+            XWPFParagraph linha = doc.createParagraph();
+            linha.setAlignment(ParagraphAlignment.CENTER);
+            XWPFRun tracejado = linha.createRun();
+            tracejado.setText("____________________________________________");
+            tracejado.setFontSize(12);
+            XWPFParagraph nome = doc.createParagraph();
+            nome.setAlignment(ParagraphAlignment.CENTER);
+            nome.createRun().setText(el.select(".cf-assinatura-nome").text());
+            return;
+        }
+        if (el.hasClass("cf-linha")) {
+            XWPFParagraph linha = doc.createParagraph();
+            String estilo = el.attr("style");
+            java.util.regex.Matcher cor = java.util.regex.Pattern.compile("border-color:#([a-fA-F0-9]{6})")
+                .matcher(estilo);
+            java.util.regex.Matcher grossura = java.util.regex.Pattern.compile("border-width:(\\d{1,2})px")
+                .matcher(estilo);
+            XWPFRun traco = linha.createRun();
+            traco.setText(el.hasClass("cf-linha-vertical") ? "│\n│\n│"
+                : el.hasClass("cf-linha-diagonal") ? "╱           ╱"
+                : "________________________________________");
+            if (cor.find()) traco.setColor(cor.group(1));
+            if (grossura.find() && Integer.parseInt(grossura.group(1)) > 4) traco.setBold(true);
             return;
         }
         if (tag.equals("ul") || tag.equals("ol")) {
