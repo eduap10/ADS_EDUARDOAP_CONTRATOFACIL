@@ -22,6 +22,11 @@
 
     function substituirExemplos(raiz) {
         const exemplos = new Map(campos().map(botao => [botao.dataset.tag, botao.dataset.exemplo]));
+        exemplos.set("{{assinatura.colaborador}}", "____________________________ Colaborador: Ana Silva");
+        exemplos.set("{{assinatura.gestor}}", "____________________________ Gestor: João Gestor");
+        exemplos.set("{{assinatura.testemunha1}}", "____________________________ Testemunha 1: Pessoa Teste");
+        exemplos.set("{{assinatura.testemunha2}}", "____________________________ Testemunha 2: Pessoa Teste");
+        exemplos.set("{{assinatura.outro}}", "____________________________ Outro participante: Pessoa Teste");
         const blocos = new Set(["P", "DIV", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "BLOCKQUOTE"]);
         const grupos = new Map();
         const walker = document.createTreeWalker(raiz, NodeFilter.SHOW_TEXT);

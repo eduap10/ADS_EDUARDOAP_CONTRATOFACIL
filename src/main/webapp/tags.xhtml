@@ -44,8 +44,9 @@ xmlns:f="jakarta.faces.core" xmlns:p="primefaces">
 <div class="campo-formulario">
 <p:outputLabel for="codigo" value="Código da tag *" />
 <p:inputText id="codigo" value="#{tagPersonalizadaBean.edicao.codigo}" required="true" maxlength="40"
+ disabled="#{tagPersonalizadaBean.edicao.id != null}"
  requiredMessage="Informe o código." style="width:100%" placeholder="ex.: nome_empresa"/>
-<small>Será inserida como <code>{{personalizada.nome_empresa}}</code>.</small></div>
+<small>Será inserida como <code>{{personalizada.nome_empresa}}</code>. Depois de criada, a chave permanece fixa para proteger os modelos existentes.</small></div>
 <div class="campo-formulario">
 <p:outputLabel for="nome" value="Nome amigável *"/>
 <p:inputText id="nome" value="#{tagPersonalizadaBean.edicao.nome}" required="true" maxlength="100"
