@@ -39,6 +39,7 @@ public final class ExportacaoDocumento {
            + ".cf-canvas-G th,.cf-canvas-G td{padding:3px;border:1px solid #64748b;}"
            + ".cf-canvas-G th{background:#e2e8f0;font-weight:bold;}"
            + ".cf-canvas-assinatura p{font-size:10pt;text-align:center;}"
+           + ".cf-canvas-imagem{width:100%;height:100%;object-fit:contain;}"
 
            + ".cf-linha{margin:8px 0 18px;min-height:12px;}"
            + ".cf-linha-horizontal,.cf-linha-livre{border-bottom-style:solid;}"
@@ -92,7 +93,33 @@ public final class ExportacaoDocumento {
             for (Element filho : el.children()) if (filho.hasClass("cf-canvas-item")) objetos.add(filho);
             objetos.sort(java.util.Comparator.comparingDouble(x -> obterMm(x.attr("style"), "top")));
             for (Element objeto : objetos) {
-                if (objeto.hasClass("cf-canvas-G")) {
+                if (objeto.hasClass("cf-canvas-I")) {
+                    Element imagem=objeto.selectFirst("img.cf-canvas-imagem");
+                    if(imagem!=null) {
+                        String src=imagem.attr("src");
+                        int corte=src.indexOf(',');
+                        boolean png=src.startsWith("data:image/png;base64,");
+                        boolean jpeg=src.startsWith("data:image/jpeg;base64,");
+                        if(corte>0&&(png||jpeg)) {
+                            try {
+                                byte[] bytes=java.util.Base64.getDecoder().decode(src.substring(corte+1));
+                                if(bytes.length>270_000)throw new IllegalArgumentException("Imagem grande demais.");
+                                int w=Math.max(8,(int)Math.round(obterMm(objeto.attr("style"),"width")*72/25.4));
+                                int h=Math.max(8,(int)Math.round(obterMm(objeto.attr("style"),"height")*72/25.4));
+                                try(var stream=new java.io.ByteArrayInputStream(bytes)) {
+                                    var paragrafo=doc.createParagraph();
+                                    paragrafo.createRun().addPicture(stream,
+                                       png?XWPFDocument.PICTURE_TYPE_PNG:XWPFDocument.PICTURE_TYPE_JPEG,
+                                       "imagem-contrato",
+                                       org.apache.poi.util.Units.toEMU(w),
+                                       org.apache.poi.util.Units.toEMU(h));
+                                }
+                            } catch(Exception e) {
+                                doc.createParagraph().createRun().setText("[Imagem não disponível]");
+                            }
+                        }
+                    }
+                } else if (objeto.hasClass("cf-canvas-G")) {
                     Element grade = objeto.selectFirst("table");
                     if (grade != null) adicionarBloco(doc, grade);
                 } else if (objeto.hasClass("cf-canvas-S")) {
