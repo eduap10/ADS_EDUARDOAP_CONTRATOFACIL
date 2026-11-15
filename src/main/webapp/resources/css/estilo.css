@@ -288,8 +288,8 @@ label { color: #34465c; font-size: .9rem; }
 .cf-font-group #cfFontFamily{width:156px;max-width:45vw}
 .cf-font-group #cfFontSize{width:55px;min-width:55px;text-align:center}
 .cf-word-ribbon select,.cf-word-ribbon input[type=number]{height:29px;padding:3px 5px;border:1px solid #c3d4e2;border-radius:4px;background:#fff;color:#1a3045;font-size:12px;min-width:0}
-.cf-properties .cf-word-ribbon button.cf-mini-icon{width:29px;height:29px;min-width:29px;padding:0;display:inline-flex;justify-content:center;align-items:center;border:1px solid transparent;border-radius:4px;background:transparent;color:#27425b;font-size:12px;line-height:1}
-.cf-properties .cf-word-ribbon button.cf-mini-icon:hover,.cf-properties .cf-word-ribbon button.cf-mini-icon:focus-visible{background:#e1eef9;border-color:#9fbfd7}
+.cf-toolbar-sticky .cf-word-ribbon button.cf-mini-icon{width:29px;height:29px;min-width:29px;padding:0;display:inline-flex;justify-content:center;align-items:center;border:1px solid transparent;border-radius:4px;background:transparent;color:#27425b;font-size:12px;line-height:1}
+.cf-toolbar-sticky .cf-word-ribbon button.cf-mini-icon:hover,.cf-toolbar-sticky .cf-word-ribbon button.cf-mini-icon:focus-visible{background:#e1eef9;border-color:#9fbfd7}
 .cf-word-ribbon .cf-mini-icon i{font-size:13px}
 .cf-word-ribbon .cf-inline-group .cf-mini-icon s{font-size:9px}
 .cf-word-ribbon .cf-color-action{height:29px;display:flex;align-items:center;position:relative;border-radius:4px}
@@ -336,3 +336,11 @@ label { color: #34465c; font-size: .9rem; }
 .cf-obj-image .cf-obj-conteudo{pointer-events:none}
 .cf-canvas-obj .cf-obj-conteudo{touch-action:none}
 @media(max-width:900px){.cf-toolbar-sticky{position:sticky;top:0}}
+
+.cf-toolbar-sticky .cf-word-ribbon button.cf-mini-icon{max-width:29px;max-height:29px}
+.cf-toolbar-sticky .cf-word-ribbon .cf-ribbon-group{flex-wrap:wrap}
+.cf-toolbar-sticky #cfFontFamily{width:155px;max-width:42vw}
+.cf-toolbar-sticky #cfFontSize{width:56px;max-width:56px}
+.cf-toolbar-sticky button[aria-label]{min-height:29px}
+.cf-stage-scroll .cf-canvas-obj.cf-selected .cf-resize-handle{touch-action:none}
+.cf-stage-scroll .cf-canvas-obj.cf-editing .cf-texto:focus{outline:0}
