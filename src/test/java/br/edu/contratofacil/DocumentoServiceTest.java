@@ -138,9 +138,9 @@ class DocumentoServiceTest {
             + "<tr><td>{{colaborador.nome}}</td><td>{{colaborador.cargo}}</td></tr></table></div>";
         String salvo = DocumentoService.sanitizar(html);
         assertFalse(salvo.contains("<script"), salvo);
-        assertTrue(salvo.contains("visual.linha.horizontal.w75.t4.c112233"), salvo);
-        assertTrue(salvo.contains("assinatura.gestor.w70"), salvo);
-        assertTrue(salvo.contains("visual.tabela.inicio.2x2.w90.h36.slistrado.k1"), salvo);
+        assertTrue(salvo.contains("visual.linha.horizontal.w75.t4.c112233.x0"), salvo);
+        assertTrue(salvo.contains("assinatura.gestor.w70.x0"), salvo);
+        assertTrue(salvo.contains("visual.tabela.inicio.2x2.w90.h36.slistrado.k1.x0"), salvo);
         var contrato = new br.edu.contratofacil.model.Contrato();
         contrato.setGestorNome("Gestora Teste");
         String renderizado = DocumentoService.preencher(salvo, colaborador(),

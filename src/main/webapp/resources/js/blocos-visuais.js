@@ -32,6 +32,7 @@
             tipo,
             largura: numero(info?.largura, 80, 40, 100)
         };
+        v.deslocamento = Math.min(numero(info?.deslocamento, 0, 0, 60), 100 - v.largura);
         if (tipo === "linha") {
             v.orientacao = ["horizontal","vertical","diagonal","livre"].includes(info?.orientacao)
                 ? info.orientacao : "horizontal";
@@ -59,7 +60,9 @@
         node.setAttribute("draggable", "true");
         node.dataset.cfKind = v.tipo;
         node.dataset.cfWidth = String(v.largura);
+        node.dataset.cfOffset = String(v.deslocamento);
         node.style.width = v.largura + "%";
+        node.style.marginLeft = v.deslocamento + "%";
         node.style.maxWidth = "100%";
         node.textContent = "";
         if (v.tipo === "linha") {
@@ -110,7 +113,8 @@
 
     function valorDe(node) {
         const t = node.dataset.cfKind;
-        const v = {tipo: t, largura: Number(node.dataset.cfWidth)};
+        const v = {tipo: t, largura: Number(node.dataset.cfWidth),
+            deslocamento:Number(node.dataset.cfOffset || 0)};
         if (t === "linha") {
             v.orientacao = node.dataset.cfOrient;
             v.espessura = Number(node.dataset.cfThick);
@@ -202,6 +206,9 @@
         const largura = document.getElementById("blocoLargura");
         largura.value = v.largura;
         largura.title = "Largura: " + v.largura + "%";
+        const posicao = document.getElementById("blocoPosicao");
+        posicao.value = v.deslocamento;
+        posicao.max = 100 - v.largura;
         document.getElementById("acoesLinha").hidden = v.tipo !== "linha";
         document.getElementById("acoesTabela").hidden = v.tipo !== "tabela";
         document.getElementById("acoesAssinatura").hidden = v.tipo !== "assinatura";
@@ -259,6 +266,9 @@
             const item = arrastado; arrastado = null;
             if (alvo < 0 || item.index < 0 || alvo === item.index) return;
             quill.deleteText(item.index, 1, "user");
+            const rect = root.getBoundingClientRect();
+            const percentual = Math.round((e.clientX - rect.left) / Math.max(1, rect.width) * 100);
+            item.valor.deslocamento = Math.max(0,Math.min(100 - item.valor.largura, percentual));
             quill.insertEmbed(alvo > item.index ? alvo - 1 : alvo, "cfbloco", item.valor, "user");
             selecionar(null);
             avisar();
@@ -277,6 +287,7 @@
         });
         const binds = [
             ["blocoLargura", "change", e => atualizarBloco({largura:Number(e.target.value)})],
+            ["blocoPosicao", "change", e => atualizarBloco({deslocamento:Number(e.target.value)})],
             ["blocoCor", "change", e => atualizarBloco({cor:e.target.value.replace("#","")})],
             ["blocoEspessura", "change", e => atualizarBloco({espessura:Number(e.target.value)})],
             ["blocoOrientacao", "change", e => atualizarBloco({orientacao:e.target.value})],
@@ -315,11 +326,11 @@
     }
 
     function reconhecerLinha(linha) {
-        let m = linha.match(/^\{\{visual\.linha\.(horizontal|vertical|diagonal|livre)(?:\.w(\d{2,3})\.t(\d{1,2})\.c([a-fA-F0-9]{6}))?\}\}$/);
+        let m = linha.match(/^\{\{visual\.linha\.(horizontal|vertical|diagonal|livre)(?:\.w(\d{2,3})\.t(\d{1,2})\.c([a-fA-F0-9]{6})(?:\.x(\d{1,2}))?)?\}\}$/);
         if (m) return normalizar({tipo:"linha",orientacao:m[1],largura:Number(m[2]||80),
-            espessura:Number(m[3]||2),cor:m[4]||"334155"});
-        m = linha.match(/^\{\{assinatura\.(colaborador|gestor|testemunha1|testemunha2|outro)(?:\.w(\d{2,3}))?\}\}$/);
-        if (m) return normalizar({tipo:"assinatura",papel:m[1],largura:Number(m[2]||70)});
+            espessura:Number(m[3]||2),cor:m[4]||"334155",deslocamento:Number(m[5]||0)});
+        m = linha.match(/^\{\{assinatura\.(colaborador|gestor|testemunha1|testemunha2|outro)(?:\.w(\d{2,3})(?:\.x(\d{1,2}))?)?\}\}$/);
+        if (m) return normalizar({tipo:"assinatura",papel:m[1],largura:Number(m[2]||70),deslocamento:Number(m[3]||0)});
         return null;
     }
 
@@ -327,7 +338,7 @@
         const linhas = quill.getText().split("\n");
         const operacoes = [];
         let indiceAtual=0;
-        const tabExp=/^\{\{visual\.tabela\.inicio\.(\d{1,2})x(\d{1,2})\.w(\d{2,3})\.h(\d{2,3})(?:\.s(grade|listrado|simples)\.k([01]))?\}\}$/;
+        const tabExp=/^\{\{visual\.tabela\.inicio\.(\d{1,2})x(\d{1,2})\.w(\d{2,3})\.h(\d{2,3})(?:\.s(grade|listrado|simples)\.k([01])(?:\.x(\d{1,2}))?)?\}\}$/;
         for(let i=0;i<linhas.length;i++){
             const texto=linhas[i].trim();
             const tab=texto.match(tabExp);
@@ -341,7 +352,7 @@
                     operacoes.push({index:indiceAtual,length:comprimento,
                         valor:{tipo:"tabela",linhas:nlin,colunas:ncol,largura:Number(tab[3]),
                         altura:Number(tab[4]),estilo:tab[5]||"grade",cabecalho:tab[6]==="1",
-                        celulas}});
+                        deslocamento:Number(tab[7]||0),celulas}});
                     indiceAtual+=comprimento;i+=nlin+1;continue;
                 }
             }
