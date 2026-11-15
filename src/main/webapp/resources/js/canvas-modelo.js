@@ -238,6 +238,9 @@ document.addEventListener("keydown",e=>{
  if(e.key==="Escape"&&selected?.classList.contains("cf-editing")){
    e.preventDefault();exitEditing();return;
  }
+ // Em modo de digitação, Delete, setas e atalhos pertencem ao editor de texto.
+ // Não excluir a caixa caso um botão da barra tenha recebido o foco.
+ if(selected?.classList.contains("cf-editing"))return;
  if(typing || (active!==stage && (!selected || active!==selected && !selected.contains(active))))return;
  const mod=e.ctrlKey||e.metaKey;
  if(mod&&(e.key.toLowerCase()==="z"||e.key.toLowerCase()==="y")){
