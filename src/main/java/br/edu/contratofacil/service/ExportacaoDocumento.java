@@ -31,6 +31,15 @@ public final class ExportacaoDocumento {
            + "table.cf-tabela td{border:1px solid #64748b;padding:5px;}"
            + "p.cf-linha-horizontal{border-bottom:1px solid #333;}"
            + "p.cf-linha-vertical{border-left:1px solid #333;}"
+           + ".cf-canvas-documento{page-break-inside:avoid;overflow:hidden;}"
+           + ".cf-canvas-item{box-sizing:border-box;overflow:hidden;}"
+           + ".cf-canvas-texto{font-size:10pt;line-height:1.3;}"
+           + ".cf-canvas-texto p{margin:0 0 6px;}"
+           + ".cf-canvas-G table{border-collapse:collapse;table-layout:fixed;}"
+           + ".cf-canvas-G th,.cf-canvas-G td{padding:3px;border:1px solid #64748b;}"
+           + ".cf-canvas-G th{background:#e2e8f0;font-weight:bold;}"
+           + ".cf-canvas-assinatura p{font-size:10pt;text-align:center;}"
+
            + ".cf-linha{margin:8px 0 18px;min-height:12px;}"
            + ".cf-linha-horizontal,.cf-linha-livre{border-bottom-style:solid;}"
            + ".cf-linha-vertical{border-left-style:solid;height:90px;}"
@@ -76,6 +85,32 @@ public final class ExportacaoDocumento {
         }
         if (!(no instanceof Element el)) return;
         String tag = el.normalName();
+        if (el.hasClass("cf-canvas-documento")) {
+            // Word permanece editável. Os blocos são ordenados pela posição vertical;
+            // deslocamentos em pixels não possuem equivalência exata em DOCX fluido.
+            java.util.List<Element> objetos = new java.util.ArrayList<>(el.select("> .cf-canvas-item"));
+            objetos.sort(java.util.Comparator.comparingDouble(x -> obterMm(x.attr("style"), "top")));
+            for (Element objeto : objetos) {
+                if (objeto.hasClass("cf-canvas-G")) {
+                    Element grade = objeto.selectFirst("table");
+                    if (grade != null) adicionarBloco(doc, grade);
+                } else if (objeto.hasClass("cf-canvas-S")) {
+                    XWPFParagraph linha = doc.createParagraph();
+                    linha.setAlignment(ParagraphAlignment.CENTER);
+                    linha.createRun().setText("_____________________________________");
+                    XWPFParagraph identificacao = doc.createParagraph();
+                    identificacao.setAlignment(ParagraphAlignment.CENTER);
+                    identificacao.createRun().setText(objeto.select(".cf-canvas-assinatura p").text());
+                } else if (objeto.hasClass("cf-canvas-L")) {
+                    XWPFParagraph linha = doc.createParagraph();
+                    linha.createRun().setText("_____________________________________");
+                } else {
+                    Element texto = objeto.selectFirst(".cf-canvas-texto");
+                    if (texto != null) for (Node filho : texto.childNodes()) adicionarBloco(doc, filho);
+                }
+            }
+            return;
+        }
         if (tag.equals("table")) {
             java.util.List<Element> linhas = el.select("tr");
             int colunas = linhas.stream().mapToInt(l -> l.select("td,th").size()).max().orElse(1);
@@ -150,6 +185,14 @@ public final class ExportacaoDocumento {
             p.setAlignment(ParagraphAlignment.CENTER);
         }
         adicionarConteudo(p, el, tag.matches("h[123]"), false, false);
+    }
+
+    private static double obterMm(String style, String propriedade) {
+        var exp = java.util.regex.Pattern.compile("(?:^|;)\\s*" + propriedade + ":([0-9.]+)mm")
+            .matcher(style);
+        if (!exp.find()) return 0;
+        try { return Double.parseDouble(exp.group(1)); }
+        catch (NumberFormatException e) { return 0; }
     }
 
     private static void adicionarConteudo(XWPFParagraph p, Node no,

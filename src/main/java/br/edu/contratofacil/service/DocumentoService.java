@@ -36,6 +36,8 @@ public final class DocumentoService {
 
     public static String sanitizar(String entrada) {
         if (entrada == null || entrada.isBlank()) return "";
+        if (CanvasDocumentoService.ehCanvas(entrada))
+            return CanvasDocumentoService.normalizar(entrada);
         String texto = HTML.matcher(entrada).find() ? entrada :
             "<p>" + Entities.escape(entrada).replace("\r\n","\n").replace("\n","<br/>") + "</p>";
         // Componentes visuais do Quill viram marcadores internos validados.
@@ -49,6 +51,8 @@ public final class DocumentoService {
     }
 
     public static String preencher(String entrada, Colaborador colaborador, Map<String,String> extras) {
+        if (CanvasDocumentoService.ehCanvas(entrada))
+            return CanvasDocumentoService.preencher(entrada, colaborador, extras);
         Document d = Jsoup.parseBodyFragment(sanitizar(entrada));
         Map<String,String> valores = CatalogoCampos.valores(colaborador);
         if (extras != null) {
@@ -312,6 +316,8 @@ public final class DocumentoService {
     }
 
     public static String textoSimples(String html) {
+        if (CanvasDocumentoService.ehCanvas(html)) 
+            html = CanvasDocumentoService.preencher(html, null, Map.of());
         Document d=Jsoup.parseBodyFragment(html);
         for (Element e:d.select("br")) e.after("\n");
         for (Element e:d.select("p,div,h1,h2,h3,li")) e.appendText("\n");

@@ -62,8 +62,14 @@ public class ModeloContratoBean implements Serializable {
             mensagem(FacesMessage.SEVERITY_WARN, "Informe tipo, título e conteúdo do modelo.");
             return null;
         }
-        String seguro = DocumentoService.sanitizar(edicao.getConteudo());
-        if (org.jsoup.Jsoup.parseBodyFragment(seguro).text().isBlank()
+        String seguro;
+        try { seguro = DocumentoService.sanitizar(edicao.getConteudo()); }
+        catch (IllegalArgumentException e) {
+            mensagem(FacesMessage.SEVERITY_WARN, "Revise os elementos do documento: " + e.getMessage());
+            return null;
+        }
+        if (!br.edu.contratofacil.service.CanvasDocumentoService.ehCanvas(seguro)
+                && org.jsoup.Jsoup.parseBodyFragment(seguro).text().isBlank()
                 && !seguro.contains("{{empresa.logo}}")) {
             mensagem(FacesMessage.SEVERITY_WARN, "Escreva o conteúdo do modelo.");
             return null;
