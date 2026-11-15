@@ -50,7 +50,8 @@ public final class DocumentoService {
         Map<String,String> valores = CatalogoCampos.valores(colaborador);
         if (extras != null) {
             for (Map.Entry<String,String> entradaExtra : extras.entrySet()) {
-                if (entradaExtra.getKey().startsWith("personalizada.")) {
+                if (entradaExtra.getKey().startsWith("personalizada.")
+                        || entradaExtra.getKey().startsWith("assinatura.")) {
                     valores.put(entradaExtra.getKey(), entradaExtra.getValue());
                 }
             }

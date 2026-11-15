@@ -92,7 +92,8 @@ public class ContratoBean implements Serializable {
             } else {
                 htmlPrevia = DocumentoService.preencher(conteudo, colaborador,
                         new ConfiguracaoDocumentoDAO().buscarLogo(),
-                        new TagPersonalizadaDAO().valores(colaborador));
+                        br.edu.contratofacil.service.AssinaturaService.combinar(
+                            new TagPersonalizadaDAO().valores(colaborador), edicao, colaborador));
             }
         } catch (SQLException e) { erro(e); }
     }
@@ -182,6 +183,13 @@ public class ContratoBean implements Serializable {
             if (Objects.equals(m.getTipoId(), edicao.getTipoId())) resultado.add(m);
         }
         return resultado;
+    }
+    public List<String> sugerirAssinantes(String busca) {
+        String termo = busca == null ? "" : busca.toLowerCase(java.util.Locale.ROOT);
+        return colaboradores.stream().map(Colaborador::getNome)
+            .filter(java.util.Objects::nonNull)
+            .filter(n -> n.toLowerCase(java.util.Locale.ROOT).contains(termo))
+            .distinct().limit(20).toList();
     }
     public List<TipoContrato> getTipos() { return tipos; }
     public SituacaoContrato[] getSituacoes() { return SituacaoContrato.values(); }

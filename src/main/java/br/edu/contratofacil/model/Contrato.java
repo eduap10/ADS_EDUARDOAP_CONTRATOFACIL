@@ -3,6 +3,15 @@ import java.io.Serializable;
 public class Contrato implements Serializable {
  private Long id, colaboradorId, modeloId;
  private String titulo, conteudo;
+ private String gestorNome, testemunha1Nome, testemunha2Nome, outroAssinanteNome;
+ public String getGestorNome(){return gestorNome;}
+ public void setGestorNome(String n){gestorNome=n;}
+ public String getTestemunha1Nome(){return testemunha1Nome;}
+ public void setTestemunha1Nome(String n){testemunha1Nome=n;}
+ public String getTestemunha2Nome(){return testemunha2Nome;}
+ public void setTestemunha2Nome(String n){testemunha2Nome=n;}
+ public String getOutroAssinanteNome(){return outroAssinanteNome;}
+ public void setOutroAssinanteNome(String n){outroAssinanteNome=n;}
  private CategoriaDocumento categoria = CategoriaDocumento.OUTROS;
     private Long tipoId;
     public Long getTipoId() { return tipoId; }

@@ -43,7 +43,9 @@ public class ExportarContratoServlet extends HttpServlet {
             }
             String conteudo = DocumentoService.preencher(contrato.getConteudo(), colaborador,
                     new br.edu.contratofacil.dao.ConfiguracaoDocumentoDAO().buscarLogo(),
-                    new br.edu.contratofacil.dao.TagPersonalizadaDAO().valores(colaborador));
+                    br.edu.contratofacil.service.AssinaturaService.combinar(
+                        new br.edu.contratofacil.dao.TagPersonalizadaDAO().valores(colaborador),
+                        contrato, colaborador));
             java.io.ByteArrayOutputStream buffer = new java.io.ByteArrayOutputStream();
             if ("pdf".equals(formato)) {
                 ExportacaoDocumento.pdf(contrato.getTitulo(), conteudo, buffer);
