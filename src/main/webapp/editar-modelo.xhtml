@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html"
-      xmlns:f="jakarta.faces.core" xmlns:p="primefaces">
+      xmlns:f="jakarta.faces.core" xmlns:p="primefaces" xmlns:ui="jakarta.faces.facelets">
 <f:metadata>
 <f:viewParam name="id" value="#{modeloContratoBean.idEdicao}"/>
 <f:viewAction action="#{modeloContratoBean.carregarEdicao}"/>
@@ -19,13 +19,25 @@
 <section class="painel">
 <div class="titulo">
 <div><h2>Editor de modelos</h2>
-<p class="subtitulo">Monte o texto-base com tags. O modelo fica reutilizável para qualquer colaborador.</p></div>
+<p class="subtitulo">Escreva o texto e insira os dados da ficha por meio dos campos dinâmicos. Cada modelo pode ser reutilizado.</p></div>
 <h:link outcome="/modelos.xhtml" value="Voltar aos modelos" styleClass="link-acao-subtil"/>
 </div>
 <h:form id="form">
 <p:messages id="avisos" showDetail="true" closable="true"/>
+<details class="tutorial-editor">
+<summary><i class="pi pi-question-circle"></i> Como criar um modelo com campos automáticos?</summary>
+<ol>
+<li>Selecione o tipo e dê um nome para identificar o modelo.</li>
+<li>Escreva normalmente o documento. Posicione o cursor onde deseja inserir um dado.</li>
+<li>Pesquise no painel <strong>Campos da ficha</strong> e clique no campo desejado, como <strong>Nome completo</strong>. No texto ficará <code>{{colaborador.nome}}</code>.</li>
+<li>Ative <strong>Exemplo preenchido</strong> para simular os valores, sem acessar dados reais.</li>
+<li>Salve o modelo. Na aba <strong>Contratos</strong>, selecione um colaborador cadastrado. A visualização e a exportação mostrarão os dados da ficha dele.</li>
+</ol>
+<p>Se um atributo não tiver valor cadastrado, o documento indicará “Não informado”. Campos de exemplo são fictícios.</p>
+</details>
 <div class="campos">
 <div><p:outputLabel for="tipo" value="Tipo de contrato *"/>
+<span class="icone-ajuda" title="Classificação cadastrada na aba Tipos. Organiza os modelos por finalidade." aria-label="Ajuda: classificação do modelo">ⓘ</span>
 <p:selectOneMenu id="tipo" value="#{modeloContratoBean.edicao.tipoId}" required="true"
  requiredMessage="Selecione o tipo de contrato." style="width:100%">
 <f:selectItem itemLabel="Selecione..." itemValue="#{null}" noSelectionOption="true"/>
@@ -33,6 +45,7 @@
  itemLabel="#{tipoOpcao.nome}" itemValue="#{tipoOpcao.id}"/>
 </p:selectOneMenu></div>
 <div><p:outputLabel for="titulo" value="Nome do modelo *"/>
+<span class="icone-ajuda" title="Nome para encontrar o texto-base na geração de contratos. Não é o nome do colaborador." aria-label="Ajuda: nome do modelo">ⓘ</span>
 <p:inputText id="titulo" value="#{modeloContratoBean.edicao.titulo}"
  required="true" requiredMessage="Informe o título." maxlength="160" style="width:100%"/>
 </div></div>
@@ -63,26 +76,53 @@
 </span>
 </f:facet>
 </p:textEditor>
-<div class="tags-documento">
-<h3>Inserir campos automáticos</h3>
-<p>As tags permanecem visíveis aqui e serão preenchidas ao gerar um contrato.</p>
-<button type="button" onclick="inserirTagModelo('{{colaborador.nome}}')">Nome</button>
-<button type="button" onclick="inserirTagModelo('{{colaborador.cpf}}')">CPF</button>
-<button type="button" onclick="inserirTagModelo('{{colaborador.matricula}}')">Matrícula</button>
-<button type="button" onclick="inserirTagModelo('{{colaborador.cargo}}')">Cargo</button>
-<button type="button" onclick="inserirTagModelo('{{colaborador.salario}}')">Salário</button>
-<button type="button" onclick="inserirTagModelo('{{colaborador.dataAdmissao}}')">Admissão</button>
-<button type="button" onclick="inserirTagModelo('{{colaborador.centroCustoDescricao}}')">Centro de custo</button>
-<button type="button" onclick="inserirTagModelo('{{documento.dataAtual}}')">Data</button>
-<button type="button" onclick="inserirTagModelo('{{documento.assinatura}}')">Assinatura</button>
-<button type="button" onclick="inserirTagModelo('{{empresa.logo}}')">Logo</button>
+<div class="tags-documento catalogo-campos" id="catalogoCampos">
+<div class="titulo catalogo-cabecalho">
+<div><h3><i class="pi pi-database"></i> Campos da ficha</h3>
+<p>Encontre o atributo desejado e clique para inseri-lo no cursor. Passe o mouse para ver uma explicação.</p></div>
+<span class="contador-campos" id="contadorCampos"></span>
+</div>
+<div class="filtros-campos">
+<label for="buscaCampo">Pesquisar campo</label>
+<input id="buscaCampo" type="search" autocomplete="off" placeholder="Ex.: salário, endereço, admissão"/>
+<label for="grupoCampo">Categoria</label>
+<select id="grupoCampo">
+<option value="">Todas as categorias</option>
+<option value="Identificação">Identificação</option>
+<option value="Dados pessoais">Dados pessoais</option>
+<option value="Endereço">Endereço</option>
+<option value="Dados contratuais">Dados contratuais</option>
+<option value="Documento">Documento</option>
+</select>
+</div>
+<div class="lista-campos" id="listaCampos">
+<ui:repeat value="#{modeloContratoBean.campos}" var="campo">
+<button type="button" class="botao-campo" data-tag="#{campo.tag}"
+data-grupo="#{campo.grupo}" data-exemplo="#{campo.exemplo}"
+data-descricao="#{campo.descricao}" title="#{campo.descricao}"
+aria-label="Inserir #{campo.rotulo}: #{campo.descricao}">
+<span class="nome-campo">#{campo.rotulo}</span>
+<span class="grupo-campo">#{campo.grupo}</span>
+</button>
+</ui:repeat>
+</div>
+<p class="ajuda-campo" id="descricaoCampo" aria-live="polite">
+<strong>Dica:</strong> “Nome completo” insere a tag <code>{{colaborador.nome}}</code>, preenchida com o nome do colaborador escolhido na emissão.
+</p>
 <h:link outcome="/configuracao-documento.xhtml" value="Configurar logo" styleClass="link-acao-subtil"/>
 </div>
 </div>
 <div class="area-previa-modelo">
 <div class="titulo"><h3>Pré-visualização</h3><span class="subtitulo">Atualização enquanto digita</span></div>
+<div class="alternar-previa" role="group" aria-label="Modo de visualização">
+<button id="modoExemplo" type="button" class="ativo" aria-pressed="true"
+title="Mostra valores fictícios no lugar das tags, somente para simular um documento">Exemplo preenchido</button>
+<button id="modoTags" type="button" aria-pressed="false"
+title="Mostra as tags exatamente como serão guardadas no modelo">Ver tags</button>
+</div>
+<p class="aviso-previa" id="avisoPrevia"><i class="pi pi-info-circle"></i> Dados ilustrativos. Na emissão, serão usados os dados da ficha selecionada.</p>
 <iframe id="previaModelo" class="frame-previa" sandbox="" title="Pré-visualização do modelo"></iframe>
-<p class="subtitulo">Esta é a prévia do modelo, com as tags visíveis. Os dados reais entram na emissão.</p>
+<p class="subtitulo">A prévia é demonstrativa. O contrato final será preenchido no servidor com os dados do colaborador escolhido.</p>
 </div>
 </div>
 <div class="acoes-formulario">

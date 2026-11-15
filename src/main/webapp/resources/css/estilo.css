@@ -152,3 +152,28 @@ label { color: #34465c; font-size: .9rem; }
 .painel .ui-datatable tbody td{vertical-align:middle}
 @media(max-width:1020px){.cartoes-inicio{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.cartoes-inicio{grid-template-columns:1fr}}
+
+/* Catálogo guiado de tags do editor, sem bibliotecas extras */
+.tutorial-editor{margin:16px 0;background:#f1f7fe;border:1px solid #d5e7f8;border-radius:8px;padding:11px 15px;font-size:.92rem}
+.tutorial-editor summary{cursor:pointer;font-weight:650;color:#1b5980}
+.tutorial-editor ol{padding-left:22px;line-height:1.65;margin:12px 0 4px}
+.tutorial-editor p{font-size:.87rem;color:#536980}
+.icone-ajuda{display:inline-block;color:#5181a8;cursor:help;margin-left:7px;font-size:.86rem}
+.catalogo-cabecalho{margin-bottom:8px}
+.catalogo-campos{padding:16px}
+.contador-campos{font-size:.79rem;background:#e7eff7;color:#335f7f;border-radius:16px;padding:4px 9px}
+.filtros-campos{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.65fr);gap:5px 10px;align-items:center;margin:12px 0}
+.filtros-campos label{font-weight:600;font-size:.8rem}
+.filtros-campos input,.filtros-campos select{min-width:0;width:100%;height:38px;border:1px solid #c6d7e6;border-radius:6px;padding:7px 10px;background:#fff;color:#223c55}
+.lista-campos{display:flex;flex-wrap:wrap;gap:7px;max-height:225px;overflow:auto;padding:3px 0}
+.lista-campos .botao-campo{display:inline-flex;align-items:center;gap:7px;text-align:left;border:1px solid #c6d8e9;background:#fff;border-radius:6px;color:#205275;padding:7px 9px;font-size:.83rem;margin:0;max-width:100%}
+.lista-campos .botao-campo:hover,.lista-campos .botao-campo:focus{background:#e7f4ff;border-color:#76add1;outline-color:#76add1}
+.lista-campos .botao-campo[hidden]{display:none}
+.nome-campo{font-weight:600}
+.grupo-campo{color:#7c8ca1;font-size:.69rem}
+.ajuda-campo{min-height:38px;border-top:1px solid #dae4ef;padding-top:10px;overflow-wrap:anywhere}
+.alternar-previa{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 6px}
+.alternar-previa button{cursor:pointer;border:1px solid #bed2e3;background:#fff;color:#356384;padding:7px 10px;border-radius:6px;font-size:.81rem}
+.alternar-previa button.ativo{background:#156eab;border-color:#156eab;color:#fff;font-weight:650}
+.aviso-previa{margin:6px 0 12px!important;color:#536b80;font-size:.81rem!important}
+@media(max-width:680px){.filtros-campos{grid-template-columns:1fr}.grupo-campo{display:none}}
