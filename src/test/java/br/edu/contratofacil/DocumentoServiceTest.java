@@ -50,6 +50,39 @@ class DocumentoServiceTest {
         assertFalse(texto.contains("{{colaborador.nome}}"));
     }
 
+
+    @Test void catalogoIncluiTodosCamposDaFicha() {
+        var campos = br.edu.contratofacil.service.CatalogoCampos.todos();
+        var mapa = br.edu.contratofacil.service.CatalogoCampos.valores(colaborador());
+        assertEquals(campos.size(), mapa.size());
+        for (var campo : campos) {
+            assertTrue(mapa.containsKey(campo.getChave()), campo.getChave());
+            assertFalse(campo.getDescricao().isBlank());
+            assertFalse(campo.getExemplo().isBlank());
+            assertEquals("{{" + campo.getChave() + "}}", campo.getTag());
+        }
+        assertTrue(mapa.containsKey("colaborador.racaCor"));
+        assertTrue(mapa.containsKey("colaborador.estadoCivil"));
+        assertTrue(mapa.containsKey("colaborador.genero"));
+        assertTrue(mapa.containsKey("colaborador.complemento"));
+    }
+
+    @Test void resolveTagsMesmoDivididasPelaFormatacao() {
+        String html = "<p>Nome: <strong>{{colaborador.</strong><em>nome}}</em>"
+            + " / <span>{{colaborador.cargo}}</span></p>";
+        String renderizado = DocumentoService.preencher(html, colaborador());
+        String texto = org.jsoup.Jsoup.parseBodyFragment(renderizado).text();
+        assertTrue(texto.contains("Ana & João <Teste>"), renderizado);
+        assertTrue(texto.contains("Analista"), renderizado);
+        assertFalse(texto.contains("{{"), renderizado);
+    }
+
+    @Test void informaQuandoUmDadoOpcionalNaoFoiPreenchido() {
+        String html = DocumentoService.preencher(
+            "<p>{{colaborador.complemento}} - {{colaborador.escolaridade}}</p>", colaborador());
+        assertTrue(org.jsoup.Jsoup.parseBodyFragment(html).text().contains("Não informado"));
+    }
+
     @Test void exportacaoPdfGeraCabecalhoPdfValido() throws Exception {
         ByteArrayOutputStream saida = new ByteArrayOutputStream();
         String html = DocumentoService.preencher(

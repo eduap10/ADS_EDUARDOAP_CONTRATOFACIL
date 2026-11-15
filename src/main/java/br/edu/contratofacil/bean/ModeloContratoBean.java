@@ -111,4 +111,7 @@ public class ModeloContratoBean implements Serializable {
     public void setEdicao(ModeloContrato edicao) { this.edicao = edicao; }
     public List<ModeloContrato> getLista() { return lista; }
     public List<TipoContrato> getTipos() { return tipos; }
+    public java.util.List<br.edu.contratofacil.service.CatalogoCampos.Campo> getCampos() {
+        return br.edu.contratofacil.service.CatalogoCampos.todos();
+    }
 }
