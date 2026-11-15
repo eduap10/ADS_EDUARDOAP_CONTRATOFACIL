@@ -110,4 +110,41 @@ class CanvasDocumentoServiceTest {
         }
     }
 
+    private static final String PNG_2X2 =
+        "iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAFklEQVR4nGPkCtjCwMDAxMDAwMDAAAAMKAESBnDZDAAAAABJRU5ErkJggg==";
+
+    @Test void imagemPngPermaneceNoModeloPreviewPdfEDocx() throws Exception {
+        String modelo=CanvasDocumentoService.CABECALHO+
+            "I|40|80|280|150|image/png|"+PNG_2X2+"\n";
+        String seguro=DocumentoService.sanitizar(modelo);
+        assertEquals(seguro,DocumentoService.sanitizar(seguro));
+        String html=DocumentoService.preencher(seguro,pessoa(),Map.of());
+        var d=org.jsoup.Jsoup.parseBodyFragment(html);
+        assertEquals(1,d.select("img.cf-canvas-imagem").size());
+        assertEquals("data:image/png;base64,"+PNG_2X2,
+                     d.selectFirst("img.cf-canvas-imagem").attr("src"));
+
+        ByteArrayOutputStream pdf=new ByteArrayOutputStream();
+        ExportacaoDocumento.pdf("Imagem de contrato",html,pdf);
+        assertTrue(pdf.size()>200);
+        assertEquals("%PDF-",new String(pdf.toByteArray(),0,5,StandardCharsets.US_ASCII));
+
+        ByteArrayOutputStream docx=new ByteArrayOutputStream();
+        ExportacaoDocumento.docx("Imagem de contrato",html,docx);
+        try(var word=new org.apache.poi.xwpf.usermodel.XWPFDocument(
+                new ByteArrayInputStream(docx.toByteArray()))) {
+            assertEquals(1,word.getAllPictures().size());
+        }
+    }
+
+    @Test void imagensPerigosasEOuCorrompidasSaoRecusadas() {
+        String prefixo=CanvasDocumentoService.CABECALHO+"I|0|0|100|100|";
+        assertThrows(IllegalArgumentException.class,()->
+            DocumentoService.sanitizar(prefixo+"image/svg+xml|"+b64("<svg onload=alert(1)/>")+"\n"));
+        assertThrows(IllegalArgumentException.class,()->
+            DocumentoService.sanitizar(prefixo+"image/png|"+b64("<script>alert(1)</script>")+"\n"));
+        assertThrows(IllegalArgumentException.class,()->
+            DocumentoService.sanitizar(prefixo+"image/jpeg|"+PNG_2X2+"\n"));
+    }
+
 }
