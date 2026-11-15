@@ -20,6 +20,13 @@ class FluxoVisualTest {
         xhtmlValido("tipos.xhtml");
         xhtmlValido("modelos.xhtml");
         xhtmlValido("editar-modelo.xhtml");
+        String editor = java.nio.file.Files.readString(
+            java.nio.file.Path.of("src/main/webapp/editar-modelo.xhtml"));
+        assertTrue(editor.contains("blocos-visuais.js"));
+        assertTrue(editor.contains("blocoCor"));
+        assertTrue(editor.contains("blocoEstilo"));
+        assertTrue(editor.contains("cabecalhoTabela"));
+        assertTrue(editor.contains("data-catalogo-grupo=\"personalizado\""));
         xhtmlValido("contratos.xhtml");
         xhtmlValido("editar-contrato.xhtml");
         xhtmlValido("visualizar-contrato.xhtml");

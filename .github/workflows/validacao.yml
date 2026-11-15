@@ -20,7 +20,9 @@ jobs:
           java-version: '21'
           cache: maven
       - name: Validar JavaScript do editor
-        run: node --check src/main/webapp/resources/js/modelo-editor.js
+        run: |
+          node --check src/main/webapp/resources/js/modelo-editor.js
+          node --check src/main/webapp/resources/js/blocos-visuais.js
       - name: Compilar e testar
         run: mvn --batch-mode --no-transfer-progress clean verify
 

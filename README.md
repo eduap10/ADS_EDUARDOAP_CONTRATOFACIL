@@ -119,6 +119,16 @@ A geração DOCX preserva **formatação textual básica** (negrito, itálico, s
 **Privacidade:** o cadastro contempla campos pessoais e sensíveis. Para a demonstração acadêmica, use exclusivamente registros fictícios; o projeto não tem uma política completa de retenção, consentimento e auditoria de dados.
 
 
+## Editor visual de componentes
+
+O painel **Componentes do documento** insere agora **objetos visuais diretamente no editor de modelos**, com seleção por clique e barra contextual. Ao selecionar um separador, use cor, espessura, orientação e largura. Para tabelas, escolha entre grade clássica, linhas alternadas ou minimalista, além de cabeçalho e edição de células em um formulário. As assinaturas mostram uma linha e o papel abaixo; o nome é preenchido ao gerar o contrato.
+
+Os objetos podem ser arrastados **entre posições do fluxo do documento** e redimensionados na largura usando a alça do navegador ou o campo de porcentagem. Isso **não é um canvas de posicionamento absoluto em coordenadas livres**, e o Word pode não reproduzir exatamente linhas diagonais e espessuras do PDF. Não é necessário instalar componentes externos no notebook.
+
+A persistência continua na coluna `conteudo` do modelo em marcadores internos serializados no servidor (não exibidos na edição). Modelos existentes que usavam os marcadores antigos continuam compatíveis. Nenhuma migração de banco nova é necessária para os objetos visuais. O novo editor aplica validação/sanitização no serviço Java durante o salvamento. Não use esses conteúdos antes de salvar e reabrir o modelo na homologação.
+
+O catálogo separa **Campos da ficha** de **Minhas tags**. Ao selecionar "Todas as categorias", exibe ambos os grupos. As tags personalizadas ativas cadastradas em **Tags** aparecem ao recarregar o editor.
+
 ## Ferramentas de composição de documentos (versão atual)
 
 ### Tags personalizadas
@@ -135,7 +145,7 @@ Uma tag criada com código `nome_empresa` aparece no editor como `{{personalizad
 
 No editor de **Modelos** existe o painel **Componentes do documento**. Os separadores disponíveis são horizontal, vertical, diagonal e livre. As orientações diagonal e livre têm representação simples, e não são ferramentas de desenho à mão.
 
-**Tabela/grade:** informe linhas (1–12), colunas (1–8), largura (%) e altura das linhas (px). Edite o conteúdo das células no próprio formulário e, após inseri-la, altere seu conteúdo entre os marcadores no editor, usando `|` para separar as colunas. A prévia renderiza a grade. A exportação DOCX produz uma tabela nativa do Word e o PDF usa tabela HTML. **Não há arraste de bordas para redimensionamento direto na página**, apenas os controles numéricos e os marcadores. Isso evita incluir um editor externo incompatível com a arquitetura do projeto.
+**Tabela/grade:** informe linhas (1–12), colunas (1–8), largura (%) e altura das linhas (px). Edite o conteúdo das células no próprio formulário e, após inseri-la, altere seu conteúdo entre os marcadores no editor, usando `|` para separar as colunas. A prévia renderiza a grade. A exportação DOCX produz uma tabela nativa do Word e o PDF usa tabela HTML. Agora há ajuste da **largura total do componente** pelo mouse e edição de células por diálogo. Arrastar bordas individuais de colunas e usar posicionamento absoluto livre ainda não são recursos suportados.
 
 ### Assinaturas
 
