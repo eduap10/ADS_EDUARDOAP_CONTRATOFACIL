@@ -9,7 +9,7 @@ Aplicação acadêmica para cadastro de colaboradores, manutenção de modelos e
 - Cadastro independente de tipos de contrato, com os exemplos acadêmicos iniciais.
 - Editor de modelos de contrato em página inteira, com pré-visualização durante a digitação.
 - Geração de contratos por seleção pesquisável de colaborador e tipo/modelo; o texto usado é preservado no contrato emitido.
-- Editor visual **PrimeFaces p:textEditor**, formatação de texto e inserção de tags.
+- Editor visual A4 com **HTML/JavaScript leve integrado ao JSF/PrimeFaces**, caixas de texto, linhas, tabelas, assinaturas e tags.
 - Visualização com substituição dos dados cadastrados.
 - Exportação em **PDF** e **DOCX** (conversão parcial das formatações para Word).
 - Logo global opcional (PNG/JPEG até 1 MB), posicionado no texto pela tag `{{empresa.logo}}`.
@@ -119,15 +119,21 @@ A geração DOCX preserva **formatação textual básica** (negrito, itálico, s
 **Privacidade:** o cadastro contempla campos pessoais e sensíveis. Para a demonstração acadêmica, use exclusivamente registros fictícios; o projeto não tem uma política completa de retenção, consentimento e auditoria de dados.
 
 
-## Editor visual de componentes
+## Editor visual A4
 
-O painel **Componentes do documento** insere agora **objetos visuais diretamente no editor de modelos**, com seleção por clique e barra contextual. Ao selecionar um separador, use cor, espessura, orientação e largura. Para tabelas, escolha entre grade clássica, linhas alternadas ou minimalista, além de cabeçalho e edição de células em um formulário. As assinaturas mostram uma linha e o papel abaixo; o nome é preenchido ao gerar o contrato.
+A edição dos modelos usa um **canvas A4 de composição livre**, com objetos posicionados por coordenadas X/Y. Em **Modelos → Criar modelo**, adicione **Texto**, **Linha**, **Tabela** ou **Assinatura**. Clique em um objeto e utilize o ícone ⠿ para arrastar, ↘ para redimensionar. A barra contextual oferece tamanho, cor, orientação e espessura da linha; cabeçalho, estilos (grade, listrado e simples) e inserção/remoção de linhas ou colunas na tabela; e papel do assinante. O nome aparece **abaixo** da linha de assinatura. Caixas de texto e células são editáveis diretamente, inclusive com tags.
 
-Os objetos podem ser arrastados **entre posições do fluxo do documento** e redimensionados na largura usando a alça do navegador ou o campo de porcentagem. Isso **não é um canvas de posicionamento absoluto em coordenadas livres**, e o Word pode não reproduzir exatamente linhas diagonais e espessuras do PDF. Não é necessário instalar componentes externos no notebook.
+A prévia é demonstrativa; durante a geração do contrato os campos são preenchidos no servidor a partir do colaborador selecionado. O projeto preserva JSF + PrimeFaces + PostgreSQL e não adiciona dependências ao frontend.
 
-A persistência continua na coluna `conteudo` do modelo em marcadores internos serializados no servidor (não exibidos na edição). Modelos existentes que usavam os marcadores antigos continuam compatíveis. Nenhuma migração de banco nova é necessária para os objetos visuais. O novo editor aplica validação/sanitização no serviço Java durante o salvamento. Não use esses conteúdos antes de salvar e reabrir o modelo na homologação.
+### Compatibilidade e persistência
 
-O catálogo separa **Campos da ficha** de **Minhas tags**. Ao selecionar "Todas as categorias", exibe ambos os grupos. As tags personalizadas ativas cadastradas em **Tags** aparecem ao recarregar o editor.
+O novo formato `CFCANVAS1` é validado e salvo **na mesma coluna** `conteudo` usada pelos modelos antigos. A conversão de um modelo antigo para canvas só é persistida **ao salvar** no editor novo. Os marcadores legados continuam renderizados no servidor para contratos já emitidos, sem migração de banco. Faça backup antes de converter modelos valiosos.
+
+**Limites conscientes:** uma página A4 por modelo, até 100 componentes; a exportação **PDF** respeita coordenadas livres e a exportação **DOCX** preserva texto/tabelas editáveis, mas reordena objetos pelo eixo vertical, sem reproduzir fielmente sobreposições. Não é uma ferramenta de assinatura eletrônica. Homologue no notebook antes de usar dados pessoais reais.
+
+### Atualização local
+
+Nenhuma migração SQL é necessária para a versão canvas. Execute `git status`, confirme que não há alterações locais, faça `git pull --ff-only origin main`, compile com `mvn -U clean verify` e reinicie o Tomcat via `scripts/tomcat.ps1`. Faça um teste: crie uma tabela, arraste, salve e reabra; gere um contrato fictício e confira PDF/DOCX.
 
 ## Ferramentas de composição de documentos (versão atual)
 
@@ -143,13 +149,11 @@ Uma tag criada com código `nome_empresa` aparece no editor como `{{personalizad
 
 ### Linhas e tabelas
 
-No editor de **Modelos** existe o painel **Componentes do documento**. Os separadores disponíveis são horizontal, vertical, diagonal e livre. As orientações diagonal e livre têm representação simples, e não são ferramentas de desenho à mão.
-
-**Tabela/grade:** informe linhas (1–12), colunas (1–8), largura (%) e altura das linhas (px). Edite o conteúdo das células no próprio formulário e, após inseri-la, altere seu conteúdo entre os marcadores no editor, usando `|` para separar as colunas. A prévia renderiza a grade. A exportação DOCX produz uma tabela nativa do Word e o PDF usa tabela HTML. Agora há ajuste da **largura total do componente** pelo mouse e edição de células por diálogo. Arrastar bordas individuais de colunas e usar posicionamento absoluto livre ainda não são recursos suportados.
+Os objetos são criados visualmente no canvas, sem digitar marcadores `{{visual.*}}`. As tabelas permitem cabeçalho, edição direta das células e estilos simples. Linhas permitem cor, espessura e orientação. O documento final usa os dados reais substituídos na emissão.
 
 ### Assinaturas
 
-O botão **Assinatura** no Editor de Modelos abre uma janela para selecionar **colaborador**, **gestor**, **testemunha 1**, **testemunha 2** ou **outro participante**. Ao gerar um contrato, os nomes desses participantes podem ser digitados ou selecionados pela busca de colaboradores.
+Selecione o objeto **Assinatura** no canvas e escolha o papel: **colaborador**, **gestor**, **testemunha 1**, **testemunha 2** ou **outro participante**. Ao gerar um contrato, os nomes desses participantes podem ser digitados ou selecionados pela busca de colaboradores.
 
 Os nomes são armazenados no registro emitido, após a migração `database/14_assinaturas_contrato.sql`. O campo de assinatura é **um espaço para assinatura manual**, não uma assinatura eletrônica ou certificada. O sistema não possui processo de assinatura digital.
 
