@@ -147,6 +147,9 @@
 </select>
 </div>
 <div class="lista-campos" id="listaCampos">
+<section class="grupo-catalogo" data-catalogo-grupo="padrao">
+<h4>Campos da ficha</h4>
+<div class="campos-catalogo">
 <ui:repeat value="#{modeloContratoBean.campos}" var="campo">
 <button type="button" class="botao-campo" data-tag="#{campo.tag}"
 data-grupo="#{campo.grupo}" data-exemplo="#{campo.exemplo}"
@@ -156,14 +159,23 @@ aria-label="Inserir #{campo.rotulo}: #{campo.descricao}">
 <span class="grupo-campo">#{campo.grupo}</span>
 </button>
 </ui:repeat>
+</div>
+</section>
+<section class="grupo-catalogo" data-catalogo-grupo="personalizado">
+<h4>Minhas tags</h4>
+<div class="campos-catalogo">
 <ui:repeat value="#{modeloContratoBean.tagsPersonalizadas}" var="tagOpcao">
 <button type="button" class="botao-campo" data-tag="#{tagOpcao.tag}"
 data-grupo="Personalizados" data-exemplo="#{tagOpcao.tipo == 'TEXTO_FIXO' ? tagOpcao.valorFixo : 'Valor automático'}"
 data-descricao="#{tagOpcao.descricao}" title="#{tagOpcao.descricao}"
 aria-label="Inserir #{tagOpcao.nome}">
-<span class="nome-campo">#{tagOpcao.nome}</span><span class="grupo-campo">Personalizados</span>
+<span class="nome-campo">#{tagOpcao.nome}</span>
+<span class="grupo-campo">Minha tag</span>
 </button>
 </ui:repeat>
+<p class="catalogo-vazio" id="semTags" hidden="hidden">Nenhuma tag personalizada cadastrada. Use “Criar ou editar tags” para adicionar uma.</p>
+</div>
+</section>
 </div>
 <p class="ajuda-campo" id="descricaoCampo" aria-live="polite">
 <strong>Dica:</strong> “Nome completo” insere a tag <code>{{colaborador.nome}}</code>, preenchida com o nome do colaborador escolhido na emissão.

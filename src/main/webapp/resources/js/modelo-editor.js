@@ -114,6 +114,17 @@
             campo.hidden = !mostra;
             if (mostra) encontrados++;
         }
+        for (const secao of document.querySelectorAll("#listaCampos .grupo-catalogo")) {
+            const visiveis = Array.from(secao.querySelectorAll(".botao-campo"))
+                .filter(botao => !botao.hidden);
+            secao.hidden = visiveis.length === 0;
+            if (secao.dataset.catalogoGrupo === "personalizado") {
+                const vazio = document.getElementById("semTags");
+                const cadastradas = secao.querySelectorAll(".botao-campo").length;
+                if (vazio) vazio.hidden = cadastradas !== 0 || Boolean(termo) || Boolean(grupo && grupo !== "Personalizados");
+                if (!cadastradas && !termo && (!grupo || grupo === "Personalizados")) secao.hidden = false;
+            }
+        }
         const contador = document.getElementById("contadorCampos");
         if (contador) contador.textContent = encontrados + " campo(s)";
     }
