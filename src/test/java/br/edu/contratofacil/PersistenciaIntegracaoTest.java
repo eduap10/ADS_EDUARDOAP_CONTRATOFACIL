@@ -33,6 +33,8 @@ class PersistenciaIntegracaoTest {
             + "Salário: {{colaborador.salario}}</p>");
         modelo.setTipoId(tipoId);
         Contrato contrato = new Contrato();
+        contrato.setGestorNome("Gestora Teste");
+        contrato.setTestemunha1Nome("Testemunha Teste");
         try {
             new ColaboradorDAO().salvar(colaborador);
             assertNotNull(colaborador.getId());
@@ -61,6 +63,14 @@ class PersistenciaIntegracaoTest {
             new ContratoDAO().salvar(contrato);
             assertNotNull(contrato.getId());
             assertEquals(modelo.getConteudo(), new ContratoDAO().buscar(contrato.getId()).getConteudo());
+            Contrato persistido = new ContratoDAO().buscar(contrato.getId());
+            assertEquals("Gestora Teste", persistido.getGestorNome());
+            assertEquals("Testemunha Teste", persistido.getTestemunha1Nome());
+            String assinaturas = br.edu.contratofacil.service.DocumentoService.preencher(
+                "<p>{{assinatura.colaborador}}</p><p>{{assinatura.gestor}}</p>",
+                colaborador, br.edu.contratofacil.service.AssinaturaService.combinar(
+                    java.util.Map.of(), persistido, colaborador));
+            assertTrue(assinaturas.contains("Gestora Teste"));
 
             modelo.setConteudo("<p>Texto novo que não pode alterar contrato antigo</p>");
             new ModeloContratoDAO().salvar(modelo);

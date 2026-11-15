@@ -114,6 +114,18 @@ class DocumentoServiceTest {
         assertTrue(html.contains("cf-linha-vertical"), html);
     }
 
+
+    @Test void assinaturasSaoInseridasComNomeEPapelSemExecutarHtml() {
+        var contrato = new br.edu.contratofacil.model.Contrato();
+        contrato.setGestorNome("Gestor <Teste>");
+        String html = DocumentoService.preencher(
+            "<p>{{assinatura.colaborador}}</p><p>{{assinatura.gestor}}</p>",
+            colaborador(), br.edu.contratofacil.service.AssinaturaService.combinar(
+                java.util.Map.of(), contrato, colaborador()));
+        assertTrue(org.jsoup.Jsoup.parseBodyFragment(html).text().contains("Gestor <Teste>"));
+        assertFalse(html.contains("<Teste>"), "Os nomes não podem ser executados como HTML.");
+    }
+
     @Test void exportacaoPdfGeraCabecalhoPdfValido() throws Exception {
         ByteArrayOutputStream saida = new ByteArrayOutputStream();
         String html = DocumentoService.preencher(

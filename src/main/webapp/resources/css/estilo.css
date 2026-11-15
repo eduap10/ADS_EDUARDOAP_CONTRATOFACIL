@@ -196,3 +196,8 @@ label { color: #34465c; font-size: .9rem; }
 .cf-linha-horizontal{border-bottom:1px solid #475569}
 .cf-linha-vertical{border-left:1px solid #475569;width:16px}
 .cf-linha-diagonal{font-style:italic}
+
+.assinaturas-emissao{margin:18px 0;padding:15px;border:1px solid #d6e5ef;border-radius:8px;background:#fff}
+.assinaturas-emissao h3{font-size:1rem;margin:0 0 8px}
+.assinaturas-emissao .campo-formulario{margin:12px 0}
+.assinaturas-emissao .ui-autocomplete{width:100%}
