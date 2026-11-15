@@ -136,26 +136,202 @@ $("cfRowMinus").addEventListener("click",()=>grid(selected.cf.rows-1,selected.cf
 $("cfColPlus").addEventListener("click",()=>grid(selected.cf.rows,selected.cf.cols+1));
 $("cfColMinus").addEventListener("click",()=>grid(selected.cf.rows,selected.cf.cols-1));
 document.querySelectorAll("[data-cf-add]").forEach(b=>b.addEventListener("click",()=>add(object(b.dataset.cfAdd))));
+// A faixa de formatação opera sobre a seleção DOM (não sobre o bloco inteiro).
+// O intervalo é lembrado antes de o usuário tocar na barra, pois os selects
+// e campos de cores retiram naturalmente o foco do contenteditable.
+const FONTS=new Set(Array.from($("cfFontFamily").options).map(o=>o.value));
+const safeFont=name=>FONTS.has(name)?name:"Arial";
 function remember(){
  const sel=window.getSelection();
- if(sel?.rangeCount&&focusEditable?.contains(sel.anchorNode))storedRange=sel.getRangeAt(0).cloneRange();
-}
-function textCommand(cmd,value){
- if(!focusEditable?.isConnected)return;
- focusEditable.focus();
- if(storedRange && focusEditable.contains(storedRange.commonAncestorContainer)){
-   const sel=window.getSelection();sel.removeAllRanges();sel.addRange(storedRange);
+ if(sel?.rangeCount&&focusEditable?.contains(sel.anchorNode)
+     && focusEditable?.contains(sel.focusNode)){
+   storedRange=sel.getRangeAt(0).cloneRange();
  }
- document.execCommand(cmd,false,value);remember();
- if(selected?.cf.tipo==="text")selected.cf.html=focusEditable.innerHTML;updatePreview();
 }
-document.querySelectorAll("[data-cf-format]").forEach(button=>{
- button.addEventListener("mousedown",e=>e.preventDefault());
- button.addEventListener("click",()=>textCommand(button.dataset.cfFormat,null));
+document.addEventListener("selectionchange",()=>{
+ const sel=window.getSelection();
+ if(sel?.rangeCount && focusEditable?.contains(sel.anchorNode)
+     && focusEditable?.contains(sel.focusNode)) remember();
 });
-$("cfTextColor").addEventListener("change",e=>textCommand("foreColor",e.target.value));
-$("cfFontSize").addEventListener("change",e=>textCommand("fontSize",e.target.value));
-$("cfAlign").addEventListener("change",e=>textCommand(e.target.value,null));
+function editableReady(){
+ if(focusEditable?.isConnected && selected?.contains(focusEditable)) return focusEditable;
+ if(!selected || !["text","table"].includes(selected.cf.tipo)) return null;
+ focusEditable=selected.querySelector(".cf-texto,[contenteditable=true]");
+ storedRange=null;
+ return focusEditable;
+}
+function getRange(edit){
+ const sel=window.getSelection();
+ let r=null;
+ if(storedRange && edit.contains(storedRange.commonAncestorContainer)) r=storedRange.cloneRange();
+ else if(sel?.rangeCount && edit.contains(sel.getRangeAt(0).commonAncestorContainer))
+   r=sel.getRangeAt(0).cloneRange();
+ return r;
+}
+function restoreRange(edit,r){
+ if(!r)return;
+ edit.focus();
+ try{
+   const sel=window.getSelection();
+   sel.removeAllRanges();sel.addRange(r);
+   storedRange=r.cloneRange();
+ }catch(e){storedRange=null;}
+}
+function syncFormatted(edit){
+ if(!selected)return;
+ if(selected.cf.tipo==="text"){
+   selected.cf.html=selected.querySelector(".cf-texto").innerHTML;
+ }else if(selected.cf.tipo==="table"){
+   selected.querySelectorAll("tr").forEach((tr,r)=>Array.from(tr.children).forEach((cell,c)=>{
+     selected.cf.cells[r][c]=cell.textContent.replace(/[\u001f\r\n|]/g," ").slice(0,500);
+   }));
+ }
+ updatePreview();
+}
+function applyInline(property,value){
+ const edit=editableReady();if(!edit)return;
+ let r=getRange(edit);
+ if(!r || r.collapsed){
+   // Sem texto selecionado, modifica os parágrafos da caixa inteira.
+   const blocks=Array.from(edit.children).filter(el=>el.matches("p,div,ul,ol,li,h1,h2,h3"));
+   const targets=blocks.length?blocks:[edit];
+   for(const el of targets){
+     // Estilo fica no HTML persistido, não apenas no contêiner de edição.
+     if(el===edit){
+       const span=document.createElement("span");
+       while(edit.firstChild)span.append(edit.firstChild);
+       edit.append(span);span.style.setProperty(property,value);
+     }else el.style.setProperty(property,value);
+   }
+   syncFormatted(edit);return;
+ }
+ const wrapper=document.createElement("span");
+ wrapper.style.setProperty(property,value);
+ try{
+   const frag=r.extractContents();
+   wrapper.append(frag);
+   r.insertNode(wrapper);
+   const next=document.createRange();next.selectNodeContents(wrapper);
+   restoreRange(edit,next);
+ }catch(e){
+   console.warn("Não foi possível formatar a seleção",e);
+ }
+ syncFormatted(edit);
+}
+function currentParagraph(){
+ const edit=editableReady();if(!edit)return null;
+ const r=getRange(edit);
+ let node=r?.startContainer||edit;
+ if(node.nodeType===Node.TEXT_NODE)node=node.parentElement;
+ const block=node?.closest?.("p,div,li,h1,h2,h3");
+ if(block && edit.contains(block) && block!==edit)return block;
+ return edit.querySelector("p,div,h1,h2,h3,li")||edit;
+}
+function paragraphStyle(property,value){
+ const el=currentParagraph();if(!el)return;
+ el.style.setProperty(property,value);
+ syncFormatted(editableReady());
+}
+function styleParagraph(type){
+ const el=currentParagraph();if(!el)return;
+ const styles={
+  normal:{size:"11pt",weight:"400",line:"1.45",spacing:"6px"},
+  title:{size:"22pt",weight:"700",line:"1.2",spacing:"12px"},
+  subtitle:{size:"14pt",weight:"400",line:"1.3",spacing:"8px"},
+  heading1:{size:"18pt",weight:"700",line:"1.25",spacing:"10px"},
+  heading2:{size:"14pt",weight:"700",line:"1.3",spacing:"8px"}
+ };
+ const s=styles[type]||styles.normal;
+ el.style.fontSize=s.size;
+ el.style.fontWeight=s.weight;
+ el.style.lineHeight=s.line;
+ el.style.marginBottom=s.spacing;
+ syncFormatted(editableReady());
+}
+function makeList(type){
+ const edit=editableReady(),el=currentParagraph();if(!edit||!el)return;
+ const listTag=type==="ol"?"ol":"ul";
+ const li=el.closest("li");
+ if(li && edit.contains(li)){
+   const old=li.parentElement;
+   if(old && /^(UL|OL)$/.test(old.tagName)) {
+     if(old.tagName.toLowerCase()!==listTag){
+       const list=document.createElement(listTag);
+       while(old.firstChild)list.append(old.firstChild);
+       old.replaceWith(list);
+     }
+     syncFormatted(edit);return;
+   }
+ }
+ if(el===edit)return;
+ const list=document.createElement(listTag),entry=document.createElement("li");
+ while(el.firstChild)entry.append(el.firstChild);
+ list.append(entry);el.replaceWith(list);
+ syncFormatted(edit);
+}
+function changeIndent(delta){
+ const block=currentParagraph();if(!block)return;
+ const old=parseInt(block.style.marginLeft,10)||0;
+ block.style.marginLeft=Math.max(0,Math.min(192,old+delta))+"px";
+ syncFormatted(editableReady());
+}
+function clearTextFormat(){
+ const edit=editableReady();if(!edit)return;
+ const r=getRange(edit);
+ if(r && !r.collapsed){
+   const text=r.toString();
+   r.deleteContents();
+   const node=document.createTextNode(text);r.insertNode(node);
+   const next=document.createRange();next.selectNode(node);
+   restoreRange(edit,next);
+ }else{
+   // Limpar a caixa toda, mantendo o conteúdo textual e os parágrafos.
+   edit.querySelectorAll("span,strong,em,u,s,font").forEach(el=>{
+     const parent=el.parentNode;
+     while(el.firstChild)parent.insertBefore(el.firstChild,el);
+     el.remove();
+   });
+   edit.querySelectorAll("[style]").forEach(el=>el.removeAttribute("style"));
+ }
+ syncFormatted(edit);
+}
+function fontSize(pt){
+ const n=clamp(pt,6,96);
+ $("cfFontSize").value=n;
+ applyInline("font-size",n+"pt");
+}
+function bindButton(id,handler){
+ const b=$(id);if(!b)return;
+ b.addEventListener("mousedown",e=>e.preventDefault());
+ b.addEventListener("click",handler);
+}
+document.querySelectorAll("[data-cf-format]").forEach(b=>{
+ b.addEventListener("mousedown",e=>e.preventDefault());
+ b.addEventListener("click",()=>{
+   const key=b.dataset.cfFormat;
+   const styles={bold:["font-weight","700"],italic:["font-style","italic"],
+      underline:["text-decoration","underline"],strikeThrough:["text-decoration","line-through"]};
+   if(styles[key])applyInline(...styles[key]);
+ });
+});
+$("cfFontFamily").addEventListener("change",e=>applyInline("font-family",safeFont(e.target.value)));
+$("cfFontSize").addEventListener("change",e=>fontSize(e.target.value));
+bindButton("cfFontGrow",()=>fontSize(Number($("cfFontSize").value)+1));
+bindButton("cfFontShrink",()=>fontSize(Number($("cfFontSize").value)-1));
+$("cfTextColor").addEventListener("change",e=>applyInline("color",e.target.value));
+$("cfHighlightColor").addEventListener("change",e=>applyInline("background-color",e.target.value));
+document.querySelectorAll("[data-cf-align]").forEach(b=>{
+ b.addEventListener("mousedown",e=>e.preventDefault());
+ b.addEventListener("click",()=>paragraphStyle("text-align",b.dataset.cfAlign));
+});
+document.querySelectorAll("[data-cf-list]").forEach(b=>{
+ b.addEventListener("mousedown",e=>e.preventDefault());
+ b.addEventListener("click",()=>makeList(b.dataset.cfList));
+});
+$("cfParagraphStyle").addEventListener("change",e=>styleParagraph(e.target.value));
+bindButton("cfIndentLess",()=>changeIndent(-24));
+bindButton("cfIndentMore",()=>changeIndent(24));
+bindButton("cfFormatReset",clearTextFormat);
 function insertTag(tag){
  if(!selected || !["text","table"].includes(selected.cf.tipo))add(object("text",{html:"<p></p>",w:420,h:100}));
  let edit=focusEditable;
