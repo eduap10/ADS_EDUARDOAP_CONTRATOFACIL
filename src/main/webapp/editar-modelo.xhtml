@@ -53,7 +53,35 @@
 <div class="editor-duas-colunas">
 <div class="area-editor-modelo">
 <div class="subtitulo-secao">Construção do documento</div>
-<p:textEditor id="conteudo" widgetVar="modeloEditor" secure="true" allowImages="false"
+<div id="barraBloco" class="barra-bloco-visual" hidden="hidden" role="toolbar" aria-label="Configurações do componente selecionado">
+<strong id="blocoDescricao">Componente selecionado</strong>
+<label for="blocoLargura">Largura (%)</label><input id="blocoLargura" type="number" min="40" max="100" step="5" value="80"/>
+<div id="acoesLinha" class="acoes-contexto" hidden="hidden">
+<label for="blocoOrientacao">Orientação</label>
+<select id="blocoOrientacao"><option value="horizontal">Horizontal</option>
+<option value="vertical">Vertical</option><option value="diagonal">Diagonal</option>
+<option value="livre">Livre</option></select>
+<label for="blocoCor">Cor</label><input id="blocoCor" type="color" value="#334155"/>
+<label for="blocoEspessura">Espessura</label><input id="blocoEspessura" type="number" min="1" max="12" value="2"/>
+</div>
+<div id="acoesTabela" class="acoes-contexto" hidden="hidden">
+<label for="blocoEstilo">Estilo</label><select id="blocoEstilo">
+<option value="grade">Grade clássica</option><option value="listrado">Linhas alternadas</option>
+<option value="simples">Sem bordas</option></select>
+<label><input id="blocoCabecalho" type="checkbox"/> Primeira linha como cabeçalho</label>
+<button type="button" id="blocoEditarTabela">Editar células</button>
+</div>
+<div id="acoesAssinatura" class="acoes-contexto" hidden="hidden">
+<label for="blocoPapel">Assinante</label><select id="blocoPapel">
+<option value="colaborador">Colaborador</option><option value="gestor">Gestor</option>
+<option value="testemunha1">Testemunha 1</option><option value="testemunha2">Testemunha 2</option>
+<option value="outro">Outro participante</option></select>
+</div>
+<button type="button" id="blocoSubir" title="Mover o componente para cima">↑</button>
+<button type="button" id="blocoDescer" title="Mover o componente para baixo">↓</button>
+<button type="button" id="blocoExcluir" title="Remover componente">Excluir</button>
+</div>
+<p:textEditor id="conteudo" widgetVar="modeloEditor" secure="false" allowImages="false"
  value="#{modeloContratoBean.edicao.conteudo}" height="495" required="true"
  requiredMessage="Digite o texto do modelo.">
 <f:facet name="toolbar">
@@ -86,7 +114,7 @@
 <button type="button" id="abrirTabela" title="Cria uma tabela com dimensões, largura e altura configuráveis">＋ Tabela/grade</button>
 <button type="button" id="abrirAssinatura" title="Insere o espaço de assinatura para uma função; os nomes serão informados ao emitir">＋ Assinatura</button>
 </div>
-<p class="subtitulo">Para editar uma tabela depois de inserida, altere o conteúdo entre os marcadores, separando as células com o caractere |. Na prévia, a grade aparece formatada.</p>
+<p class="subtitulo">Os componentes aparecem visualmente na área de criação. Clique para editar as propriedades acima, arraste para reposicionar entre parágrafos ou use a alça inferior para mudar a largura. Clique em “Editar células” para atualizar a tabela.</p>
 </div>
 <dialog id="dialogLinha" class="dialog-componente">
 <h3>Inserir separador</h3>
@@ -95,7 +123,7 @@
 <option value="horizontal">Horizontal</option><option value="vertical">Vertical</option>
 <option value="diagonal">Diagonal</option><option value="livre">Linha livre</option>
 </select>
-<p class="subtitulo">O separador fica no texto e será renderizado na prévia, no PDF e no DOCX.</p>
+<p class="subtitulo">O separador será inserido como objeto visual. Clique nele para escolher cor, espessura e orientação.</p>
 <div class="acoes-formulario"><button type="button" id="confirmarLinha">Inserir</button>
 <button type="button" class="cancelar-componente">Cancelar</button></div>
 </dialog>
@@ -107,7 +135,13 @@
 <div><label for="larguraTabela">Largura (%)</label><input id="larguraTabela" type="number" min="40" max="100" value="100"/></div>
 <div><label for="alturaTabela">Altura de cada linha (px)</label><input id="alturaTabela" type="number" min="20" max="90" value="36"/></div>
 </div>
-<p class="subtitulo">Preencha as células com textos ou tags (ex.: {{colaborador.nome}}).</p>
+<div class="campos">
+<div><label for="estiloTabela">Estilo da tabela</label><select id="estiloTabela">
+<option value="grade">Grade clássica</option><option value="listrado">Listrado (estilo planilha)</option>
+<option value="simples">Minimalista</option></select></div>
+<div><label><input id="cabecalhoTabela" type="checkbox" checked="checked"/> Primeira linha é cabeçalho</label></div>
+</div>
+<p class="subtitulo">Preencha as células com textos ou tags (ex.: {{colaborador.nome}}). No editor, a tabela ficará visível para seleção, ajuste de tamanho e edição.</p>
 <div class="grade-entrada" id="gradeEntrada"></div>
 <div class="acoes-formulario"><button type="button" id="confirmarTabela">Inserir tabela</button>
 <button type="button" class="cancelar-componente">Cancelar</button></div>
@@ -122,7 +156,7 @@
 <option value="testemunha2">Testemunha 2</option>
 <option value="outro">Outro participante</option>
 </select>
-<p class="subtitulo">A pessoa do contrato é identificada automaticamente. Para gestor e testemunhas, o nome será escolhido ou informado na geração, permitindo reutilizar este modelo.</p>
+<p class="subtitulo">Um bloco de assinatura será inserido com a linha em cima e a identificação da pessoa abaixo. Os nomes são informados na emissão, sem alterar o modelo.</p>
 <div class="acoes-formulario"><button type="button" id="confirmarAssinatura">Inserir campo</button>
 <button type="button" class="cancelar-componente">Cancelar</button></div>
 </dialog>
@@ -204,5 +238,6 @@ title="Mostra as tags exatamente como serão guardadas no modelo">Ver tags</butt
 </div>
 </h:form>
 </section></main>
+<h:outputScript library="js" name="blocos-visuais.js" target="body"/>
 <h:outputScript library="js" name="modelo-editor.js" target="body"/>
 </h:body></html>

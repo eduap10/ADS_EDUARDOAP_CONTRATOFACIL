@@ -209,3 +209,31 @@ label { color: #34465c; font-size: .9rem; }
 .grupo-catalogo h4{font-size:.82rem;text-transform:uppercase;letter-spacing:.04em;color:#687b90;border-bottom:1px solid #d7e3ef;margin:8px 0;padding:4px 0 7px}
 .campos-catalogo{display:flex;gap:7px;flex-wrap:wrap}
 .catalogo-vazio{font-size:.83rem;color:#7b8796}
+
+/* Objetos interativos reais no Quill, sem plugins externos */
+.barra-bloco-visual{position:sticky;top:0;z-index:12;padding:9px 11px;margin:8px 0;
+ display:flex;align-items:center;gap:7px;flex-wrap:wrap;background:#eaf3fb;border:1px solid #a8c9e3;border-radius:7px}
+.barra-bloco-visual[hidden],.acoes-contexto[hidden]{display:none!important}
+.barra-bloco-visual strong{font-size:.86rem;margin-right:8px}
+.barra-bloco-visual label{font-size:.76rem;font-weight:600}
+.barra-bloco-visual input[type=number]{width:62px}
+.barra-bloco-visual input[type=color]{width:37px;height:32px;padding:2px}
+.barra-bloco-visual button,.barra-bloco-visual select,.barra-bloco-visual input{border:1px solid #c2d7e9;border-radius:5px;background:#fff;color:#234b68;padding:6px;font-size:.82rem}
+.barra-bloco-visual button{cursor:pointer}
+.acoes-contexto{display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap}
+.ql-editor .cf-visual-bloco{position:relative;box-sizing:border-box;min-width:120px;max-width:100%;margin:17px 0 22px;resize:horizontal;overflow:hidden;
+ padding:12px 10px;border:1px dashed #a9bacb;border-radius:5px;cursor:grab;user-select:none;background:#fff}
+.ql-editor .cf-visual-bloco:hover{border-color:#4e9ac6}
+.ql-editor .cf-visual-bloco.cf-selecionado{outline:2px solid #1783c9;background:#fafeff}
+.cf-visual-bloco .cf-bloco-alca{position:absolute;top:0;right:2px;padding:0 6px;font-size:17px;color:#2871a1;cursor:move;z-index:2}
+.cf-visual-bloco .cf-desenho-linha{border-bottom-style:solid;height:24px}
+.cf-visual-bloco .cf-orient-vertical{width:18px;height:90px;border-left-style:solid;border-bottom:0}
+.cf-visual-bloco .cf-orient-diagonal{transform:rotate(-9deg)}
+.cf-visual-bloco .cf-assinatura-linha{height:38px;border-bottom:1px solid #334155}
+.cf-visual-bloco .cf-assinatura-nome{text-align:center;margin:4px 0;font-size:.85rem}
+.cf-visual-bloco .cf-tabela{width:100%;border-collapse:collapse}
+.cf-visual-bloco .cf-tabela td,.cf-visual-bloco .cf-tabela th{padding:6px;border:1px solid #64748b;vertical-align:top}
+.cf-visual-bloco .cf-tabela th{background:#e2e8f0;font-weight:bold}
+.cf-visual-bloco .cf-tabela-listrado tr:nth-child(even){background:#f1f5f9}
+.cf-visual-bloco .cf-tabela-simples td,.cf-visual-bloco .cf-tabela-simples th{border:none;border-bottom:1px solid #d7e1e9}
+@media(max-width:640px){.barra-bloco-visual{position:static}.ql-editor .cf-visual-bloco{width:100%!important;min-width:0}}

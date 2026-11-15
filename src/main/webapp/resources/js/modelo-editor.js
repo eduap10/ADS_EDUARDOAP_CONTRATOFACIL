@@ -78,7 +78,18 @@
         const copia = editor.root.cloneNode(true);
         if (modoExemplo) substituirExemplos(copia);
         montarComponentesPreview(copia);
-        const estilo = "body{font:15px/1.6 Arial,sans-serif;padding:28px;color:#1e293b;overflow-wrap:anywhere;}"
+        const estilo = "body{font:15px/1.6 Arial,sans-serif;padding:28px;color:#1e293b;overflow-wrap:anywhere;}" 
+            + ".cf-visual-bloco{position:relative;margin:14px 0 18px;}"
+            + ".cf-visual-bloco .cf-bloco-alca{display:none}"
+            + ".cf-desenho-linha{border-bottom-style:solid;height:24px}"
+            + ".cf-orient-vertical{width:18px;height:90px;border-left-style:solid;border-bottom:0}"
+            + ".cf-orient-diagonal{transform:rotate(-9deg)}"
+            + ".cf-tabela{border-collapse:collapse}.cf-tabela td,.cf-tabela th{border:1px solid #64748b;padding:5px}"
+            + ".cf-tabela-listrado tr:nth-child(even){background:#f1f5f9}"
+            + ".cf-tabela-simples td,.cf-tabela-simples th{border:0}"
+            + ".cf-tabela th{background:#e2e8f0;font-weight:bold}"
+            + ".cf-assinatura-linha{height:38px;border-bottom:1px solid #334155}"
+            + ".cf-assinatura-nome{text-align:center;margin:4px 0;}"
             + ".ql-align-center{text-align:center}.ql-align-right{text-align:right}"
             + ".ql-align-justify{text-align:justify}.ql-size-small{font-size:12px}"
             + ".ql-size-large{font-size:22px}.ql-size-huge{font-size:29px}"
@@ -182,6 +193,7 @@
         const abrir = (id) => document.getElementById(id)?.showModal();
         document.getElementById("abrirLinha")?.addEventListener("click", () => abrir("dialogLinha"));
         document.getElementById("abrirTabela")?.addEventListener("click", () => {
+            window.CFBlocos?.novoTabela();
             criarGrade();
             abrir("dialogTabela");
         });
@@ -191,7 +203,7 @@
         document.getElementById("confirmarLinha")?.addEventListener("click", () => {
             const tipo = document.getElementById("tipoLinha").value;
             if (!["horizontal","vertical","diagonal","livre"].includes(tipo)) return;
-            inserir("\n{{visual.linha." + tipo + "}}\n");
+            if (!window.CFBlocos?.inserirLinha(tipo)) return;
             document.getElementById("dialogLinha").close();
         });
         for (const id of ["linhasTabela","colunasTabela"]) {
@@ -217,15 +229,18 @@
                 }
                 linhasTexto.push(celulas.join(" | "));
             }
-            inserir("\n{{visual.tabela.inicio." + linhas + "x" + colunas +
-                ".w" + largura + ".h" + altura + "}}\n" + linhasTexto.join("\n")
-                + "\n{{visual.tabela.fim}}\n");
+            window.CFBlocos?.inserirTabela({
+                linhas, colunas, largura, altura,
+                estilo: document.getElementById("estiloTabela").value,
+                cabecalho: document.getElementById("cabecalhoTabela").checked,
+                celulas:linhasTexto.map(texto => texto.split(" | "))
+            });
             document.getElementById("dialogTabela").close();
         });
         document.getElementById("confirmarAssinatura")?.addEventListener("click", () => {
             const papel = document.getElementById("papelAssinante").value;
             if (!["colaborador","gestor","testemunha1","testemunha2","outro"].includes(papel)) return;
-            inserir("\n{{assinatura." + papel + "}}\n");
+            if (!window.CFBlocos?.inserirAssinatura(papel)) return;
             document.getElementById("dialogAssinatura").close();
         });
     }
@@ -305,6 +320,9 @@
             window.clearTimeout(timerPrevia);
             timerPrevia = window.setTimeout(atualizarPrevia, 140);
         });
+        if (!window.CFBlocos?.iniciar(editor, atualizarPrevia)) {
+            console.warn("Editor visual não inicializado, mantendo apenas campos de texto.");
+        }
         configurarCampos();
         configurarComponentes();
         configurarPrevia();
