@@ -24,6 +24,10 @@ jobs:
           node --check src/main/webapp/resources/js/modelo-editor.js
           node --check src/main/webapp/resources/js/blocos-visuais.js
           node --check src/main/webapp/resources/js/canvas-modelo.js
+      - name: Testar manipulacao visual do canvas
+        run: |
+          npm install --no-audit --no-fund --no-save --prefix "$RUNNER_TEMP/cf-test" jsdom@26
+          NODE_PATH="$RUNNER_TEMP/cf-test/node_modules" node scripts/test-canvas.cjs
       - name: Compilar e testar
         run: mvn --batch-mode --no-transfer-progress clean verify
 
