@@ -88,7 +88,8 @@ public final class ExportacaoDocumento {
         if (el.hasClass("cf-canvas-documento")) {
             // Word permanece editável. Os blocos são ordenados pela posição vertical;
             // deslocamentos em pixels não possuem equivalência exata em DOCX fluido.
-            java.util.List<Element> objetos = new java.util.ArrayList<>(el.select("> .cf-canvas-item"));
+            java.util.List<Element> objetos = new java.util.ArrayList<>();
+            for (Element filho : el.children()) if (filho.hasClass("cf-canvas-item")) objetos.add(filho);
             objetos.sort(java.util.Comparator.comparingDouble(x -> obterMm(x.attr("style"), "top")));
             for (Element objeto : objetos) {
                 if (objeto.hasClass("cf-canvas-G")) {
