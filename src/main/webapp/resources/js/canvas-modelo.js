@@ -288,6 +288,41 @@ document.addEventListener("keydown",e=>{
  }
 });
 
+$("cfAddImage")?.addEventListener("click",()=>$("cfImageFile")?.click());
+$("cfImageFile")?.addEventListener("change",async e=>{
+ const file=e.target.files?.[0];e.target.value="";
+ if(!file)return;
+ if(!["image/png","image/jpeg"].includes(file.type)||file.size>8_000_000){
+   alert("Selecione PNG ou JPEG de até 8 MB.");return;
+ }
+ try{
+   const uri=await new Promise((resolve,reject)=>{
+     const reader=new FileReader();reader.onload=()=>resolve(reader.result);
+     reader.onerror=()=>reject(new Error("Falha na leitura."));reader.readAsDataURL(file);
+   });
+   const img=await new Promise((resolve,reject)=>{
+     const pic=new Image();pic.onload=()=>resolve(pic);
+     pic.onerror=()=>reject(new Error("Imagem inválida."));pic.src=uri;
+   });
+   const ratio=Math.min(1,1200/Math.max(img.naturalWidth,img.naturalHeight));
+   const canvas=document.createElement("canvas");
+   canvas.width=Math.round(img.naturalWidth*ratio);canvas.height=Math.round(img.naturalHeight*ratio);
+   if(!canvas.width||!canvas.height)throw new Error("Dimensões inválidas.");
+   const ctx=canvas.getContext("2d");if(!ctx)throw new Error("Canvas de imagem indisponível.");
+   ctx.drawImage(img,0,0,canvas.width,canvas.height);
+   let result=canvas.toDataURL(file.type==="image/png"?"image/png":"image/jpeg",0.82);
+   if(result.length>350000){
+     ctx.globalCompositeOperation="destination-over";ctx.fillStyle="#fff";
+     ctx.fillRect(0,0,canvas.width,canvas.height);ctx.globalCompositeOperation="source-over";
+     result=canvas.toDataURL("image/jpeg",0.72);
+   }
+   if(result.length>350000)throw new Error("Reduza a resolução da imagem.");
+   const factor=340/Math.max(img.naturalWidth,img.naturalHeight);
+   const w=clamp(img.naturalWidth*factor,60,420),h=clamp(img.naturalHeight*factor,40,420);
+   add(object("image",{x:60,y:110,w,h,src:result}));
+ }catch(err){alert("Falha ao inserir imagem: "+err.message);}
+});
+
 // A faixa de formatação opera sobre a seleção DOM (não sobre o bloco inteiro).
 // O intervalo é lembrado antes de o usuário tocar na barra, pois os selects
 // e campos de cores retiram naturalmente o foco do contenteditable.
@@ -529,10 +564,15 @@ $("catalogoCampos").addEventListener("mouseover",e=>{const b=e.target.closest(".
 function serialize(){
  const lines=[PREFIX.trimEnd()];
  for(const el of stage.querySelectorAll(".cf-canvas-obj")){
-  const s=el.cf,pre=[{text:"T",line:"L",table:"G",sign:"S"}[s.tipo],s.x,s.y,s.w,s.h];
+  const s=el.cf,pre=[{text:"T",line:"L",table:"G",sign:"S",image:"I"}[s.tipo],s.x,s.y,s.w,s.h];
   if(s.tipo==="text")lines.push([...pre,enc(el.querySelector(".cf-texto").innerHTML)].join("|"));
   if(s.tipo==="line")lines.push([...pre,s.orient,s.weight,s.color].join("|"));
   if(s.tipo==="sign")lines.push([...pre,s.role].join("|"));
+  if(s.tipo==="image"){
+   const m=/^data:(image\/(?:png|jpeg));base64,([A-Za-z0-9+/=]+)$/.exec(s.src);
+   if(!m)throw new Error("Imagem inválida.");
+   lines.push([...pre,m[1],m[2]].join("|"));
+  }
   if(s.tipo==="table"){
    const values=Array.from(el.querySelectorAll("tr")).flatMap(tr=>Array.from(tr.children)
      .map(td=>td.innerText.replace(/[\r\n|\u001f]/g," ").slice(0,500)));
@@ -544,7 +584,7 @@ function serialize(){
 function preview(){
  clearTimeout(timer);timer=setTimeout(()=>{
   const clone=stage.cloneNode(true);clone.removeAttribute("id");
-  clone.querySelectorAll(".cf-move,.cf-resize").forEach(n=>n.remove());
+  clone.querySelectorAll(".cf-move,.cf-resize,.cf-resize-handle").forEach(n=>n.remove());
   clone.querySelectorAll("[contenteditable]").forEach(n=>n.removeAttribute("contenteditable"));
   if(examplesOn){
    const map=new Map(Array.from(document.querySelectorAll(".botao-campo")).map(b=>[b.dataset.tag,b.dataset.exemplo||"[Exemplo]"]));
@@ -563,8 +603,9 @@ function preview(){
     +".cf-texto{font:14px/1.5 Arial,sans-serif;padding:5px}.cf-texto p{margin:0 0 8px}"
     +".cf-real-line{position:absolute;top:50%;width:100%;border-bottom-style:solid}.cf-vertical{border-bottom:0;border-left-style:solid;height:100%;left:50%;top:0;width:0}.cf-diagonal{transform:rotate(-11deg)}"
     +".cf-edit-table{border-collapse:collapse;table-layout:fixed;width:100%;height:100%;font:12px Arial}.cf-edit-table td,.cf-edit-table th{border:1px solid #64748b;padding:4px}.cf-edit-table th{background:#e2e8f0}.cf-tabela-listrado tr:nth-child(even){background:#f1f5f9}"
-    +".cf-sign-line{height:38px;border-bottom:1px solid #334155}.cf-sign-name{text-align:center;font:12px Arial;margin:6px 0}";
-  $("previaModelo").srcdoc='<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src &#39;none&#39;;style-src &#39;unsafe-inline&#39;"><style>'+css+'</style></head><body>'+clone.outerHTML+'</body></html>';
+    +".cf-sign-line{height:38px;border-bottom:1px solid #334155}.cf-sign-name{text-align:center;font:12px Arial;margin:6px 0}"
+    +".cf-obj-image img{display:block;width:100%;height:100%;object-fit:contain}";
+  $("previaModelo").srcdoc='<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src &#39;none&#39;;style-src &#39;unsafe-inline&#39;;img-src data:"><style>'+css+'</style></head><body>'+clone.outerHTML+'</body></html>';
  },120);
 }
 function updatePreview(){preview();}
@@ -573,12 +614,13 @@ $("modoTags").addEventListener("click",()=>{examplesOn=false;$("modoTags").class
 function loadSaved(raw){
  for(const line of raw.slice(PREFIX.length).split("\n")){
   if(!line.trim())continue;
-  const f=line.split("|"),type={T:"text",L:"line",G:"table",S:"sign"}[f[0]];
+  const f=line.split("|"),type={T:"text",L:"line",G:"table",S:"sign",I:"image"}[f[0]];
   if(!type||f.length<6)continue;
   const obj={x:Number(f[1]),y:Number(f[2]),w:Number(f[3]),h:Number(f[4])};
   if(type==="text")obj.html=dec(f[5]);
   if(type==="line")Object.assign(obj,{orient:f[5],weight:Number(f[6]),color:f[7]});
   if(type==="sign")obj.role=f[5];
+  if(type==="image")obj.src="data:"+f[5]+";base64,"+f[6];
   if(type==="table"){
    const rows=Number(f[7]),cols=Number(f[8]),values=dec(f[9]).split("\u001f");
    Object.assign(obj,{style:f[5],header:f[6]==="1",rows,cols,
