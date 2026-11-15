@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html"
+xmlns:f="jakarta.faces.core" xmlns:p="primefaces">
+<h:head><title>ContratoFácil | Tags personalizadas</title>
+<h:outputStylesheet library="css" name="estilo.css"/></h:head>
+<h:body><header><h1>ContratoFácil</h1><nav>
+<h:link outcome="/index.xhtml" value="Início"/>
+<h:link outcome="/colaboradores.xhtml" value="Colaboradores"/>
+<h:link outcome="/tipos.xhtml" value="Tipos"/>
+<h:link outcome="/modelos.xhtml" value="Modelos"/>
+<h:link outcome="/tags.xhtml" value="Tags"/>
+<h:link outcome="/contratos.xhtml" value="Contratos"/>
+<h:form id="formSair" styleClass="form-sair"><h:commandLink action="#{loginBean.sair}" value="Sair"/></h:form>
+</nav></header>
+<main><section class="painel">
+<div class="titulo"><div><h2>Tags personalizadas</h2>
+<p class="subtitulo">Crie campos reutilizáveis para os seus documentos, sem escrever SQL.</p></div>
+<h:link outcome="/editar-modelo.xhtml" value="Voltar ao editor" styleClass="link-acao-subtil"/>
+</div>
+<div class="dois-paineis">
+<h:form id="listaTags">
+<p:messages id="avisos" />
+<p:dataTable id="tabela" value="#{tagPersonalizadaBean.lista}" var="item" paginator="true"
+ rows="10" emptyMessage="Nenhuma tag cadastrada." reflow="true">
+<p:column headerText="Campo"><h:outputText value="#{item.nome}"/></p:column>
+<p:column headerText="Tag"><code><h:outputText value="#{item.tag}"/></code></p:column>
+<p:column headerText="Ativa"><h:outputText value="#{item.ativo ? 'Sim' : 'Não'}"/></p:column>
+<p:column headerText="Ações">
+<p:commandButton icon="pi pi-pencil" title="Editar" ariaLabel="Editar tag"
+ styleClass="ui-button-flat ui-button-rounded acao-icone" process="@this"
+ actionListener="#{tagPersonalizadaBean.editar(item)}"
+ update=":formTag:camposTag" resetValues="true"/>
+</p:column>
+</p:dataTable>
+</h:form>
+<h:form id="formTag">
+<p:messages id="avisos"/>
+<p:outputPanel id="camposTag" layout="block" styleClass="painel-edicao-leve">
+<div class="titulo"><h3>#{tagPersonalizadaBean.edicao.id == null ? 'Nova tag' : 'Editar tag'}</h3>
+<p:commandButton icon="pi pi-plus" title="Nova tag" ariaLabel="Nova tag"
+ actionListener="#{tagPersonalizadaBean.novo}" process="@this"
+ update=":formTag:camposTag" resetValues="true" styleClass="ui-button-flat ui-button-rounded acao-icone"/>
+</div>
+<div class="campo-formulario">
+<p:outputLabel for="codigo" value="Código da tag *" />
+<p:inputText id="codigo" value="#{tagPersonalizadaBean.edicao.codigo}" required="true" maxlength="40"
+ requiredMessage="Informe o código." style="width:100%" placeholder="ex.: nome_empresa"/>
+<small>Será inserida como <code>{{personalizada.nome_empresa}}</code>.</small></div>
+<div class="campo-formulario">
+<p:outputLabel for="nome" value="Nome amigável *"/>
+<p:inputText id="nome" value="#{tagPersonalizadaBean.edicao.nome}" required="true" maxlength="100"
+ requiredMessage="Informe o nome." style="width:100%"/>
+</div>
+<div class="campo-formulario">
+<p:outputLabel for="descricao" value="Descrição/ajuda"/>
+<p:inputText id="descricao" value="#{tagPersonalizadaBean.edicao.descricao}" maxlength="250" style="width:100%"/>
+</div>
+<div class="campo-formulario">
+<p:outputLabel for="tipo" value="De onde vem o valor?"/>
+<p:selectOneMenu id="tipo" value="#{tagPersonalizadaBean.edicao.tipo}" style="width:100%">
+<f:selectItem itemValue="TEXTO_FIXO" itemLabel="Texto fixo"/>
+<f:selectItem itemValue="CAMPO_FICHA" itemLabel="Campo de colaborador"/>
+<f:selectItem itemValue="DATA_ATUAL" itemLabel="Data atual"/>
+<f:selectItem itemValue="HORA_ATUAL" itemLabel="Hora atual"/>
+<f:selectItem itemValue="DATA_HORA_ATUAL" itemLabel="Data e hora atual"/>
+<f:selectItem itemValue="ANO_ATUAL" itemLabel="Ano atual"/>
+</p:selectOneMenu>
+</div>
+<div class="campo-formulario">
+<p:outputLabel for="referencia" value="Campo da ficha (para 'Campo de colaborador')"/>
+<p:selectOneMenu id="referencia" value="#{tagPersonalizadaBean.edicao.referencia}" style="width:100%">
+<f:selectItem itemLabel="Selecione..." itemValue="#{null}" noSelectionOption="true"/>
+<f:selectItems value="#{tagPersonalizadaBean.camposDaFicha}" var="campo"
+ itemLabel="#{campo.rotulo}" itemValue="#{campo.chave}"/>
+</p:selectOneMenu>
+</div>
+<div class="campo-formulario">
+<p:outputLabel for="valor" value="Valor (para 'Texto fixo')"/>
+<p:inputTextarea id="valor" value="#{tagPersonalizadaBean.edicao.valorFixo}"
+ maxlength="500" rows="3" style="width:100%"/>
+</div>
+<div class="campo-formulario">
+<p:selectBooleanCheckbox id="ativo" value="#{tagPersonalizadaBean.edicao.ativo}"/>
+<p:outputLabel for="ativo" value="Exibir no catálogo de campos"/>
+</div>
+<p:commandButton value="Salvar tag" icon="pi pi-check" action="#{tagPersonalizadaBean.salvar}"
+ process="@form" update=":formTag:camposTag :formTag:avisos :listaTags:tabela"/>
+</p:outputPanel>
+</h:form>
+</div></section></main></h:body></html>
