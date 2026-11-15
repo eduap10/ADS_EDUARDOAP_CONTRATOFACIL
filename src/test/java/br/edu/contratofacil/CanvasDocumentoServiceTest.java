@@ -76,4 +76,38 @@ class CanvasDocumentoServiceTest {
         assertTrue(bytes.size()>100);
         assertEquals("%PDF-",new String(bytes.toByteArray(),0,5,StandardCharsets.US_ASCII));
     }
+    @Test void estilosTipograficosSãoPreservadosNoCicloCanvasEWord() throws Exception {
+        String conteudo = "<p style=\"text-align:center;margin-left:24px;\">"
+            + "<span style=\"font-family:Georgia;font-size:18pt;color:#336699;"
+            + "background-color:#FFF176;font-weight:700;text-decoration:underline;\">"
+            + "{{colaborador.nome}}</span></p>";
+        String texto=CanvasDocumentoService.CABECALHO+
+            "T|20|25|550|100|"+b64(conteudo)+"\n";
+        String guardado=DocumentoService.sanitizar(texto);
+        String html=DocumentoService.preencher(guardado,pessoa(),Map.of());
+        var doc=org.jsoup.Jsoup.parseBodyFragment(html);
+        var span=doc.selectFirst(".cf-canvas-texto span");
+        assertNotNull(span,"Sanitização não deve apagar o trecho formatado.");
+        String style=span.attr("style").toLowerCase(java.util.Locale.ROOT);
+        assertTrue(style.contains("font-family") && style.contains("georgia"),style);
+        assertTrue(style.contains("font-size") && style.contains("18pt"),style);
+        assertTrue(style.contains("color"),style);
+        assertTrue(style.contains("background-color"),style);
+        assertTrue(doc.selectFirst(".cf-canvas-texto p").attr("style").contains("text-align"),html);
+
+        ByteArrayOutputStream stream=new ByteArrayOutputStream();
+        ExportacaoDocumento.docx("Teste",html,stream);
+        try(var word=new org.apache.poi.xwpf.usermodel.XWPFDocument(new ByteArrayInputStream(stream.toByteArray()))) {
+            var p=word.getParagraphs().stream()
+                .filter(x->x.getText().contains("Maria Teste")).findFirst().orElseThrow();
+            assertEquals(org.apache.poi.xwpf.usermodel.ParagraphAlignment.CENTER,p.getAlignment());
+            var run=p.getRuns().stream().filter(x->x.getText(0)!=null&&x.getText(0).contains("Maria Teste"))
+                .findFirst().orElseThrow();
+            assertEquals("Georgia",run.getFontFamily());
+            assertEquals(18,run.getFontSize());
+            assertTrue(run.isBold());
+            assertEquals("336699",run.getColor());
+        }
+    }
+
 }
