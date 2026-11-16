@@ -7,7 +7,7 @@ if(!stage||!hidden)return;
 const LABEL={colaborador:"Colaborador",gestor:"Gestor",testemunha1:"Testemunha 1",testemunha2:"Testemunha 2",outro:"Outro participante"};
 const clamp=(v,min,max)=>Math.max(min,Math.min(max,Math.round(Number(v)||0)));
 let selected=null,drag=null,focusEditable=null,storedRange=null,examplesOn=true,timer;
-let loading=true,history=[],historyIndex=-1,historyTask,clipboard=null;
+let loading=true,history=[],historyIndex=-1,historyTask,clipboard=null,lastSelectionIndex=-1;
 function enc(txt){const b=new TextEncoder().encode(String(txt));let o="";for(let i=0;i<b.length;i+=8192)o+=String.fromCharCode(...b.slice(i,i+8192));return btoa(o);}
 function dec(txt){return new TextDecoder().decode(Uint8Array.from(atob(txt),c=>c.charCodeAt(0)));}
 function rect(el,s){el.style.left=s.x+"px";el.style.top=s.y+"px";el.style.width=s.w+"px";el.style.height=s.h+"px";}
@@ -258,6 +258,7 @@ $("cfColMinus").addEventListener("click",()=>grid(selected.cf.rows,selected.cf.c
 document.querySelectorAll("[data-cf-add]").forEach(b=>b.addEventListener("click",()=>add(object(b.dataset.cfAdd))));
 function removeSelected(){
  if(!selected)return;
+ lastSelectionIndex=Array.from(stage.children).indexOf(selected);
  selected.remove();selected=null;focusEditable=null;storedRange=null;
  canvasFocus=true;toolbar();stage.focus();updatePreview();markHistory();
 }
@@ -273,9 +274,18 @@ function restoreHistory(step){
  clearTimeout(historyTask);
  const now=serialize();if(history[historyIndex]!==now)markHistory();
  const index=historyIndex+step;if(index<0||index>=history.length)return;
+ const selectionIndex=selected ? Array.from(stage.children).indexOf(selected):lastSelectionIndex;
  historyIndex=index;const prior=loading;loading=true;
  stage.replaceChildren();selected=null;focusEditable=null;storedRange=null;
- loadSaved(history[index]);loading=prior;toolbar();preview();stage.focus();
+ loadSaved(history[index]);loading=prior;
+ const restored=stage.children[Math.min(Math.max(selectionIndex,0),stage.children.length-1)];
+ if(restored){
+  choose(restored);restored.focus({preventScroll:true});
+  lastSelectionIndex=Array.from(stage.children).indexOf(restored);
+ }else{
+  toolbar();stage.focus({preventScroll:true});
+ }
+ canvasFocus=true;preview();
 }
 function duplicateSelected(item=selected){
  if(!item)return;
