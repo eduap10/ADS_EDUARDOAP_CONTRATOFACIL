@@ -28,6 +28,10 @@ jobs:
         run: |
           npm install --no-audit --no-fund --no-save --prefix "$RUNNER_TEMP/cf-test" jsdom@26
           NODE_PATH="$RUNNER_TEMP/cf-test/node_modules" node scripts/test-canvas.cjs
+      - name: Validar mouse e teclado em Chrome real
+        run: |
+          npm install --no-audit --no-fund --no-save --prefix "$RUNNER_TEMP/cf-browser" playwright-core@1.56.1
+          NODE_PATH="$RUNNER_TEMP/cf-browser/node_modules" node scripts/test-canvas-browser.cjs
       - name: Compilar e testar
         run: mvn --batch-mode --no-transfer-progress clean verify
 
