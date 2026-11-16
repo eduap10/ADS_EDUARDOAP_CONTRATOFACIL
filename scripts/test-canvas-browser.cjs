@@ -70,7 +70,18 @@ const html='<!doctype html><html><head><meta charset="utf-8"><style>'+css+'</sty
   assert.equal(await page.locator(".cf-obj-line").count(),0,"Delete ignorado.");
   await page.keyboard.press("Control+z");
   assert.equal(await page.locator(".cf-obj-line").count(),1,"Desfazer ignorado.");
+  const restored=page.locator(".cf-obj-line");
+  const beforeKeys=await restored.evaluate(el=>({...el.cf}));
+  await page.keyboard.press("ArrowRight");
+  await page.keyboard.press("Shift+ArrowDown");
+  const afterKeys=await restored.evaluate(el=>({...el.cf}));
+  assert.equal(afterKeys.x,beforeKeys.x+1,"Seta direita não moveu 1 unidade.");
+  assert.equal(afterKeys.y,beforeKeys.y+10,"Shift+seta não moveu 10 unidades.");
+  await page.keyboard.press("Control+d");
+  assert.equal(await page.locator(".cf-obj-line").count(),2,"Ctrl+D não duplicou.");
+  await page.keyboard.press("Backspace");
+  assert.equal(await page.locator(".cf-obj-line").count(),1,"Backspace não apagou cópia.");
   assert.equal(failures.length,0,failures.join("; "));
-  console.log("Chrome: borda direita/esquerda, arraste livre, 8 alças, Delete e Ctrl+Z aprovados.");
+  console.log("Chrome: mouse, 8 alças, Delete, Backspace, setas, Shift+setas, Ctrl+D e Ctrl+Z aprovados.");
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1});
