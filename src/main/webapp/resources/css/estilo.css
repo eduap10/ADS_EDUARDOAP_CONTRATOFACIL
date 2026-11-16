@@ -344,3 +344,37 @@ label { color: #34465c; font-size: .9rem; }
 .cf-toolbar-sticky button[aria-label]{min-height:29px}
 .cf-stage-scroll .cf-canvas-obj.cf-selected .cf-resize-handle{touch-action:none}
 .cf-stage-scroll .cf-canvas-obj.cf-editing .cf-texto:focus{outline:0}
+
+
+/* Canvas: handles alcançáveis, bordas livres e feedback de resize. */
+.cf-canvas-obj.cf-selected{
+ overflow:visible !important;
+ outline:2px solid #187cc4;
+ z-index:12;
+}
+.cf-canvas-obj .cf-obj-conteudo{
+ overflow:hidden;
+}
+.cf-canvas-obj .cf-resize-handle{
+ box-sizing:border-box;
+ width:17px;height:17px;
+ padding:0;
+ border:2px solid #187cc4;
+ border-radius:4px;
+ background:#fff;
+ position:absolute;
+ z-index:20;
+ opacity:1;
+ pointer-events:auto;
+}
+.cf-canvas-obj.cf-selected .cf-resize-handle{display:block}
+.cf-canvas-obj .cf-resize-handle[data-dir="nw"]{left:-9px;top:-9px}
+.cf-canvas-obj .cf-resize-handle[data-dir="n"]{left:calc(50% - 8px);top:-9px}
+.cf-canvas-obj .cf-resize-handle[data-dir="ne"]{right:-9px;top:-9px}
+.cf-canvas-obj .cf-resize-handle[data-dir="e"]{right:-9px;top:calc(50% - 8px)}
+.cf-canvas-obj .cf-resize-handle[data-dir="se"]{right:-9px;bottom:-9px}
+.cf-canvas-obj .cf-resize-handle[data-dir="s"]{left:calc(50% - 8px);bottom:-9px}
+.cf-canvas-obj .cf-resize-handle[data-dir="sw"]{left:-9px;bottom:-9px}
+.cf-canvas-obj .cf-resize-handle[data-dir="w"]{left:-9px;top:calc(50% - 8px)}
+.cf-canvas-obj:not(.cf-editing){user-select:none}
+.cf-canvas-obj.cf-editing .cf-texto{user-select:text}

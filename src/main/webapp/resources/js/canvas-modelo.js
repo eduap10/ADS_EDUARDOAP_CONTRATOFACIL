@@ -48,7 +48,13 @@ function add(s,select=true){
   if(el.classList.contains("cf-editing")&&e.target.closest('[contenteditable="true"]')&&!e.altKey){
     choose(el);return;
   }
-  beginPointer(e,el,"move");
+  const edge=edgeDirection(e,el);
+  beginPointer(e,el,edge?"size":"move",edge||"se");
+ });
+ el.addEventListener("pointermove",e=>{
+  if(drag || el.classList.contains("cf-editing"))return;
+  const edge=edgeDirection(e,el);
+  el.style.cursor=edge?cursorForEdge(edge):"move";
  });
  move.addEventListener("pointerdown",e=>beginPointer(e,el,"move"));
  resize.addEventListener("pointerdown",e=>beginPointer(e,el,"size","se"));
@@ -140,42 +146,88 @@ function change(props,redraw=true){
  s.w=clamp(s.w,40,W);s.h=clamp(s.h,20,H);s.x=clamp(s.x,0,W-s.w);s.y=clamp(s.y,0,H-s.h);
  rect(selected,s);if(redraw)render(selected);toolbar();updatePreview();markHistory();
 }
+// Também considera os 12 pixels internos de cada borda como área de redimensionamento,
+// sem depender de acertar visualmente uma pequena alça.
+function edgeDirection(e,el){
+ const r=el.getBoundingClientRect();
+ if(!r.width || !r.height || e.clientX==null || e.clientY==null)return null;
+ const tolerance=Math.max(8,Math.min(14,r.width/4,r.height/4));
+ const x=e.clientX-r.left,y=e.clientY-r.top;
+ if(x<0||y<0||x>r.width||y>r.height)return null;
+ const horiz=x<=tolerance?"w":x>=r.width-tolerance?"e":"";
+ const vert=y<=tolerance?"n":y>=r.height-tolerance?"s":"";
+ return vert+horiz||null;
+}
+function cursorForEdge(dir){
+ return ["nw","se"].includes(dir)?"nwse-resize":
+   ["ne","sw"].includes(dir)?"nesw-resize":
+   ["n","s"].includes(dir)?"ns-resize":"ew-resize";
+}
+let canvasFocus=false;
 function beginPointer(e,el,action,dir="se"){
  if(e.button!=null&&e.button!==0)return;
- e.preventDefault();e.stopPropagation();choose(el);
+ e.preventDefault();e.stopPropagation();
+ choose(el);
  if(el.classList.contains("cf-editing"))exitEditing();
+ canvasFocus=true;
  el.focus({preventScroll:true});
  drag={id:e.pointerId,el,action,dir,mouseX:e.clientX,mouseY:e.clientY,moved:false,
   start:{x:el.cf.x,y:el.cf.y,w:el.cf.w,h:el.cf.h}};
- try{e.currentTarget.setPointerCapture(e.pointerId);}catch(_){}
+ // Captura no objeto (não na alça): continua funcionando quando o ponteiro sai da borda.
+ try{if(e.pointerId!=null)el.setPointerCapture(e.pointerId);}catch(_){}
 }
-document.addEventListener("pointermove",e=>{
+function pointerMoved(e){
  if(!drag||drag.id!==e.pointerId)return;
  const scale=stage.getBoundingClientRect().width/W;
+ if(!Number.isFinite(scale)||scale<=0)return;
  const dx=(e.clientX-drag.mouseX)/scale,dy=(e.clientY-drag.mouseY)/scale;
  if(Math.abs(dx)+Math.abs(dy)<2&&!drag.moved)return;
- drag.moved=true;const d=drag.el.cf,s=drag.start;
+ drag.moved=true;
+ const d=drag.el.cf,s=drag.start;
  if(drag.action==="move"){
-   d.x=clamp(s.x+dx,0,W-d.w);d.y=clamp(s.y+dy,0,H-d.h);
+  d.x=clamp(s.x+dx,0,W-d.w);
+  d.y=clamp(s.y+dy,0,H-d.h);
  }else{
-   const dir=drag.dir;
-   if(dir.includes("e"))d.w=clamp(s.w+dx,40,W-s.x);
-   if(dir.includes("s"))d.h=clamp(s.h+dy,20,H-s.y);
-   if(dir.includes("w")){d.x=clamp(s.x+dx,0,s.x+s.w-40);d.w=s.w+s.x-d.x;}
-   if(dir.includes("n")){d.y=clamp(s.y+dy,0,s.y+s.h-20);d.h=s.h+s.y-d.y;}
+  const dir=drag.dir;
+  if(dir.includes("e"))d.w=clamp(s.w+dx,40,W-s.x);
+  if(dir.includes("s"))d.h=clamp(s.h+dy,20,H-s.y);
+  if(dir.includes("w")){
+   d.x=clamp(s.x+dx,0,s.x+s.w-40);d.w=s.w+s.x-d.x;
+  }
+  if(dir.includes("n")){
+   d.y=clamp(s.y+dy,0,s.y+s.h-20);d.h=s.h+s.y-d.y;
+  }
  }
  rect(drag.el,d);toolbar();
-});
-document.addEventListener("pointerup",e=>{
- if(drag?.id!==e.pointerId)return;
- if(drag.moved){updatePreview();markHistory();}
- drag=null;
-});
+}
+function endPointer(e){
+ if(!drag || e?.pointerId!=null && drag.id!==e.pointerId)return;
+ const activeDrag=drag;drag=null;
+ try{if(activeDrag.id!=null)activeDrag.el.releasePointerCapture(activeDrag.id);}catch(_){}
+ if(activeDrag.moved){updatePreview();markHistory();}
+ if(activeDrag.el.isConnected && !activeDrag.el.classList.contains("cf-editing")){
+  canvasFocus=true;
+  activeDrag.el.focus({preventScroll:true});
+ }
+}
+window.addEventListener("pointermove",pointerMoved,true);
+window.addEventListener("pointerup",endPointer,true);
+window.addEventListener("pointercancel",endPointer,true);
+window.addEventListener("blur",()=>endPointer());
 stage.addEventListener("pointerdown",e=>{
+ canvasFocus=true;
  if(e.target!==stage)return;
  selected?.classList.remove("cf-selected","cf-editing");
  selected=null;focusEditable=null;storedRange=null;toolbar();
+ stage.focus({preventScroll:true});
 });
+document.addEventListener("pointerdown",e=>{
+ if(!stage.contains(e.target)){
+  // A barra pode manter a seleção, mas teclas de remoção não devem afetar o documento
+  // quando o usuário trabalha nos filtros, formulários ou em outros comandos.
+  canvasFocus=false;
+ }
+},true);
 stage.addEventListener("dblclick",e=>{
  if(e.target!==stage)return;
  const bounds=stage.getBoundingClientRect(),scale=bounds.width/W;
@@ -207,7 +259,7 @@ document.querySelectorAll("[data-cf-add]").forEach(b=>b.addEventListener("click"
 function removeSelected(){
  if(!selected)return;
  selected.remove();selected=null;focusEditable=null;storedRange=null;
- toolbar();stage.focus();updatePreview();markHistory();
+ canvasFocus=true;toolbar();stage.focus();updatePreview();markHistory();
 }
 function markHistory(){
  if(loading)return;
@@ -232,16 +284,16 @@ function duplicateSelected(item=selected){
  return add(object(data.tipo,data));
 }
 document.addEventListener("keydown",e=>{
+ const target=e.target;
  const active=document.activeElement;
- const typing=active?.matches?.('input,textarea,select,[contenteditable="true"]');
- if(!selected&&active!==stage)return;
+ const editingTarget=target?.closest?.('input,textarea,select,[contenteditable="true"],[role="textbox"]')||
+  active?.closest?.('input,textarea,select,[contenteditable="true"],[role="textbox"]');
+ if(!canvasFocus)return;
  if(e.key==="Escape"&&selected?.classList.contains("cf-editing")){
    e.preventDefault();exitEditing();return;
  }
- // Em modo de digitação, Delete, setas e atalhos pertencem ao editor de texto.
- // Não excluir a caixa caso um botão da barra tenha recebido o foco.
- if(selected?.classList.contains("cf-editing"))return;
- if(typing || (active!==stage && (!selected || active!==selected && !selected.contains(active))))return;
+ // Nunca interceptar Delete/backspace enquanto digita.
+ if(selected?.classList.contains("cf-editing")||editingTarget)return;
  const mod=e.ctrlKey||e.metaKey;
  if(mod&&(e.key.toLowerCase()==="z"||e.key.toLowerCase()==="y")){
    e.preventDefault();restoreHistory(e.key.toLowerCase()==="z"&&!e.shiftKey?-1:1);return;
