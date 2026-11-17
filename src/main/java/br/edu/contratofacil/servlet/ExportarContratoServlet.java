@@ -14,6 +14,10 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 @WebServlet("/exportar-contrato")
+/**
+ * Ponto HTTP de download do documento. Recebe o ID e o formato, consulta
+ *  * o contrato e chama os serviços para gerar o arquivo, sem montar SQL na URL.
+ */
 public class ExportarContratoServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {

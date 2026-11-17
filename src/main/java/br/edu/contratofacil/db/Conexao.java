@@ -5,6 +5,10 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
+/**
+ * O ponto de entrada JDBC do sistema. Lê as variáveis DB_* do processo do Tomcat
+ *  * e cria a conexão PostgreSQL com timeouts. A senha não fica no código-fonte.
+ */
 public final class Conexao {
     private Conexao() { }
 

@@ -16,6 +16,10 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.sql.SQLException;
 
+/**
+ * Interceta as requisições HTTP antes das telas JSF. Verifica a sessão
+ *  * e impede que páginas protegidas sejam abertas diretamente sem autenticação.
+ */
 public class FiltroAcesso implements Filter {
 
     @Override

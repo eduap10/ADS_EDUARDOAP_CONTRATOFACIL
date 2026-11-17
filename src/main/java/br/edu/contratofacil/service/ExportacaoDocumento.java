@@ -12,6 +12,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Locale;
 
+/**
+ * Converte a representação do contrato em arquivos para download.
+ *  * A página A4 é a fonte para PDF e DOCX; no Word os objetos seguem um
+ *  * fluxo mais linear, por isso sobreposições livres exigem conferência.
+ */
 public final class ExportacaoDocumento {
     private ExportacaoDocumento() { }
 

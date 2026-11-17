@@ -10,6 +10,11 @@ import org.jsoup.nodes.Entities;
  * Protocolo textual versionado, sem JSON externo e sem HTML arbitrário.
  * Os textos ricos são sanitizados por DocumentoService antes de persistir.
  */
+/**
+ * Interpreta o formato CFCANVAS1 da página A4: posição, dimensão e conteúdo
+ *  * de cada objeto. Valida limites e tipos antes de produzir HTML seguro.
+ *  * Separar esta validação do JavaScript impede confiar apenas no navegador.
+ */
 public final class CanvasDocumentoService {
     public static final String CABECALHO = "CFCANVAS1\n";
     private static final int LARGURA = 642, ALTURA = 907, MAX_OBJETOS = 100;

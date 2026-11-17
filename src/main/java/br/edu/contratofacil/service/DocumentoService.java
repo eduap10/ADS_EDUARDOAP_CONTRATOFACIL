@@ -13,6 +13,11 @@ import org.owasp.html.PolicyFactory;
 import java.util.*;
 import java.util.regex.*;
 
+/**
+ * Aplica a política de HTML permitido e substitui {{tags}} pelos dados
+ *  * da ficha selecionada. Mantém a formatação do modelo sem executar SQL
+ *  * nem permitir que uma tag seja interpretada como código.
+ */
 public final class DocumentoService {
     private DocumentoService() { }
     private static final Pattern TAG = Pattern.compile("\\{\\{([a-zA-Z][a-zA-Z0-9_.]*)\\}\\}");
