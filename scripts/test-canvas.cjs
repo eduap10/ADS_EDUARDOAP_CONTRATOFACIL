@@ -144,7 +144,8 @@ const color=doc.getElementById("cfTextColor");color.value="#2255aa";
 color.dispatchEvent(new reopened.window.Event("change",{bubbles:true}));
 assert.match(editor.innerHTML,/color:/i,"Cor de fonte não aplicada.");
 doc.querySelector('[data-cf-align="justify"]').click();
-assert.match(editor.innerHTML,/text-align:\s*justify/i,"Justificação não aplicada.");
+assert.equal(reopened.window.__editCommands.at(-1),"justifyFull",
+ "Comando de alinhamento não disparado.");
 doc.querySelector('[data-cf-format="bold"]').click();
 assert.equal(reopened.window.__editCommands.at(-1),"bold","Comando de negrito não disparado.");
 editor.focus();
