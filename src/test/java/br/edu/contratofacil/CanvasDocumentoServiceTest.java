@@ -151,4 +151,25 @@ class CanvasDocumentoServiceTest {
             DocumentoService.sanitizar(prefixo+"image/jpeg|"+PNG_2X2+"\n"));
     }
 
+    @Test void paragrafosListasERecuoSobrevivemAoSalvarEPreencher() {
+        // A edição é visual, mas o servidor precisa manter apenas HTML permitido.
+        String html = "<p style=\"text-align:right;margin-left:24px;\">"
+            + "Descrição do cargo</p><ul><li>Atividade principal</li></ul>"
+            + "<ol><li>Etapa um</li></ol>";
+        String saved=DocumentoService.sanitizar(CanvasDocumentoService.CABECALHO+
+            "T|20|30|500|280|"+b64(html)+"\n");
+        String filled=DocumentoService.preencher(saved,pessoa());
+        var document=org.jsoup.Jsoup.parseBodyFragment(filled);
+        assertEquals(1,document.select(".cf-canvas-texto ul li").size(),
+            "A lista com marcadores deve continuar no modelo.");
+        assertEquals(1,document.select(".cf-canvas-texto ol li").size(),
+            "A lista numerada deve continuar no modelo.");
+        var paragraph=document.selectFirst(".cf-canvas-texto p");
+        assertNotNull(paragraph);
+        assertTrue(paragraph.attr("style").contains("text-align"),
+            "O alinhamento precisa continuar após a sanitização.");
+        assertTrue(paragraph.attr("style").contains("margin-left"),
+            "O recuo não pode desaparecer no salvamento.");
+    }
+
 }
