@@ -1,3 +1,5 @@
+-- Como ler este script: Evolução da ficha: acrescenta dados pessoais, de endereço e contratuais aos colaboradores existentes.
+-- SQL = definição/consulta de dados. Não é executado automaticamente só por atualizar o Git.
 -- Amplia o cadastro sem perder dados anteriores. Executar após 01_schema.sql.
 BEGIN;
 DO $$

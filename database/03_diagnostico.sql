@@ -1,3 +1,5 @@
+-- Como ler este script: Consultas apenas de diagnóstico: exibem conexão, objetos e permissões para investigar falhas sem alterar registros.
+-- SQL = definição/consulta de dados. Não é executado automaticamente só por atualizar o Git.
 -- Execute estas consultas no PostgreSQL para diagnosticar a instalacao.
 -- IMPORTANTE: conecte-se ao banco contratofacil com o usuario utilizado pela aplicacao.
 SELECT current_database() AS banco, current_user AS usuario, current_schema() AS esquema;

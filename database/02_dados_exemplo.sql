@@ -1,3 +1,5 @@
+-- Como ler este script: Carga opcional de dados fictícios para exercícios de cadastro e emissão; não executar com dados reais.
+-- SQL = definição/consulta de dados. Não é executado automaticamente só por atualizar o Git.
 -- Dados totalmente ficticios para testes locais (opcional).
 BEGIN;
 DO $$

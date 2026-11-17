@@ -1,3 +1,5 @@
+-- Como ler este script: Teste transacional: executa operações em dados fictícios e encerra com ROLLBACK para não deixar resíduos.
+-- SQL = definição/consulta de dados. Não é executado automaticamente só por atualizar o Git.
 -- Teste SQL dos cadastros de colaboradores e modelos.
 -- Os dados fictícios são removidos automaticamente pelo ROLLBACK final.
 -- Execute no banco contratofacil como contratofacil_app, após 01_schema.sql e 04_modelos_contratos.sql.

@@ -1,3 +1,5 @@
+-- Como ler este script: Estrutura do login local; as credenciais são criadas pelo fluxo de primeiro acesso, não inseridas em texto puro aqui.
+-- SQL = definição/consulta de dados. Não é executado automaticamente só por atualizar o Git.
 -- Execute no banco contratofacil com o usuario contratofacil_app.
 -- Cria apenas a estrutura de login. O administrador inicial e criado pela tela de primeiro acesso.
 BEGIN;

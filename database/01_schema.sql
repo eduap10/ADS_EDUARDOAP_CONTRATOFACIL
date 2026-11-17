@@ -1,3 +1,5 @@
+-- Como ler este script: Estrutura inicial de colaboradores. O bloco DO valida banco/usuário antes de criar tabelas.
+-- SQL = definição/consulta de dados. Não é executado automaticamente só por atualizar o Git.
 -- Executar no banco contratofacil com o usuario da aplicacao.
 BEGIN;
 DO $$
