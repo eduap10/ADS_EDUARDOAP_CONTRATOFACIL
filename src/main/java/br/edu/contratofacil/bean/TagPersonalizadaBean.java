@@ -15,6 +15,11 @@ import java.util.logging.Logger;
 
 @Named("tagPersonalizadaBean")
 @ViewScoped
+/**
+ * Responsabilidade da camada de apresentação.
+ * Permite cadastrar tags personalizadas, independentes dos campos fixos da ficha.
+ *  * Essas tags compõem o catálogo usado no editor e são resolvidas na emissão.
+ */
 public class TagPersonalizadaBean implements Serializable {
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = Logger.getLogger(TagPersonalizadaBean.class.getName());

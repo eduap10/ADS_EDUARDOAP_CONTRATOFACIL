@@ -13,6 +13,11 @@ import java.sql.SQLException;
 
 @Named
 @RequestScoped
+/**
+ * Responsabilidade da camada de apresentação.
+ * Recebe as credenciais da tela de login, consulta o UsuarioDAO e inicia a sessão.
+ *  * A senha não deve permanecer guardada no bean depois da tentativa.
+ */
 public class LoginBean {
     private String login;
     private String senha;

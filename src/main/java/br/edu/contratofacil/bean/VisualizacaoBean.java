@@ -14,6 +14,11 @@ import java.sql.SQLException;
 
 @Named("visualizacaoBean")
 @ViewScoped
+/**
+ * Responsabilidade da camada de apresentação.
+ * Prepara os dados apresentados na visualização de contratos já montados.
+ *  * A renderização final usa serviços de preenchimento e exportação.
+ */
 public class VisualizacaoBean implements Serializable {
     private static final long serialVersionUID = 1L;
     private Long id;

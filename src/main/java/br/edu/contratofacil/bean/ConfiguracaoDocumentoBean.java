@@ -12,6 +12,11 @@ import java.sql.SQLException;
 
 @Named("configuracaoDocumentoBean")
 @ViewScoped
+/**
+ * Responsabilidade da camada de apresentação.
+ * Atende à configuração de elementos institucionais dos documentos, como o logo.
+ *  * A tela chama o bean; o bean verifica a entrada e delega a persistência ao DAO.
+ */
 public class ConfiguracaoDocumentoBean implements Serializable {
     private static final long serialVersionUID = 1L;
     private static final int LIMITE = 1_000_000;

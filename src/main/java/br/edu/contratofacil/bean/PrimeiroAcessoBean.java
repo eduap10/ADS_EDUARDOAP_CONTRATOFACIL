@@ -10,6 +10,12 @@ import java.sql.SQLException;
 
 @Named
 @RequestScoped
+/**
+ * Responsabilidade da camada de apresentação.
+ * Cuida do cadastro inicial do administrador local.
+ *  * A operação deve respeitar a condição de primeiro acesso e não servir
+ *  * como um segundo caminho de criação irrestrita de administradores.
+ */
 public class PrimeiroAcessoBean {
     private String login;
     private String senha;

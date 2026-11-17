@@ -19,6 +19,12 @@ import java.util.logging.Logger;
 
 @Named("modeloContratoBean")
 @ViewScoped
+/**
+ * Responsabilidade da camada de apresentação.
+ * Gerencia a listagem, edição e gravação dos modelos reutilizáveis.
+ *  * A folha A4 é desenhada no navegador; ao salvar, o conteúdo vai ao
+ *  * DocumentoService para validação antes de chegar ao banco.
+ */
 public class ModeloContratoBean implements Serializable {
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = Logger.getLogger(ModeloContratoBean.class.getName());

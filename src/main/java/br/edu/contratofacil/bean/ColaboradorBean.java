@@ -18,6 +18,12 @@ import jakarta.inject.Named;
 
 @Named
 @ViewScoped
+/**
+ * Responsabilidade da camada de apresentação.
+ * Controla a tela de colaboradores (JSF/PrimeFaces).
+ *  * @ViewScoped conserva os filtros e a ficha enquanto a mesma tela estiver aberta.
+ *  * As consultas e gravações são delegadas ao ColaboradorDAO.
+ */
 public class ColaboradorBean implements Serializable {
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = Logger.getLogger(ColaboradorBean.class.getName());

@@ -16,6 +16,11 @@ import java.util.logging.Logger;
 
 @Named("tipoContratoBean")
 @ViewScoped
+/**
+ * Responsabilidade da camada de apresentação.
+ * Mantém os tipos/categorias de documento usados na seleção de modelos.
+ *  * Tipo define a classificação; modelo define o conteúdo; contrato é a emissão.
+ */
 public class TipoContratoBean implements Serializable {
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = Logger.getLogger(TipoContratoBean.class.getName());

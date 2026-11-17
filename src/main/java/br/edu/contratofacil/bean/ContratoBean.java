@@ -16,6 +16,12 @@ import java.util.logging.Logger;
 
 @Named("contratoBean")
 @ViewScoped
+/**
+ * Responsabilidade da camada de apresentação.
+ * Conduz a emissão de contratos: escolhe colaborador, tipo e modelo,
+ *  * monta a prévia com as tags e persiste o documento gerado.
+ *  * Não confundir com ModeloContratoBean, que edita o texto-base reutilizável.
+ */
 public class ContratoBean implements Serializable {
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = Logger.getLogger(ContratoBean.class.getName());
