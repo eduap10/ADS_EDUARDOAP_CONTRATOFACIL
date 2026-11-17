@@ -2,6 +2,11 @@ package br.edu.contratofacil.model;
 
 import java.io.Serializable;
 
+/**
+ * Modelo de domínio.
+ * Representa o texto-base reutilizável criado no editor A4, associado
+ *  * a um tipo. Ao emitir, suas tags são preenchidas com dados reais.
+ */
 public class ModeloContrato implements Serializable {
     private Long id;
     private String titulo;

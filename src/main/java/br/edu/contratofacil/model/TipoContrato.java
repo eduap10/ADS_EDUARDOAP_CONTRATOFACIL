@@ -2,6 +2,10 @@ package br.edu.contratofacil.model;
 
 import java.io.Serializable;
 
+/**
+ * Modelo de domínio.
+ * Classifica os modelos por finalidade, sem armazenar o corpo do documento.
+ */
 public class TipoContrato implements Serializable {
     private static final long serialVersionUID = 1L;
     private Long id;

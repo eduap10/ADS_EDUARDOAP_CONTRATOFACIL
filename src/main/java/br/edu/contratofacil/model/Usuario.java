@@ -2,6 +2,10 @@ package br.edu.contratofacil.model;
 
 import java.io.Serializable;
 
+/**
+ * Modelo de domínio.
+ * Representa o usuário que acessa o sistema e seus dados de autenticação.
+ */
 public class Usuario implements Serializable {
     private static final long serialVersionUID = 1L;
 

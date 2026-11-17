@@ -1,5 +1,9 @@
 package br.edu.contratofacil.model;
 
+/**
+ * Modelo de domínio.
+ * Define as categorias usadas para organizar os documentos no sistema.
+ */
 public enum CategoriaDocumento {
     DESCRICAO_CARGO("Descrição de cargo"),
     CONSENTIMENTO_POLITICAS("Consentimento com políticas da empresa"),

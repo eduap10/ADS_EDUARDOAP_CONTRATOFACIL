@@ -4,6 +4,11 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+/**
+ * Modelo de domínio.
+ * Representa a ficha do colaborador em memória, incluindo dados pessoais,
+ *  * de endereço e contratuais. É o objeto utilizado pelas tags no documento.
+ */
 public class Colaborador implements Serializable {
     private static final long serialVersionUID = 1L;
 

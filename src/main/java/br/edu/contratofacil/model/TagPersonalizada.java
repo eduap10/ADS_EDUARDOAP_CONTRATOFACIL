@@ -2,6 +2,11 @@ package br.edu.contratofacil.model;
 
 import java.io.Serializable;
 
+/**
+ * Modelo de domínio.
+ * Representa uma tag definida pelo usuário, disponibilizada no catálogo
+ *  * do editor e resolvida no momento da emissão.
+ */
 public class TagPersonalizada implements Serializable {
     private static final long serialVersionUID = 1L;
     private Long id;

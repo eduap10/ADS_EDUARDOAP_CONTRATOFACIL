@@ -1,5 +1,10 @@
 package br.edu.contratofacil.model;
 import java.io.Serializable;
+/**
+ * Modelo de domínio.
+ * Representa uma emissão concreta associada ao colaborador e ao modelo,
+ *  * com situação e participantes da assinatura.
+ */
 public class Contrato implements Serializable {
  private Long id, colaboradorId, modeloId;
  private String titulo, conteudo;
