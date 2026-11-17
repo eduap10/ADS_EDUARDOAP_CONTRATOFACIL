@@ -1,3 +1,5 @@
+-- Como ler este script: Estrutura de tags definidas na aplicação; o mecanismo de substituição consulta esses campos na emissão.
+-- SQL = definição/consulta de dados. Não é executado automaticamente só por atualizar o Git.
 -- Cadastro seguro de campos adicionais para os modelos.
 -- Pré-requisitos: banco contratofacil, usuário contratofacil_app.
 BEGIN;

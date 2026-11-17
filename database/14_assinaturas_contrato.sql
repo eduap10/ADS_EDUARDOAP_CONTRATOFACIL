@@ -1,3 +1,5 @@
+-- Como ler este script: Campos para os participantes das assinaturas manuais dos documentos; não é assinatura digital.
+-- SQL = definição/consulta de dados. Não é executado automaticamente só por atualizar o Git.
 -- Participantes selecionados ao emitir um contrato. Não configura assinatura eletrônica.
 BEGIN;
 DO $$

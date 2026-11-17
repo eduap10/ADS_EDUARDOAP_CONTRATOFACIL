@@ -1,3 +1,5 @@
+-- Como ler este script: Teste de relacionamento entre tipo, modelo, colaborador e contrato emitido, sem preservar dados.
+-- SQL = definição/consulta de dados. Não é executado automaticamente só por atualizar o Git.
 -- Teste transacional dos novos tipos e da emissão, sem manter dados.
 -- Executar depois de 11_tipos_contrato.sql como contratofacil_app em contratofacil.
 BEGIN;

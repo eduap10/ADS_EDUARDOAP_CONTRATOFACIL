@@ -1,3 +1,5 @@
+-- Como ler este script: Teste transacional da ficha e categorias; validar com dados fictícios e observar o ROLLBACK.
+-- SQL = definição/consulta de dados. Não é executado automaticamente só por atualizar o Git.
 -- Teste sem persistir dados, após 07 e 08.
 BEGIN;
 DO $$

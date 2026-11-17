@@ -1,3 +1,5 @@
+-- Como ler este script: Acrescenta classificação dos documentos sem apagar modelos e contratos já existentes.
+-- SQL = definição/consulta de dados. Não é executado automaticamente só por atualizar o Git.
 -- Classificação dos documentos existentes e novos, sem excluir dados.
 BEGIN;
 DO $$

@@ -1,3 +1,5 @@
+-- Como ler este script: Armazenamento opcional de identidade visual dos documentos, separado do conteúdo de cada modelo.
+-- SQL = definição/consulta de dados. Não é executado automaticamente só por atualizar o Git.
 -- Logo opcional para os documentos; mantém o banco e os registros existentes.
 BEGIN;
 DO $$

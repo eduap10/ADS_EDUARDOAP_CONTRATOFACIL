@@ -1,3 +1,5 @@
+-- Como ler este script: Normaliza os tipos de contrato: os tipos classificam modelos, mas não substituem seu texto-base.
+-- SQL = definição/consulta de dados. Não é executado automaticamente só por atualizar o Git.
 -- Novo cadastro de tipos, mantendo modelos/contratos já cadastrados.
 -- Executar em contratofacil, como contratofacil_app, após 08_categorias_documentos.sql.
 BEGIN;
