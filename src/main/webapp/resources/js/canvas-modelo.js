@@ -540,14 +540,19 @@ function clearTextFormat(){
  const edit=editableReady();if(!edit)return;
  const r=getRange(edit);
  if(r && !r.collapsed){
-   const text=r.toString();
-   r.deleteContents();
-   const node=document.createTextNode(text);r.insertNode(node);
-   const next=document.createRange();next.selectNode(node);
-   restoreRange(edit,next);
+   // Uma palavra pode estar dentro de strong, em e spans com cor. Substituir
+   // apenas o texto deixa esses estilos herdados dos pais, então usamos
+   // a remoção de formatação do próprio navegador para preservar a seleção.
+   if(!selected.classList.contains("cf-editing"))enterEditing(selected,edit);
+   restoreRange(edit,r);
+   if(!document.execCommand("removeFormat",false,null)){
+     console.warn("O navegador não conseguiu limpar a formatação selecionada.");
+     return;
+   }
+   remember();
  }else{
-   // Limpar a caixa toda, mantendo o conteúdo textual e os parágrafos.
-   edit.querySelectorAll("span,strong,em,u,s,font").forEach(el=>{
+   // Sem seleção, limpamos os estilos da caixa, mas mantemos os parágrafos.
+   edit.querySelectorAll("span,strong,em,u,s,font,b,i,strike").forEach(el=>{
      const parent=el.parentNode;
      while(el.firstChild)parent.insertBefore(el.firstChild,el);
      el.remove();
@@ -555,6 +560,7 @@ function clearTextFormat(){
    edit.querySelectorAll("[style]").forEach(el=>el.removeAttribute("style"));
  }
  syncFormatted(edit);
+ ribbonState();
 }
 function fontSize(pt){
  const n=clamp(pt,6,96);
