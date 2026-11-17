@@ -9,6 +9,10 @@ import java.io.ByteArrayOutputStream;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipEntry;
 
+/**
+ * Confere preenchimento de tags, sanitização de HTML e comportamento
+ *  * de documentos sem consultar o banco a cada teste.
+ */
 class DocumentoServiceTest {
     private Colaborador colaborador() {
         Colaborador c = new Colaborador();

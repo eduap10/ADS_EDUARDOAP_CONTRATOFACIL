@@ -8,6 +8,10 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+/**
+ * Verifica o formato A4, as tags, a segurança do HTML e os dados
+ *  * preservados nas exportações de documentos.
+ */
 class CanvasDocumentoServiceTest {
     private static String b64(String s) {
         return Base64.getEncoder().encodeToString(s.getBytes(StandardCharsets.UTF_8));

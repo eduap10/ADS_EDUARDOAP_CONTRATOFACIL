@@ -8,6 +8,10 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Exercita DAOs e vínculos com PostgreSQL quando a variável
+ *  * RUN_DB_INTEGRATION habilita a execução no ambiente preparado.
+ */
 class PersistenciaIntegracaoTest {
     @Test void tagsPersonalizadasUsamFichaEVariaveisDoSistema() throws Exception {
         Assumptions.assumeTrue("true".equals(System.getenv("RUN_DB_INTEGRATION")));

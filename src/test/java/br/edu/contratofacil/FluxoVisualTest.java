@@ -5,6 +5,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 
+/**
+ * Valida a estrutura XHTML/JSF e a presença dos elementos necessários
+ *  * para o editor e os fluxos principais. Não substitui o teste no Chrome.
+ */
 class FluxoVisualTest {
     private void xhtmlValido(String caminho) throws Exception {
         File arquivo = new File("src/main/webapp/" + caminho);

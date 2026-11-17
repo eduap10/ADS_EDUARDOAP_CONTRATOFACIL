@@ -14,7 +14,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.jsoup.Jsoup;
 
-final class HttpTeste {
+final /**
+ * Utilitário para simular cliente HTTP, guardar cookies e enviar
+ *  * requisições durante os testes integrados.
+ */
+class HttpTeste {
     final CookieManager cookies = new CookieManager(null, CookiePolicy.ACCEPT_ALL);
     final String base = System.getenv("CF_TEST_URL");
     final HttpClient client = HttpClient.newBuilder().cookieHandler(cookies)

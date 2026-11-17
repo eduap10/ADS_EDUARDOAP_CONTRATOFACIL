@@ -14,6 +14,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @EnabledIfEnvironmentVariable(named = "CF_TEST_URL", matches = "http://localhost:8081/contratofacil/")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+/**
+ * Teste de integração de autenticação: depende de um Tomcat local
+ *  * e de um banco acessível, por isso só roda quando o ambiente está configurado.
+ */
 class AutenticacaoIT {
     private final String prefix = "teste_" + UUID.randomUUID().toString().replace("-", "");
     private final String password = UUID.randomUUID() + "A1";
