@@ -34,6 +34,11 @@ function fixture(initial){
   const dom=new JSDOM(html,{url:"http://localhost/",runScripts:"dangerously"});
   const win=dom.window;
   win.TextEncoder=TextEncoder;win.TextDecoder=TextDecoder;win.alert=()=>{};
+  // JSDOM não implementa os comandos de edição HTML. Verificamos aqui a
+  // invocação da API; o Chrome real testa a formatação efetiva e o toggle.
+  win.__editCommands=[];
+  win.document.execCommand=(cmd)=>{win.__editCommands.push(cmd);return true;};
+  win.document.queryCommandState=()=>false;
   Object.defineProperty(win.HTMLElement.prototype,"innerText",{
     configurable:true,get(){return this.textContent;},set(v){this.textContent=v;}
   });
@@ -141,7 +146,7 @@ assert.match(editor.innerHTML,/color:/i,"Cor de fonte não aplicada.");
 doc.querySelector('[data-cf-align="justify"]').click();
 assert.match(editor.innerHTML,/text-align:\s*justify/i,"Justificação não aplicada.");
 doc.querySelector('[data-cf-format="bold"]').click();
-assert.match(editor.innerHTML,/font-weight/i,"Negrito não aplicado.");
+assert.equal(reopened.window.__editCommands.at(-1),"bold","Comando de negrito não disparado.");
 editor.focus();
 doc.dispatchEvent(new reopened.window.KeyboardEvent("keydown",{key:"Delete",bubbles:true}));
 assert.equal(count(reopened,"text"),1,"Delete não pode excluir objeto durante a edição de caracteres.");
