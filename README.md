@@ -2,6 +2,10 @@
 
 Aplicação acadêmica para cadastro de colaboradores, manutenção de modelos e elaboração de contratos com campos dinâmicos. Usa **Java 21, JSF/Jakarta Faces, PrimeFaces, Maven, Tomcat 10.1, JDBC e PostgreSQL**. O projeto é um WAR tradicional, sem frontend adicional.
 
+## Guia para estudar a implementação
+
+O arquivo [Guia de estudo e arquitetura](docs/GUIA_DE_ESTUDO.md) explica camadas, fluxo de emissão, segurança, editor A4, testes e perguntas para apresentação.
+
 ## Funcionalidades implementadas no código
 
 - Login administrativo com sessão, logout e filtro de acesso.
