@@ -1,3 +1,6 @@
+/* Este arquivo pertence à edição visual anterior baseada em Quill.
+ * A composição A4 atual está em canvas-modelo.js; manter este código separado
+ * evita quebrar telas antigas durante a evolução do editor. */
 /**
  * Blocos visuais do ContratoFácil.
  * Integração com o Quill do PrimeFaces sem bibliotecas adicionais.

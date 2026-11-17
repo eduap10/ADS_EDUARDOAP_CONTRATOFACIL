@@ -1,3 +1,8 @@
+/* Editor principal de modelos.
+ * Cada elemento A4 tem posição/dimensão e conteúdo. Ao salvar, serializamos
+ * para CFCANVAS1; a validação e o preenchimento são refeitos no servidor.
+ * O navegador apenas edita e mostra prévia; nunca é a fonte de confiança.
+ */
 (function () {
 "use strict";
 const W=642,H=907,PREFIX="CFCANVAS1\n",MAX=100;

@@ -1,3 +1,5 @@
+# Inicialização/parada do Tomcat para executar o WAR do ContratoFácil.
+# As credenciais de banco são passadas por ambiente e não devem ser gravadas no repositório.
 [CmdletBinding()]
 param([string]$TomcatHome = $env:CATALINA_HOME, [switch]$Stop, [switch]$SkipPasswordPrompt)
 

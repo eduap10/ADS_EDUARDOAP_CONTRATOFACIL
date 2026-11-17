@@ -1,3 +1,6 @@
+/* Identidade visual do sistema e dos componentes PrimeFaces/JSF.
+ * Regras .cf-* personalizam o editor A4, sua barra e as alças.
+ * O CSS não salva dados: a persistência fica nos serviços Java e no PostgreSQL. */
 :root {
   font-family: "Segoe UI", Inter, Arial, sans-serif;
   color: #233149;

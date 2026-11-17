@@ -1,3 +1,5 @@
+# Compilação local do WAR com Maven e Java 21.
+# Este script prepara a execução e reporta erros; não cria tabelas no PostgreSQL.
 [CmdletBinding()]
 param([switch]$WindowsTrust)
 

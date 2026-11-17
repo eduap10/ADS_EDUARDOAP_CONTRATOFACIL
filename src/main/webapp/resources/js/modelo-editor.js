@@ -1,3 +1,7 @@
+/* Editor anterior baseado em Quill/PrimeFaces.
+ * Mantido por compatibilidade com telas legadas; o novo canvas A4 é gerenciado
+ * por canvas-modelo.js. Não confundir os dois fluxos ao estudar o projeto.
+ */
 (function () {
     "use strict";
 
