@@ -13,7 +13,9 @@ const inputs=ids.map(id=>'<input id="'+id+'" value="11">').join("");
 const html='<!doctype html><html><head><meta charset="utf-8"><style>'+css+'</style>'+
 '<style>body{margin:0;padding:30px;background:#fff}.cf-stage-scroll{width:900px;height:1000px}</style></head><body>'+
 '<div class="cf-toolbar-sticky"><select id="cfFontFamily"><option>Arial</option><option>Georgia</option></select>'+inputs+
-'<button data-cf-format="bold"></button><button data-cf-align="justify"></button>'+
+'<button data-cf-format="bold"></button><button data-cf-format="italic"></button>'+
+'<button data-cf-format="underline"></button><button data-cf-format="strikeThrough"></button>'+
+'<button data-cf-align="justify"></button><button data-cf-align="left"></button>'+
 '<button data-cf-list="ul"></button><button data-cf-list="ol"></button></div>'+
 '<div id="cfProperties" class="cf-properties" hidden><strong id="cfObjectKind"></strong>'+
 '<div data-cf-panel="text"></div><div data-cf-panel="line"></div>'+
@@ -81,6 +83,49 @@ const html='<!doctype html><html><head><meta charset="utf-8"><style>'+css+'</sty
   assert.equal(await page.locator(".cf-obj-line").count(),2,"Ctrl+D não duplicou.");
   await page.keyboard.press("Backspace");
   assert.equal(await page.locator(".cf-obj-line").count(),1,"Backspace não apagou cópia.");
+  // Texto real selecionado: clicar duas vezes deve ativar e depois desativar.
+  await page.locator('[data-cf-add="text"]').click();
+  const textBox=page.locator(".cf-obj-text").last();
+  await textBox.dblclick();
+  const editable=textBox.locator(".cf-texto");
+  await editable.evaluate(el=>{
+    el.innerHTML="<p>Texto de homologação</p>";
+    el.dispatchEvent(new InputEvent("input",{bubbles:true,inputType:"insertText"}));
+    const node=el.querySelector("p").firstChild;
+    const selection=window.getSelection(),range=document.createRange();
+    range.setStart(node,0);range.setEnd(node,5);
+    selection.removeAllRanges();selection.addRange(range);
+  });
+  for(const command of ["bold","italic","underline","strikeThrough"]){
+    const button=page.locator('[data-cf-format="'+command+'"]');
+    await button.click();
+    const on=await editable.evaluate((el,cmd)=>{
+      const text=Array.from(el.querySelectorAll("*")).find(e=>e.textContent?.startsWith("Texto")&&e.children.length===0);
+      const st=text?getComputedStyle(text):null;
+      const selected=window.getSelection().toString();
+      return {selected,html:el.innerHTML,active:document.queryCommandState(cmd),
+       weight:st?.fontWeight,style:st?.fontStyle,decoration:st?.textDecorationLine};
+    },command);
+    assert.equal(on.selected,"Texto","Seleção foi perdida ao clicar "+command);
+    assert.equal(on.active,true,"Comando não ligou: "+command+" "+on.html);
+    assert.equal(await button.getAttribute("aria-pressed"),"true","Botão não marcou estado ligado: "+command);
+    await button.click();
+    const off=await editable.evaluate((el,cmd)=>({
+      active:document.queryCommandState(cmd),html:el.innerHTML,selected:window.getSelection().toString()
+    }),command);
+    assert.equal(off.active,false,"Comando não desligou: "+command+" "+off.html);
+    assert.equal(off.selected,"Texto","Seleção foi perdida no segundo clique de "+command);
+    assert.equal(await button.getAttribute("aria-pressed"),"false","Botão não voltou ao estado desligado: "+command);
+  }
+  const align=page.locator('[data-cf-align="justify"]');
+  await align.click();
+  assert.match(await editable.evaluate(el=>el.innerHTML),/text-align:\s*justify/i);
+  await align.click();
+  assert.doesNotMatch(await editable.evaluate(el=>el.innerHTML),/text-align:\s*justify/i);
+  // Salvar/reabrir após alternar não deve ressuscitar estilos desligados.
+  const saved=await page.evaluate(()=>{window.CFCanvas.salvar();return document.getElementById("form:conteudo").value;});
+  assert(saved.startsWith("CFCANVAS1\n"));
+
   assert.equal(failures.length,0,failures.join("; "));
   console.log("Chrome: mouse, 8 alças, Delete, Backspace, setas, Shift+setas, Ctrl+D e Ctrl+Z aprovados.");
  }finally{await browser.close();}

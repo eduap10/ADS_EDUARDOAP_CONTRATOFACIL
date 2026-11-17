@@ -378,3 +378,17 @@ label { color: #34465c; font-size: .9rem; }
 .cf-canvas-obj .cf-resize-handle[data-dir="w"]{left:-9px;top:calc(50% - 8px)}
 .cf-canvas-obj:not(.cf-editing){user-select:none}
 .cf-canvas-obj.cf-editing .cf-texto{user-select:text}
+
+
+/* Controles de formatação com feedback de ligado/desligado. */
+.cf-toolbar-sticky .cf-word-ribbon button.cf-mini-icon.cf-format-active,
+.cf-toolbar-sticky .cf-word-ribbon button.cf-mini-icon[aria-pressed="true"]{
+ background:#d9ebfc;
+ border-color:#529ed3;
+ color:#104d7e;
+ box-shadow:inset 0 0 0 1px #7fb9df;
+}
+.cf-toolbar-sticky .cf-word-ribbon button.cf-mini-icon:focus-visible{
+ outline:2px solid #1268aa;
+ outline-offset:2px;
+}
