@@ -1,3 +1,5 @@
+# Integração contínua: valida código Java, XHTML, interações de mouse/teclado no Chrome e acesso ao PostgreSQL de teste.
+# Falha no pipeline significa que o commit precisa ser inspecionado antes de atualizar o notebook.
 name: Validacao ContratoFacil
 
 on:
