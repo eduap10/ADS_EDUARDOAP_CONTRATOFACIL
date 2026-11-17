@@ -3,6 +3,11 @@ import br.edu.contratofacil.db.Conexao;
 import br.edu.contratofacil.model.*;
 import java.sql.*;
 import java.util.*;
+/**
+ * Camada de persistência (DAO, Data Access Object).
+ * Persiste contratos emitidos, vinculados ao colaborador e ao modelo escolhido.
+ *  * Diferente do ModeloContratoDAO, aqui ficam os dados da emissão e seus participantes.
+ */
 public class ContratoDAO {
  public List<Contrato> listar(String pesquisa) throws SQLException {
   List<Contrato> lista=new ArrayList<>();

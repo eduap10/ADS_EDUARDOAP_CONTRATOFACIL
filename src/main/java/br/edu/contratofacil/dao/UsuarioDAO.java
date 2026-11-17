@@ -17,6 +17,12 @@ import java.util.Locale;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
+/**
+ * Camada de persistência (DAO, Data Access Object).
+ * Isola o acesso à tabela de usuários e à verificação das senhas.
+ *  * A autenticação não consulta senha em texto puro: utiliza derivação de hash e sal.
+ *  * O LoginBean depende deste DAO, sem implementar criptografia na tela.
+ */
 public class UsuarioDAO {
     private static final int ITERACOES = 210_000;
     private static final int TAMANHO_HASH = 256;

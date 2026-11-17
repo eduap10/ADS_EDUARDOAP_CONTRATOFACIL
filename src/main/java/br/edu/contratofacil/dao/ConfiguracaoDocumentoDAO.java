@@ -3,6 +3,11 @@ package br.edu.contratofacil.dao;
 import br.edu.contratofacil.db.Conexao;
 import java.sql.*;
 
+/**
+ * Camada de persistência (DAO, Data Access Object).
+ * Acessa os dados de configuração da empresa usados na montagem dos documentos.
+ *  * O DAO isola o SQL das páginas JSF e devolve dados já mapeados para o Java.
+ */
 public class ConfiguracaoDocumentoDAO {
     public record Logo(byte[] dados, String mime) { }
 

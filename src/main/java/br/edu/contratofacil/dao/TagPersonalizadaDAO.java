@@ -10,6 +10,11 @@ import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+/**
+ * Camada de persistência (DAO, Data Access Object).
+ * Armazena tags personalizadas para uso no corpo dos modelos.
+ *  * Mantém as operações de banco separadas das regras de catálogo e preenchimento.
+ */
 public class TagPersonalizadaDAO {
     private static final Set<String> TIPOS = Set.of(
         "TEXTO_FIXO","CAMPO_FICHA","DATA_ATUAL","HORA_ATUAL","DATA_HORA_ATUAL","ANO_ATUAL");

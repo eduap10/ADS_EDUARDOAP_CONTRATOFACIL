@@ -9,6 +9,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Camada de persistência (DAO, Data Access Object).
+ * Lê, insere e atualiza os modelos de documento reutilizáveis.
+ *  * O conteúdo é tratado pela camada de serviço antes de ser gravado por este DAO.
+ */
 public class ModeloContratoDAO {
 
     public List<ModeloContrato> listar(String pesquisa) throws SQLException {

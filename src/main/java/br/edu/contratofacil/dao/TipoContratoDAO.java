@@ -6,6 +6,11 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Camada de persistência (DAO, Data Access Object).
+ * Gerencia os tipos de documento disponíveis para classificação dos modelos.
+ *  * A lista de tipos existe separadamente do texto dos modelos e dos contratos emitidos.
+ */
 public class TipoContratoDAO {
     public List<TipoContrato> listar(boolean apenasAtivos) throws SQLException {
         List<TipoContrato> lista = new ArrayList<>();

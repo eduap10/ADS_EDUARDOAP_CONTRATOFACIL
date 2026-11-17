@@ -7,6 +7,12 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Camada de persistência (DAO, Data Access Object).
+ * Centraliza SQL e mapeamento da ficha de colaboradores.
+ *  * O bean trabalha com objetos Colaborador, enquanto esta classe converte linhas
+ *  * do ResultSet e envia os valores com PreparedStatement.
+ */
 public class ColaboradorDAO {
     private static final String COLUNAS = "id, matricula, nome, cargo, cpf, email, data_nascimento, sexo, "
        + "raca_cor, estado_civil, nacionalidade, escolaridade, genero, cep, logradouro, numero, complemento, "
