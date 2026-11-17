@@ -107,14 +107,14 @@ function enterEditing(el,target){
    .forEach(c=>c.contentEditable="true");
  const box=target?.closest?.(".cf-texto,.cf-edit-table td,.cf-edit-table th")||
    el.querySelector(".cf-texto,.cf-edit-table td,.cf-edit-table th");
- focusEditable=box||null;storedRange=null;if(box){box.focus();remember();}
+ focusEditable=box||null;storedRange=null;if(box){box.focus();remember();ribbonState();}
 }
 function exitEditing(){
  if(!selected)return;
  selected.classList.remove("cf-editing");
  selected.querySelectorAll(".cf-texto,.cf-edit-table td,.cf-edit-table th")
    .forEach(c=>c.contentEditable="false");
- focusEditable=null;storedRange=null;selected.focus({preventScroll:true});
+ focusEditable=null;storedRange=null;selected.focus({preventScroll:true});ribbonState();
 }
 function choose(el){
  if(selected && selected!==el){
@@ -129,6 +129,7 @@ function choose(el){
    selected.cf.tipo==="table"?selected.querySelector(".cf-edit-table td,.cf-edit-table th"):null;
  }
  toolbar();
+ if(typeof ribbonState==="function")ribbonState();
 }
 function toolbar(){
  $("cfProperties").hidden=!selected;if(!selected)return;
@@ -453,8 +454,12 @@ function currentParagraph(){
 }
 function paragraphStyle(property,value){
  const el=currentParagraph();if(!el)return;
- el.style.setProperty(property,value);
- syncFormatted(editableReady());
+ const current=el.style.getPropertyValue(property).trim()||
+   getComputedStyle(el).getPropertyValue(property).trim();
+ if(property==="text-align" && current===value)
+   el.style.removeProperty(property);
+ else el.style.setProperty(property,value);
+ syncFormatted(editableReady());ribbonState();
 }
 function styleParagraph(type){
  const el=currentParagraph();if(!el)return;
@@ -529,15 +534,61 @@ function bindButton(id,handler){
  b.addEventListener("mousedown",e=>e.preventDefault());
  b.addEventListener("click",handler);
 }
-document.querySelectorAll("[data-cf-format]").forEach(b=>{
- b.addEventListener("mousedown",e=>e.preventDefault());
- b.addEventListener("click",()=>{
-   const key=b.dataset.cfFormat;
-   const styles={bold:["font-weight","700"],italic:["font-style","italic"],
-      underline:["text-decoration","underline"],strikeThrough:["text-decoration","line-through"]};
-   if(styles[key])applyInline(...styles[key]);
+const TOGGLE_COMMANDS=new Set(["bold","italic","underline","strikeThrough"]);
+function commandState(command){
+ try{return Boolean(document.queryCommandState(command));}catch(_){return false;}
+}
+function ribbonState(){
+ const sel=window.getSelection(),edit=focusEditable;
+ const active=!!selected?.classList.contains("cf-editing") && !!edit?.isConnected &&
+   !!sel?.rangeCount && edit.contains(sel.anchorNode) && edit.contains(sel.focusNode);
+ document.querySelectorAll("[data-cf-format]").forEach(button=>{
+   const pressed=active && commandState(button.dataset.cfFormat);
+   button.setAttribute("aria-pressed",String(pressed));
+   button.classList.toggle("cf-format-active",pressed);
  });
+ document.querySelectorAll("[data-cf-align]").forEach(button=>{
+   const p=active?currentParagraph():null;
+   const alignment=p ? getComputedStyle(p).textAlign : "";
+   const pressed=!!p && alignment===button.dataset.cfAlign;
+   button.setAttribute("aria-pressed",String(pressed));
+   button.classList.toggle("cf-format-active",pressed);
+ });
+ document.querySelectorAll("[data-cf-list]").forEach(button=>{
+   const p=active?currentParagraph():null;
+   const list=p?.closest?.("ul,ol");
+   const pressed=!!list && list.tagName.toLowerCase()===button.dataset.cfList;
+   button.setAttribute("aria-pressed",String(pressed));
+   button.classList.toggle("cf-format-active",pressed);
+ });
+}
+function toggleInlineCommand(command){
+ const edit=editableReady();
+ if(!edit || !selected || !TOGGLE_COMMANDS.has(command))return;
+ const range=getRange(edit);
+ if(!selected.classList.contains("cf-editing"))enterEditing(selected,edit);
+ if(range && edit.contains(range.commonAncestorContainer))
+   restoreRange(edit,range);
+ else{
+   const end=document.createRange();
+   end.selectNodeContents(edit);end.collapse(false);
+   restoreRange(edit,end);
+ }
+ // O navegador alterna bold/italic/underline/strikeThrough para a seleção.
+ // Também ajusta o estado da próxima digitação quando só há um cursor.
+ const applied=document.execCommand(command,false,null);
+ if(!applied)console.warn("Comando de formatação não disponível:",command);
+ remember();
+ syncFormatted(edit);
+ ribbonState();
+}
+document.querySelectorAll("[data-cf-format]").forEach(button=>{
+ button.setAttribute("aria-pressed","false");
+ button.addEventListener("mousedown",e=>e.preventDefault());
+ button.addEventListener("click",()=>toggleInlineCommand(button.dataset.cfFormat));
 });
+document.addEventListener("selectionchange",ribbonState);
+
 $("cfFontFamily").addEventListener("change",e=>applyInline("font-family",safeFont(e.target.value)));
 $("cfFontSize").addEventListener("change",e=>fontSize(e.target.value));
 bindButton("cfFontGrow",()=>fontSize(Number($("cfFontSize").value)+1));
@@ -549,8 +600,17 @@ document.querySelectorAll("[data-cf-align]").forEach(b=>{
  b.addEventListener("click",()=>paragraphStyle("text-align",b.dataset.cfAlign));
 });
 document.querySelectorAll("[data-cf-list]").forEach(b=>{
+ b.setAttribute("aria-pressed","false");
  b.addEventListener("mousedown",e=>e.preventDefault());
- b.addEventListener("click",()=>makeList(b.dataset.cfList));
+ b.addEventListener("click",()=>{
+   const edit=editableReady();if(!edit)return;
+   const r=getRange(edit);
+   if(!selected.classList.contains("cf-editing"))enterEditing(selected,edit);
+   if(r && edit.contains(r.commonAncestorContainer))restoreRange(edit,r);
+   const cmd=b.dataset.cfList==="ol"?"insertOrderedList":"insertUnorderedList";
+   if(!document.execCommand(cmd,false,null))makeList(b.dataset.cfList);
+   remember();syncFormatted(edit);ribbonState();
+ });
 });
 $("cfParagraphStyle").addEventListener("change",e=>styleParagraph(e.target.value));
 bindButton("cfIndentLess",()=>changeIndent(-24));
