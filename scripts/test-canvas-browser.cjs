@@ -118,6 +118,39 @@ const html='<!doctype html><html><head><meta charset="utf-8"><style>'+css+'</sty
     assert.equal(off.selected,"Texto","Seleção foi perdida no segundo clique de "+command);
     assert.equal(await button.getAttribute("aria-pressed"),"false","Botão não voltou ao estado desligado: "+command);
   }
+  // Uma cor e um marca-texto precisam afetar só a palavra selecionada.
+  await page.locator("#cfTextColor").fill("#cc2244");
+  await page.locator("#cfHighlightColor").fill("#ffee00");
+  const colorHtml=await editable.innerHTML();
+  assert.match(colorHtml,/color:/i,"Cor da fonte não gerou estilo HTML.");
+  assert.match(colorHtml,/background-color:/i,"Marca-texto não gerou estilo HTML.");
+  assert.equal(await editable.evaluate(()=>window.getSelection().toString()),"Texto",
+    "Controles de cor perderam a seleção.");
+  await page.waitForTimeout(180);
+  assert.match(await page.locator("#previaModelo").getAttribute("srcdoc"),/background-color:/i,
+    "Marca-texto não apareceu na prévia.");
+
+  // Reproduz o caso relatado: estilos aninhados e borracha na mesma seleção.
+  await page.locator('[data-cf-format="bold"]').click();
+  await page.locator('[data-cf-format="italic"]').click();
+  await page.locator('[data-cf-format="underline"]').click();
+  await page.locator('[data-cf-format="strikeThrough"]').click();
+  await page.locator("#cfFormatReset").click();
+  const reset=await editable.evaluate(el=>({
+    html:el.innerHTML,selected:window.getSelection().toString(),
+    bold:document.queryCommandState("bold"),
+    italic:document.queryCommandState("italic"),
+    underline:document.queryCommandState("underline"),
+    strike:document.queryCommandState("strikeThrough"),
+    text:el.textContent
+  }));
+  assert.equal(reset.selected,"Texto","Borracha perdeu a seleção.");
+  assert.equal(reset.text,"Texto de homologação","Borracha mudou o conteúdo do texto.");
+  assert.equal(reset.bold||reset.italic||reset.underline||reset.strike,false,
+    "Borracha manteve um formato de caractere ativo: "+reset.html);
+  assert.doesNotMatch(reset.html,/background-color:|color:|<(strong|em|u|s|strike|b|i)([\\s>])/i,
+    "Borracha deixou estilos herdados no trecho selecionado: "+reset.html);
+  assert.equal(await page.locator('[data-cf-format="bold"]').getAttribute("aria-pressed"),"false");
   // Reposiciona o cursor como um usuário faria antes dos comandos de parágrafo.
   async function caretAtStart(){
     await editable.evaluate(el=>{
