@@ -7,8 +7,7 @@ const css=fs.readFileSync("src/main/webapp/resources/css/estilo.css","utf8");
 const ids=["cfX","cfY","cfW","cfH","cfLineOrient","cfLineColor","cfLineWeight",
 "cfTableStyle","cfTableHeader","cfSignRole","cfRemove","cfFront","cfBack",
 "cfRowPlus","cfRowMinus","cfColPlus","cfColMinus","cfTextColor","cfFontSize",
-"cfHighlightColor","cfParagraphStyle","cfFontGrow","cfFontShrink","cfFormatReset",
-"cfIndentLess","cfIndentMore"];
+"cfHighlightColor","cfParagraphStyle","cfFontGrow","cfFontShrink","cfFormatReset"];
 const inputs=ids.map(id=>'<input id="'+id+'" value="11">').join("");
 const html='<!doctype html><html><head><meta charset="utf-8"><style>'+css+'</style>'+
 '<style>body{margin:0;padding:30px;background:#fff}.cf-stage-scroll{width:900px;height:1000px}</style></head><body>'+
