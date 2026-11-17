@@ -142,8 +142,8 @@ const html='<!doctype html><html><head><meta charset="utf-8"><style>'+css+'</sty
     assert.equal(await button.getAttribute("aria-pressed"),"true","Botão não mostra alinhamento selecionado: "+kind);
   }
   await page.locator('[data-cf-align="justify"]').click();
-  assert.equal(await editable.evaluate(el=>getComputedStyle(el.querySelector("p,div,li")||el).textAlign),"start",
-    "Segundo clique em justificar deve restaurar o padrão.");
+  assert.equal(await editable.evaluate(el=>getComputedStyle(el.querySelector("p,div,li")||el).textAlign),"left",
+    "Segundo clique em justificar deve restaurar o alinhamento à esquerda.");
   for(const type of ["ul","ol"]){
     await caretAtStart();
     const button=page.locator('[data-cf-list="'+type+'"]');
