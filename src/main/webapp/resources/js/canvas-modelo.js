@@ -443,66 +443,93 @@ function applyInline(property,value){
  }
  syncFormatted(edit);
 }
+/*
+ * Formatação de parágrafo
+ *
+ * O conteúdo da folha é um contenteditable. Clicar na barra leva o foco para o
+ * botão, por isso recuperamos o intervalo (Range) salvo antes de editar.
+ * Alinhamento, listas e recuo são comandos de parágrafo: uma palavra selecionada
+ * já é suficiente para afetar o parágrafo inteiro, sem criar outro objeto A4.
+ */
+function selectionForParagraph(){
+ const edit=editableReady();if(!edit||!selected)return null;
+ const range=getRange(edit);
+ if(!selected.classList.contains("cf-editing"))enterEditing(selected,edit);
+ if(range && edit.contains(range.commonAncestorContainer)){
+   restoreRange(edit,range);
+ }else{
+   edit.focus();
+   const atEnd=document.createRange();
+   atEnd.selectNodeContents(edit);atEnd.collapse(false);
+   restoreRange(edit,atEnd);
+ }
+ return edit;
+}
 function currentParagraph(){
  const edit=editableReady();if(!edit)return null;
  const r=getRange(edit);
  let node=r?.startContainer||edit;
  if(node.nodeType===Node.TEXT_NODE)node=node.parentElement;
- const block=node?.closest?.("p,div,li,h1,h2,h3");
+ const block=node?.closest?.("p,div,li,h1,h2,h3,blockquote");
  if(block && edit.contains(block) && block!==edit)return block;
- return edit.querySelector("p,div,h1,h2,h3,li")||edit;
+ return edit.querySelector("p,div,h1,h2,h3,li,blockquote")||edit;
+}
+function executeParagraphCommand(command){
+ const edit=selectionForParagraph();if(!edit)return false;
+ const succeeded=document.execCommand(command,false,null);
+ if(succeeded){
+   remember();
+   syncFormatted(edit);
+   ribbonState();
+ }else{
+   console.warn("O navegador não executou o comando de parágrafo:",command);
+ }
+ return succeeded;
 }
 function paragraphStyle(property,value){
- const el=currentParagraph();if(!el)return;
- const current=el.style.getPropertyValue(property).trim()||
-   getComputedStyle(el).getPropertyValue(property).trim();
- if(property==="text-align" && current===value)
-   el.style.removeProperty(property);
- else el.style.setProperty(property,value);
- syncFormatted(editableReady());ribbonState();
+ if(property!=="text-align")return;
+ const commands={
+   left:"justifyLeft",center:"justifyCenter",
+   right:"justifyRight",justify:"justifyFull"
+ };
+ const command=commands[value];
+ if(!command)return;
+ const edit=selectionForParagraph();if(!edit)return;
+ // Um segundo clique no alinhamento ativo restaura o padrão (esquerda).
+ const active=document.queryCommandState(command);
+ if(document.execCommand(active && value!=="left"?"justifyLeft":command,false,null)){
+   remember();syncFormatted(edit);ribbonState();
+ }
 }
 function styleParagraph(type){
+ const edit=selectionForParagraph();if(!edit)return;
  const el=currentParagraph();if(!el)return;
  const styles={
-  normal:{size:"11pt",weight:"400",line:"1.45",spacing:"6px"},
-  title:{size:"22pt",weight:"700",line:"1.2",spacing:"12px"},
-  subtitle:{size:"14pt",weight:"400",line:"1.3",spacing:"8px"},
-  heading1:{size:"18pt",weight:"700",line:"1.25",spacing:"10px"},
-  heading2:{size:"14pt",weight:"700",line:"1.3",spacing:"8px"}
+   normal:{size:"11pt",weight:"400",line:"1.45",spacing:"6px"},
+   title:{size:"22pt",weight:"700",line:"1.2",spacing:"12px"},
+   subtitle:{size:"14pt",weight:"400",line:"1.3",spacing:"8px"},
+   heading1:{size:"18pt",weight:"700",line:"1.25",spacing:"10px"},
+   heading2:{size:"14pt",weight:"700",line:"1.3",spacing:"8px"}
  };
- const s=styles[type]||styles.normal;
- el.style.fontSize=s.size;
- el.style.fontWeight=s.weight;
- el.style.lineHeight=s.line;
- el.style.marginBottom=s.spacing;
- syncFormatted(editableReady());
+ const style=styles[type]||styles.normal;
+ el.style.fontSize=style.size;
+ el.style.fontWeight=style.weight;
+ el.style.lineHeight=style.line;
+ el.style.marginBottom=style.spacing;
+ syncFormatted(edit);ribbonState();
 }
 function makeList(type){
- const edit=editableReady(),el=currentParagraph();if(!edit||!el)return;
- const listTag=type==="ol"?"ol":"ul";
- const li=el.closest("li");
- if(li && edit.contains(li)){
-   const old=li.parentElement;
-   if(old && /^(UL|OL)$/.test(old.tagName)) {
-     if(old.tagName.toLowerCase()!==listTag){
-       const list=document.createElement(listTag);
-       while(old.firstChild)list.append(old.firstChild);
-       old.replaceWith(list);
-     }
-     syncFormatted(edit);return;
-   }
- }
- if(el===edit)return;
- const list=document.createElement(listTag),entry=document.createElement("li");
- while(el.firstChild)entry.append(el.firstChild);
- list.append(entry);el.replaceWith(list);
- syncFormatted(edit);
+ const command=type==="ol"?"insertOrderedList":"insertUnorderedList";
+ executeParagraphCommand(command);
 }
 function changeIndent(delta){
- const block=currentParagraph();if(!block)return;
- const old=parseInt(block.style.marginLeft,10)||0;
- block.style.marginLeft=Math.max(0,Math.min(192,old+delta))+"px";
- syncFormatted(editableReady());
+ const edit=selectionForParagraph();if(!edit)return;
+ const p=currentParagraph();if(!p)return;
+ // Recuo em passos de 24px. Guardamos no próprio parágrafo, não na
+ // caixa A4, para que apenas o trecho editado seja deslocado.
+ const current=parseInt(p.style.marginLeft,10)||0;
+ p.style.marginLeft=Math.max(0,Math.min(192,current+delta))+"px";
+ syncFormatted(edit);ribbonState();
 }
 function clearTextFormat(){
  const edit=editableReady();if(!edit)return;
@@ -548,9 +575,8 @@ function ribbonState(){
    button.classList.toggle("cf-format-active",pressed);
  });
  document.querySelectorAll("[data-cf-align]").forEach(button=>{
-   const p=active?currentParagraph():null;
-   const alignment=p ? getComputedStyle(p).textAlign : "";
-   const pressed=!!p && alignment===button.dataset.cfAlign;
+   const commands={left:"justifyLeft",center:"justifyCenter",right:"justifyRight",justify:"justifyFull"};
+   const pressed=active && commandState(commands[button.dataset.cfAlign]);
    button.setAttribute("aria-pressed",String(pressed));
    button.classList.toggle("cf-format-active",pressed);
  });
@@ -599,18 +625,11 @@ document.querySelectorAll("[data-cf-align]").forEach(b=>{
  b.addEventListener("mousedown",e=>e.preventDefault());
  b.addEventListener("click",()=>paragraphStyle("text-align",b.dataset.cfAlign));
 });
-document.querySelectorAll("[data-cf-list]").forEach(b=>{
- b.setAttribute("aria-pressed","false");
- b.addEventListener("mousedown",e=>e.preventDefault());
- b.addEventListener("click",()=>{
-   const edit=editableReady();if(!edit)return;
-   const r=getRange(edit);
-   if(!selected.classList.contains("cf-editing"))enterEditing(selected,edit);
-   if(r && edit.contains(r.commonAncestorContainer))restoreRange(edit,r);
-   const cmd=b.dataset.cfList==="ol"?"insertOrderedList":"insertUnorderedList";
-   if(!document.execCommand(cmd,false,null))makeList(b.dataset.cfList);
-   remember();syncFormatted(edit);ribbonState();
- });
+document.querySelectorAll("[data-cf-list]").forEach(button=>{
+ button.setAttribute("aria-pressed","false");
+ // Impede que o clique na ferramenta troque o foco do texto.
+ button.addEventListener("mousedown",event=>event.preventDefault());
+ button.addEventListener("click",()=>makeList(button.dataset.cfList));
 });
 $("cfParagraphStyle").addEventListener("change",e=>styleParagraph(e.target.value));
 bindButton("cfIndentLess",()=>changeIndent(-24));
