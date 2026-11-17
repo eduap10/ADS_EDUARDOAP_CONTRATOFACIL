@@ -13,9 +13,11 @@ const inputs=ids.map(id=>'<input id="'+id+'" value="11">').join("");
 const html='<!doctype html><html><head><meta charset="utf-8"><style>'+css+'</style>'+
 '<style>body{margin:0;padding:30px;background:#fff}.cf-stage-scroll{width:900px;height:1000px}</style></head><body>'+
 '<div class="cf-toolbar-sticky"><select id="cfFontFamily"><option>Arial</option><option>Georgia</option></select>'+inputs+
+'<button id="cfIndentLess"></button><button id="cfIndentMore"></button>'+
 '<button data-cf-format="bold"></button><button data-cf-format="italic"></button>'+
 '<button data-cf-format="underline"></button><button data-cf-format="strikeThrough"></button>'+
-'<button data-cf-align="justify"></button><button data-cf-align="left"></button>'+
+'<button data-cf-align="left"></button><button data-cf-align="center"></button>'+
+'<button data-cf-align="right"></button><button data-cf-align="justify"></button>'+
 '<button data-cf-list="ul"></button><button data-cf-list="ol"></button></div>'+
 '<div id="cfProperties" class="cf-properties" hidden><strong id="cfObjectKind"></strong>'+
 '<div data-cf-panel="text"></div><div data-cf-panel="line"></div>'+
@@ -117,11 +119,56 @@ const html='<!doctype html><html><head><meta charset="utf-8"><style>'+css+'</sty
     assert.equal(off.selected,"Texto","Seleção foi perdida no segundo clique de "+command);
     assert.equal(await button.getAttribute("aria-pressed"),"false","Botão não voltou ao estado desligado: "+command);
   }
-  const align=page.locator('[data-cf-align="justify"]');
-  await align.click();
-  assert.match(await editable.evaluate(el=>el.innerHTML),/text-align:\s*justify/i);
-  await align.click();
-  assert.doesNotMatch(await editable.evaluate(el=>el.innerHTML),/text-align:\s*justify/i);
+  // Reposiciona o cursor como um usuário faria antes dos comandos de parágrafo.
+  async function caretAtStart(){
+    await editable.evaluate(el=>{
+      const line=el.querySelector("p,div,li")||el;
+      const r=document.createRange();r.selectNodeContents(line);r.collapse(true);
+      const selection=window.getSelection();selection.removeAllRanges();selection.addRange(r);
+      el.dispatchEvent(new MouseEvent("mouseup",{bubbles:true}));
+    });
+  }
+  for(const [kind,css] of [
+    ["center","center"],["right","right"],["left","left"],["justify","justify"]
+  ]){
+    await caretAtStart();
+    const button=page.locator('[data-cf-align="'+kind+'"]');
+    await button.click();
+    const alignment=await editable.evaluate(el=>{
+      const p=el.querySelector("p,div,li")||el;
+      return getComputedStyle(p).textAlign;
+    });
+    assert.equal(alignment,css,"Alinhamento "+kind+" não foi aplicado ao parágrafo: "+await editable.innerHTML());
+    assert.equal(await button.getAttribute("aria-pressed"),"true","Botão não mostra alinhamento selecionado: "+kind);
+  }
+  await page.locator('[data-cf-align="justify"]').click();
+  assert.equal(await editable.evaluate(el=>getComputedStyle(el.querySelector("p,div,li")||el).textAlign),"start",
+    "Segundo clique em justificar deve restaurar o padrão.");
+  for(const type of ["ul","ol"]){
+    await caretAtStart();
+    const button=page.locator('[data-cf-list="'+type+'"]');
+    await button.click();
+    assert.equal(await editable.locator(type+">li").count(),1,
+      "Lista "+type+" não foi inserida no editor.");
+    assert.equal(await button.getAttribute("aria-pressed"),"true",
+      "A lista "+type+" não marcou estado ativo.");
+    await button.click();
+    assert.equal(await editable.locator(type).count(),0,
+      "Segundo clique deve retirar a lista "+type+".");
+  }
+  await caretAtStart();
+  const indent=page.locator("#cfIndentMore");
+  await indent.click();
+  assert.equal(await editable.evaluate(el=>
+    parseInt((el.querySelector("p,div,li")||el).style.marginLeft,10)),24,"Recuo +24px falhou.");
+  await indent.click();
+  assert.equal(await editable.evaluate(el=>
+    parseInt((el.querySelector("p,div,li")||el).style.marginLeft,10)),48,"Segundo recuo falhou.");
+  await page.locator("#cfIndentLess").click();
+  assert.equal(await editable.evaluate(el=>
+    parseInt((el.querySelector("p,div,li")||el).style.marginLeft,10)),24,"Redução do recuo falhou.");
+  // Não basta mudar o canvas: o HTML usado na prévia também deve conservar os atributos.
+  assert.match(await editable.innerHTML(),/margin-left:\s*24px/);
   // Salvar/reabrir após alternar não deve ressuscitar estilos desligados.
   const saved=await page.evaluate(()=>{window.CFCanvas.salvar();return document.getElementById("form:conteudo").value;});
   assert(saved.startsWith("CFCANVAS1\n"));
