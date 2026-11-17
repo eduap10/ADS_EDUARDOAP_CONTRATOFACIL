@@ -121,6 +121,8 @@ const html='<!doctype html><html><head><meta charset="utf-8"><style>'+css+'</sty
   // Uma cor e um marca-texto precisam afetar só a palavra selecionada.
   await page.locator("#cfTextColor").fill("#cc2244");
   await page.locator("#cfHighlightColor").fill("#ffee00");
+  // Em inputs de texto do fixture, change só dispara quando o foco sai.
+  await page.locator("#cfHighlightColor").press("Tab");
   const colorHtml=await editable.innerHTML();
   assert.match(colorHtml,/color:/i,"Cor da fonte não gerou estilo HTML.");
   assert.match(colorHtml,/background-color:/i,"Marca-texto não gerou estilo HTML.");
