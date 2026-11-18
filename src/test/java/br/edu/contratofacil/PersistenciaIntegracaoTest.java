@@ -42,6 +42,33 @@ class PersistenciaIntegracaoTest {
             java.time.ZoneId.of("America/Sao_Paulo")).getYear())), ano);
     }
 
+    @Test void previaModeloCanvasSemColaboradorMostraFolhaNaoProtocolo() throws Exception {
+        Assumptions.assumeTrue("true".equals(System.getenv("RUN_DB_INTEGRATION")));
+        List<TipoContrato> tipos = new TipoContratoDAO().listar(true);
+        assertFalse(tipos.isEmpty());
+        ModeloContrato modelo = new ModeloContrato();
+        modelo.setTitulo("Prévia sem colaborador");
+        modelo.setTipoId(tipos.get(0).getId());
+        String texto = "<p>Contrato de {{colaborador.nome}}</p>";
+        String codificado = java.util.Base64.getEncoder().encodeToString(
+            texto.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        modelo.setConteudo(br.edu.contratofacil.service.CanvasDocumentoService.CABECALHO
+            + "T|20|20|450|110|" + codificado + "\n");
+        ModeloContratoDAO dao = new ModeloContratoDAO();
+        dao.salvar(modelo);
+        try {
+            var bean = new br.edu.contratofacil.bean.ContratoBean();
+            bean.getEdicao().setTipoId(modelo.getTipoId());
+            bean.getEdicao().setModeloId(modelo.getId());
+            bean.atualizarPrevia();
+            assertTrue(bean.getHtmlPrevia().contains("cf-canvas-documento"),
+                "Prévia precisa mostrar a folha visual em vez do protocolo CFCANVAS1.");
+            assertFalse(bean.getHtmlPrevia().startsWith("CFCANVAS1"));
+        } finally {
+            dao.excluir(modelo.getId());
+        }
+    }
+
     @Test void criaModeloEGeraContratoComTipoEColaborador() throws Exception {
         Assumptions.assumeTrue("true".equals(System.getenv("RUN_DB_INTEGRATION")),
                 "Teste de banco executado somente no job PostgreSQL da integração.");
