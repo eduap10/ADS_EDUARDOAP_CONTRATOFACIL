@@ -151,6 +151,41 @@ class CanvasDocumentoServiceTest {
             DocumentoService.sanitizar(prefixo+"image/jpeg|"+PNG_2X2+"\n"));
     }
 
+    @Test void simulaCaixasA4ComCoordenadasLimitesETextoAcentuado() {
+        // Casos reproduzíveis com semente fixa: testa canto da folha, tamanho,
+        // Unicode, tags, reabertura e rejeição de elementos fora da página.
+        java.util.Random sorteio = new java.util.Random(20261118L);
+        for (int i = 0; i < 160; i++) {
+            int largura = 20 + sorteio.nextInt(623);
+            int altura = 10 + sorteio.nextInt(898);
+            int x = sorteio.nextInt(643 - largura);
+            int y = sorteio.nextInt(908 - altura);
+            String texto = "<p>Edição " + i + ": cláusula áéíóú, R$ 100,00, 😀 "
+                + "<strong>{{colaborador.nome}}</strong></p>";
+            String campos = "|" + y + "|" + largura + "|" + altura + "|" + b64(texto) + "\n";
+            String valido = CanvasDocumentoService.CABECALHO + "T|" + x + campos;
+            String salvo = DocumentoService.sanitizar(valido);
+            assertEquals(salvo, DocumentoService.sanitizar(salvo), "Round-trip " + i);
+            String exibido = DocumentoService.preencher(salvo, pessoa());
+            assertTrue(exibido.contains("cf-canvas-documento"), "Prévia " + i);
+            assertTrue(org.jsoup.Jsoup.parseBodyFragment(exibido).text().contains("Maria Teste"),
+                "Preenchimento das tags " + i);
+            int xForaDaFolha = 643 - largura;
+            String invalido = CanvasDocumentoService.CABECALHO + "T|" + xForaDaFolha + campos;
+            assertThrows(IllegalArgumentException.class, () -> DocumentoService.sanitizar(invalido),
+                "Limite horizontal do elemento " + i);
+        }
+    }
+
+    @Test void rejeitaImagemComCabecalhoPngMasSemImagemReal() {
+        // Só os oito bytes da assinatura PNG não constituem um arquivo decodificável.
+        byte[] falso = new byte[]{(byte) 0x89, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 0};
+        String documento = CanvasDocumentoService.CABECALHO
+            + "I|0|0|100|100|image/png|" + Base64.getEncoder().encodeToString(falso) + "\n";
+        assertThrows(IllegalArgumentException.class, () -> DocumentoService.sanitizar(documento),
+            "Imagens malformadas devem ser bloqueadas ao salvar, não apenas na exportação.");
+    }
+
     @Test void paragrafosListasERecuoSobrevivemAoSalvarEPreencher() {
         // A edição é visual, mas o servidor precisa manter apenas HTML permitido.
         String html = "<p style=\"text-align:right;margin-left:24px;\">"

@@ -94,7 +94,10 @@ public class ContratoBean implements Serializable {
             Colaborador colaborador = edicao.getColaboradorId() == null
                 ? null : new ColaboradorDAO().buscar(edicao.getColaboradorId());
             if (colaborador == null) {
-                htmlPrevia = DocumentoService.sanitizar(conteudo);
+                // O conteúdo de um canvas é um protocolo de armazenamento, não HTML.
+                // Mesmo sem ficha selecionada, renderizamos a folha com os campos
+                // ainda não informados, em vez de exibir "CFCANVAS1" na tela.
+                htmlPrevia = DocumentoService.preencher(conteudo, null);
             } else {
                 htmlPrevia = DocumentoService.preencher(conteudo, colaborador,
                         new ConfiguracaoDocumentoDAO().buscarLogo(),

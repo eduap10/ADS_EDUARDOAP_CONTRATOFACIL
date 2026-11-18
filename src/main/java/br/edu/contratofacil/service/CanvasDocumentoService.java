@@ -2,7 +2,12 @@ package br.edu.contratofacil.service;
 
 import br.edu.contratofacil.model.Colaborador;
 import java.nio.charset.StandardCharsets;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.*;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 import org.jsoup.nodes.Entities;
 
 /**
@@ -67,6 +72,28 @@ public final class CanvasDocumentoService {
             (bytes[2]&255)==255&&(bytes[bytes.length-2]&255)==255&&(bytes[bytes.length-1]&255)==217;
         if(!("image/png".equals(tipo) && png || "image/jpeg".equals(tipo) && jpeg))
             throw new IllegalArgumentException("Assinatura de imagem PNG/JPEG inválida.");
+        // Só validar a assinatura permite salvar imagens truncadas e descobrir
+        // o problema apenas na emissão do PDF/Word. Decodificamos com ImageIO
+        // antes de persistir e limitamos as dimensões para evitar uso excessivo de memória.
+        try (ImageInputStream entrada = ImageIO.createImageInputStream(new ByteArrayInputStream(bytes))) {
+            if (entrada == null) throw new IllegalArgumentException("Imagem ilegível.");
+            Iterator<ImageReader> leitores = ImageIO.getImageReaders(entrada);
+            if (!leitores.hasNext()) throw new IllegalArgumentException("Imagem ilegível.");
+            ImageReader leitor = leitores.next();
+            try {
+                leitor.setInput(entrada, true, true);
+                int largura = leitor.getWidth(0), altura = leitor.getHeight(0);
+                if (largura < 1 || altura < 1 || largura > 4096 || altura > 4096
+                        || (long) largura * altura > 16_000_000L)
+                    throw new IllegalArgumentException("Dimensões da imagem inválidas.");
+                if (leitor.read(0) == null)
+                    throw new IllegalArgumentException("Imagem sem dados decodificáveis.");
+            } finally {
+                leitor.dispose();
+            }
+        } catch (IOException | RuntimeException e) {
+            throw new IllegalArgumentException("Imagem PNG/JPEG inválida ou corrompida.", e);
+        }
         return bytes;
     }
 

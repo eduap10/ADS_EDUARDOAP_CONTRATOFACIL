@@ -4,6 +4,7 @@ import br.edu.contratofacil.model.Colaborador;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.function.Function;
  * Não usa reflection nem permite expressões ou SQL definidas pelo usuário.
  */
 public final class CatalogoCampos {
+    private static final ZoneId FUSO_DOCUMENTO = ZoneId.of("America/Sao_Paulo");
     private CatalogoCampos() { }
 
     public static final class Campo {
@@ -78,10 +80,10 @@ public final class CatalogoCampos {
         campo("colaborador.centroCustoCodigo", "Código do centro de custo", "Dados contratuais", "Código do centro de custo vinculado ao colaborador.", "CC-101", Colaborador::getCentroCustoCodigo),
         campo("colaborador.centroCustoDescricao", "Descrição do centro de custo", "Dados contratuais", "Nome/descrição do centro de custo.", "Administrativo", Colaborador::getCentroCustoDescricao),
         campo("colaborador.salario", "Salário", "Dados contratuais", "Salário cadastrado, exibido em reais.", "R$ 3.250,00", c -> moeda(c.getSalario())),
-        campo("documento.dataAtual", "Data atual", "Documento", "Data de geração do documento; não vem da ficha.", "15/11/2026", c -> data(LocalDate.now())),
-        campo("documento.horaAtual", "Hora atual", "Documento", "Hora local de geração em Brasília.", "15:30", c -> java.time.LocalTime.now(java.time.ZoneId.of("America/Sao_Paulo")).format(DateTimeFormatter.ofPattern("HH:mm"))),
-        campo("documento.dataHoraAtual", "Data e hora", "Documento", "Data e hora de geração em Brasília.", "15/11/2026 15:30", c -> java.time.ZonedDateTime.now(java.time.ZoneId.of("America/Sao_Paulo")).format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))),
-        campo("documento.anoAtual", "Ano atual", "Documento", "Ano corrente.", "2026", c -> Integer.toString(LocalDate.now().getYear())),
+        campo("documento.dataAtual", "Data atual", "Documento", "Data de geração do documento; não vem da ficha.", "15/11/2026", c -> data(LocalDate.now(FUSO_DOCUMENTO))),
+        campo("documento.horaAtual", "Hora atual", "Documento", "Hora local de geração em Brasília.", "15:30", c -> java.time.LocalTime.now(FUSO_DOCUMENTO).format(DateTimeFormatter.ofPattern("HH:mm"))),
+        campo("documento.dataHoraAtual", "Data e hora", "Documento", "Data e hora de geração em Brasília.", "15/11/2026 15:30", c -> java.time.ZonedDateTime.now(FUSO_DOCUMENTO).format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))),
+        campo("documento.anoAtual", "Ano atual", "Documento", "Ano corrente.", "2026", c -> Integer.toString(LocalDate.now(FUSO_DOCUMENTO).getYear())),
         campo("documento.assinatura", "Linha de assinatura", "Documento", "Insere uma linha para assinatura manual com o nome do colaborador. Não é assinatura digital.", "____________ Assinatura de Ana Silva", c -> "________________________________________ Assinatura de " + valor(c == null ? null : c.getNome())),
         campo("empresa.logo", "Logo da empresa", "Documento", "Coloca o logo cadastrado em Configurar logo. Se não houver imagem, mostra aviso.", "[Logo da empresa]", c -> "[empresa.logo não informado]")
     );

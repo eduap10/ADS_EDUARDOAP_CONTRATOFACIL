@@ -22,6 +22,24 @@ class DocumentoServiceTest {
         return c;
     }
 
+    @Test void tagsDeDataNaoDependemDoFusoHorarioDoServidor() {
+        // Um Tomcat pode estar em UTC ou noutro fuso: a data contratual usa Brasília.
+        java.util.TimeZone original = java.util.TimeZone.getDefault();
+        try {
+            java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone("Pacific/Kiritimati"));
+            var primeira = br.edu.contratofacil.service.CatalogoCampos.valores(null);
+            java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone("Etc/GMT+12"));
+            var segunda = br.edu.contratofacil.service.CatalogoCampos.valores(null);
+            for (String chave : new String[]{"documento.dataAtual", "documento.anoAtual",
+                    "documento.horaAtual", "documento.dataHoraAtual"}) {
+                assertEquals(primeira.get(chave), segunda.get(chave),
+                    "Tag variou ao mudar apenas o fuso do servidor: " + chave);
+            }
+        } finally {
+            java.util.TimeZone.setDefault(original);
+        }
+    }
+
     @Test void substituiTagsSemExecutarHtmlDoColaborador() {
         String html = DocumentoService.preencher(
             "<p><strong>{{colaborador.nome}}</strong> - {{colaborador.cargo}}</p>", colaborador());
