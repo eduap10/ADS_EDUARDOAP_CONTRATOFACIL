@@ -151,6 +151,15 @@ class CanvasDocumentoServiceTest {
             DocumentoService.sanitizar(prefixo+"image/jpeg|"+PNG_2X2+"\n"));
     }
 
+    @Test void rejeitaImagemComCabecalhoPngMasSemImagemReal() {
+        // Só os oito bytes da assinatura PNG não constituem um arquivo decodificável.
+        byte[] falso = new byte[]{(byte) 0x89, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 0};
+        String documento = CanvasDocumentoService.CABECALHO
+            + "I|0|0|100|100|image/png|" + Base64.getEncoder().encodeToString(falso) + "\n";
+        assertThrows(IllegalArgumentException.class, () -> DocumentoService.sanitizar(documento),
+            "Imagens malformadas devem ser bloqueadas ao salvar, não apenas na exportação.");
+    }
+
     @Test void paragrafosListasERecuoSobrevivemAoSalvarEPreencher() {
         // A edição é visual, mas o servidor precisa manter apenas HTML permitido.
         String html = "<p style=\"text-align:right;margin-left:24px;\">"
