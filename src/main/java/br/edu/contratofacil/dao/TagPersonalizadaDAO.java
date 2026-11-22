@@ -46,27 +46,38 @@ public class TagPersonalizadaDAO {
                 && (tag.getValorFixo() == null || tag.getValorFixo().length() > 500))
             throw new SQLException("Informe o texto fixo (até 500 caracteres).", "22023");
         boolean novo = tag.getId() == null;
+        // Depois do primeiro cadastro, a chave integra o texto dos modelos.
+        // Alterá-la quebraria as referências antigas. A condição no UPDATE
+        // protege o código também contra requisições HTTP manipuladas.
         String sql = novo
             ? "INSERT INTO public.tags_personalizadas(codigo,nome,descricao,tipo,referencia,valor_fixo,ativo) "
               + "VALUES(?,?,?,?,?,?,?) RETURNING id"
-            : "UPDATE public.tags_personalizadas SET codigo=?,nome=?,descricao=?,tipo=?,referencia=?,"
-              + "valor_fixo=?,ativo=? WHERE id=?";
+            : "UPDATE public.tags_personalizadas SET nome=?,descricao=?,tipo=?,referencia=?,"
+              + "valor_fixo=?,ativo=? WHERE id=? AND codigo=?";
         try (Connection c = Conexao.abrir(); PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setString(1, tag.getCodigo());
-            ps.setString(2, tag.getNome().strip());
-            ps.setString(3, tag.getDescricao());
-            ps.setString(4, tag.getTipo());
-            ps.setString(5, tag.getReferencia());
-            ps.setString(6, tag.getValorFixo());
-            ps.setBoolean(7, tag.isAtivo());
             if (novo) {
-                try(ResultSet rs = ps.executeQuery()) {
+                ps.setString(1, tag.getCodigo());
+                ps.setString(2, tag.getNome().strip());
+                ps.setString(3, tag.getDescricao());
+                ps.setString(4, tag.getTipo());
+                ps.setString(5, tag.getReferencia());
+                ps.setString(6, tag.getValorFixo());
+                ps.setBoolean(7, tag.isAtivo());
+                try (ResultSet rs = ps.executeQuery()) {
                     if (!rs.next()) throw new SQLException("A tag não foi criada.");
                     tag.setId(rs.getLong(1));
                 }
             } else {
-                ps.setLong(8, tag.getId());
-                if (ps.executeUpdate() == 0) throw new SQLException("Tag não encontrada.", "02000");
+                ps.setString(1, tag.getNome().strip());
+                ps.setString(2, tag.getDescricao());
+                ps.setString(3, tag.getTipo());
+                ps.setString(4, tag.getReferencia());
+                ps.setString(5, tag.getValorFixo());
+                ps.setBoolean(6, tag.isAtivo());
+                ps.setLong(7, tag.getId());
+                ps.setString(8, tag.getCodigo());
+                if (ps.executeUpdate() == 0)
+                    throw new SQLException("Tag não encontrada ou código alterado. A chave é permanente.", "22023");
             }
         }
     }
