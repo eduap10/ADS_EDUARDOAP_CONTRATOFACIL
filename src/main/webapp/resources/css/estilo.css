@@ -395,3 +395,36 @@ label { color: #34465c; font-size: .9rem; }
  outline:2px solid #1268aa;
  outline-offset:2px;
 }
+
+/* Acabamento discreto: mantém o PrimeFaces e a folha A4 como centro da tela.
+ * A prioridade é facilitar leitura, navegação por teclado e dispositivos menores. */
+:root{--cf-foco:#1476bd;--cf-suave:#eaf4fd}
+nav a:focus-visible,.form-sair a:focus-visible,
+.link-acao:focus-visible,.link-acao-subtil:focus-visible,
+.cf-toolkit button:focus-visible,.cf-properties button:focus-visible,
+.cf-toolbar-sticky select:focus-visible,.cf-toolbar-sticky input:focus-visible,
+.cf-toolbar-sticky button:focus-visible{
+ outline:2px solid var(--cf-foco);outline-offset:3px;
+}
+.cf-toolkit button,.cf-properties button,.link-acao,.link-acao-subtil,
+.cf-toolbar-sticky button.cf-mini-icon{
+ transition:background-color .15s ease,border-color .15s ease,box-shadow .15s ease;
+}
+.cf-toolkit button:active,.cf-properties button:active{background:var(--cf-suave)}
+.cf-toolbar-sticky:focus-within{border-color:#99bdda;box-shadow:0 3px 14px #123c611b}
+.cf-word-ribbon button[aria-pressed="true"]{font-weight:700}
+.cf-canvas-obj.cf-editing .cf-edit-table [contenteditable="true"]:focus-visible{
+ outline:2px solid #1476bd;outline-offset:-2px;background:#eff8ff;
+}
+@media(max-width:640px){
+ .cf-toolkit{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+ .cf-toolkit button{min-width:0;min-height:40px}
+ .cf-toolbar-sticky{padding:7px;margin:10px 0}
+ .cf-toolbar-sticky .cf-word-ribbon{gap:5px}
+ .cf-ribbon-group{max-width:100%}
+ .cf-stage-scroll{scrollbar-gutter:stable}
+}
+@media(prefers-reduced-motion:reduce){
+ .cf-toolkit button,.cf-properties button,.link-acao,.link-acao-subtil,
+ .cf-toolbar-sticky button.cf-mini-icon{transition:none}
+}
