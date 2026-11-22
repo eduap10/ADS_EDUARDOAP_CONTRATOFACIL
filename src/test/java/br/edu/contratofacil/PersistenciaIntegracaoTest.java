@@ -42,6 +42,45 @@ class PersistenciaIntegracaoTest {
             java.time.ZoneId.of("America/Sao_Paulo")).getYear())), ano);
     }
 
+    @Test void naoPermiteAlterarCodigoDeTagJaUsadaEmModelo() throws Exception {
+        Assumptions.assumeTrue("true".equals(System.getenv("RUN_DB_INTEGRATION")));
+        TagPersonalizada tag = new TagPersonalizada();
+        String codigo = "ci_" + Long.toString(System.nanoTime(), 36);
+        tag.setCodigo(codigo);
+        tag.setNome("Tag para conferir identificador");
+        tag.setTipo("TEXTO_FIXO");
+        tag.setValorFixo("Teste");
+        TagPersonalizadaDAO dao = new TagPersonalizadaDAO();
+        dao.salvar(tag);
+        try {
+            // O navegador desabilita o campo, mas uma requisição forjada
+            // poderia tentar alterá-lo: a regra deve existir também no DAO.
+            tag.setCodigo("outra_" + codigo);
+            tag.setNome("Nome que não pode ser salvo");
+            var erro = assertThrows(java.sql.SQLException.class, () -> dao.salvar(tag));
+            assertEquals("22023", erro.getSQLState());
+            try (var conexao = br.edu.contratofacil.db.Conexao.abrir();
+                 var consulta = conexao.prepareStatement(
+                     "SELECT codigo,nome FROM public.tags_personalizadas WHERE id=?")) {
+                consulta.setLong(1, tag.getId());
+                try (var resultado = consulta.executeQuery()) {
+                    assertTrue(resultado.next());
+                    assertEquals(codigo, resultado.getString("codigo"));
+                    assertEquals("Tag para conferir identificador", resultado.getString("nome"));
+                }
+            }
+            tag.setCodigo(codigo);
+            tag.setNome("Nome editado normalmente");
+            dao.salvar(tag);
+        } finally {
+            try (var conexao = br.edu.contratofacil.db.Conexao.abrir();
+                 var delete = conexao.prepareStatement("DELETE FROM public.tags_personalizadas WHERE id=?")) {
+                delete.setLong(1, tag.getId());
+                delete.executeUpdate();
+            }
+        }
+    }
+
     @Test void previaModeloCanvasSemColaboradorMostraFolhaNaoProtocolo() throws Exception {
         Assumptions.assumeTrue("true".equals(System.getenv("RUN_DB_INTEGRATION")));
         List<TipoContrato> tipos = new TipoContratoDAO().listar(true);

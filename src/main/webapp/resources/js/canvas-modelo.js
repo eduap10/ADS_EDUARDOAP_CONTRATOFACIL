@@ -130,7 +130,11 @@ function choose(el){
  }
  selected=el;if(selected){
   selected.classList.add("cf-selected");
-  focusEditable=selected.cf.tipo==="text"?selected.querySelector(".cf-texto"):
+  // Se o foco veio de uma célula específica, não devemos voltar para a primeira.
+  // Recalcular a célula em todos os cliques fazia a formatação atingir outro local.
+  const focoNoObjeto=focusEditable?.isConnected && selected.contains(focusEditable);
+  focusEditable=focoNoObjeto?focusEditable:
+   selected.cf.tipo==="text"?selected.querySelector(".cf-texto"):
    selected.cf.tipo==="table"?selected.querySelector(".cf-edit-table td,.cf-edit-table th"):null;
  }
  toolbar();
