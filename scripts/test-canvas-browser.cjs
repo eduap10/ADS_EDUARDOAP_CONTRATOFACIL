@@ -84,6 +84,26 @@ const html='<!doctype html><html><head><meta charset="utf-8"><style>'+css+'</sty
   assert.equal(await page.locator(".cf-obj-line").count(),2,"Ctrl+D não duplicou.");
   await page.keyboard.press("Backspace");
   assert.equal(await page.locator(".cf-obj-line").count(),1,"Backspace não apagou cópia.");
+  // Regression: ao selecionar a segunda célula de uma tabela, a barra
+  // deve editar aquela célula, e não saltar silenciosamente para a primeira.
+  await page.locator('[data-cf-add="table"]').click();
+  const grade=page.locator(".cf-obj-table").last();
+  await grade.dblclick();
+  const celulas=grade.locator(".cf-edit-table td,.cf-edit-table th");
+  await celulas.nth(0).evaluate(el=>el.textContent="Primeira célula");
+  await celulas.nth(1).evaluate(el=>{
+    el.textContent="Segunda célula";
+    el.focus();
+    const range=document.createRange();range.selectNodeContents(el);
+    const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);
+    el.dispatchEvent(new MouseEvent("mouseup",{bubbles:true}));
+  });
+  await page.locator("#cfTextColor").fill("#2244cc");
+  await page.locator("#cfTextColor").press("Tab");
+  assert.match(await celulas.nth(1).innerHTML(),/color:/i,
+    "A formatação deve ser aplicada à segunda célula em foco.");
+  assert.doesNotMatch(await celulas.nth(0).innerHTML(),/color:/i,
+    "A formatação foi aplicada na primeira célula por engano.");
   // Texto real selecionado: clicar duas vezes deve ativar e depois desativar.
   await page.locator('[data-cf-add="text"]').click();
   const textBox=page.locator(".cf-obj-text").last();
