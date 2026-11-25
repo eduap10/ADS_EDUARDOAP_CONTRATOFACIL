@@ -27,7 +27,9 @@ const html='<!doctype html><html><head><meta charset="utf-8"><style>'+css+'</sty
  '<select id="cfLayers"></select><input id="cfUseBackground" type="checkbox"><button id="cfFitBackground">Ajustar fundo</button>'+
 '<div class="cf-stage-scroll"><div id="cfCanvas" class="cf-canvas-stage" tabindex="0"></div></div>'+
 '<input id="form:conteudo" type="hidden">'+
-'<div id="catalogoCampos"><div id="listaCampos"></div></div>'+
+'<div id="catalogoCampos"><div id="listaCampos"><section class="grupo-catalogo">'+
+ '<button type="button" draggable="true" class="botao-campo" data-tag="{{colaborador.nome}}" data-exemplo="Ana Silva" data-grupo="Identificação" data-descricao="Nome completo"><span class="nome-campo">Nome completo</span></button>'+
+ '<button type="button" draggable="true" class="botao-campo" data-tag="{{personalizada.teste}}" data-exemplo="Valor especial" data-grupo="Personalizados" data-descricao="Tag de teste"><span class="nome-campo">Minha tag de teste</span></button></section></div></div>'+
 '<input id="buscaCampo"><input id="grupoCampo"><div id="contadorCampos"></div><div id="descricaoCampo"></div>'+
 '<button id="modoExemplo"></button><button id="modoTags"></button>'+
 '<iframe id="previaModelo"></iframe><div id="cfSaveWarning"></div>'+
@@ -302,6 +304,35 @@ const html='<!doctype html><html><head><meta charset="utf-8"><style>'+css+'</sty
   assert.equal(await ui.locator(".folha-a4").evaluate(el=>getComputedStyle(el).backgroundColor),"rgb(255, 255, 255)");
   await ui.close();
   console.log("UI: contraste, persistência do tema, largura móvel, calendário e folha branca verificados.");
+  // Arrastar um campo real deve preservar o identificador original, inclusive
+  // na reabertura e na prévia preenchida. A etiqueta não é enviada ao Java.
+  const campos=await browser.newPage({viewport:{width:1280,height:1100}});
+  campos.on("pageerror",e=>failures.push(e.message));
+  await campos.setContent(initial("CFCANVAS1\nT|35|40|530|130|"+Buffer.from("<p>Nome: </p>").toString("base64")+"\n"));
+  const nome=campos.locator('.botao-campo[data-tag="{{colaborador.nome}}"]');
+  const edit=campos.locator(".cf-obj-text .cf-texto").first();
+  await nome.dragTo(edit,{targetPosition:{x:90,y:25}});
+  assert.equal(await edit.locator(".cf-tag-chip").count(),1);
+  assert.equal(await edit.locator(".cf-tag-chip").getAttribute("data-label"),"Nome completo");
+  assert.equal(await edit.locator(".cf-tag-key").textContent(),"{{colaborador.nome}}");
+  const extra=campos.locator('.botao-campo[data-tag="{{personalizada.teste}}"]');
+  await extra.dragTo(campos.locator("#cfCanvas"),{targetPosition:{x:180,y:440}});
+  assert.equal(await campos.locator(".cf-obj-text").count(),2);
+  assert.equal(await campos.locator(".cf-tag-chip[data-cf-tag='{{personalizada.teste}}']").count(),1);
+  await nome.click();
+  assert.equal(await campos.locator(".cf-tag-chip").count(),3,"Clique deixou de inserir tag.");
+  const registro=await campos.evaluate(()=>{window.CFCanvas.salvar();return document.getElementById("form:conteudo").value;});
+  const decodificado=registro.split("\n").filter(l=>l.startsWith("T|")).map(l=>Buffer.from(l.split("|")[5],"base64").toString("utf8")).join(" ");
+  assert.match(decodificado,/\{\{colaborador.nome\}\}/);
+  assert.match(decodificado,/\{\{personalizada.teste\}\}/);
+  assert.doesNotMatch(decodificado,/cf-tag-chip|data-cf-tag|cf-tag-key/);
+  await campos.waitForTimeout(200);
+  const previa=await campos.locator("#previaModelo").getAttribute("srcdoc");
+  assert.match(previa,/Ana Silva/);assert.match(previa,/Valor especial/);
+  await campos.setContent(initial(registro));
+  assert.equal(await campos.locator(".cf-tag-chip").count(),3);
+  await campos.close();
+  console.log("Campos: arrastar, clique, etiquetas, prévia e reabertura aprovados.");
   assert.equal(failures.length,0,failures.join("; "));
   console.log("Chrome: mouse, 8 alças, Delete, Backspace, setas, Shift+setas, Ctrl+D e Ctrl+Z aprovados.");
  }finally{await browser.close();}

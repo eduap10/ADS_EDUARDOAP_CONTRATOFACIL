@@ -21,7 +21,7 @@ function dec(txt){return new TextDecoder().decode(Uint8Array.from(atob(txt),c=>c
  function etiqueta(tag){
   const campo=campoTag(tag);if(!campo)return document.createTextNode(tag);
   const chip=document.createElement("span");chip.className="cf-tag-chip";chip.dataset.cfTag=tag;
-  chip.dataset.label=campo.querySelector(".nome-campo")?.textContent.trim()||tag;
+  chip.dataset.label=campo.querySelector(".nome-campo")?.textContent.trim()||campo.textContent.trim()||tag;
   chip.title=chip.dataset.label+" · "+tag;chip.contentEditable="false";chip.setAttribute("aria-label",chip.dataset.label);
   const key=document.createElement("span");key.className="cf-tag-key";key.textContent=tag;chip.append(key);return chip;
  }

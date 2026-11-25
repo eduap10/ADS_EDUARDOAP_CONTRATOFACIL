@@ -27,7 +27,7 @@ function fixture(initial){
    +'<button id="modoExemplo"></button><button id="modoTags"></button>'
    +'<input id="buscaCampo"><input id="grupoCampo">'
    +'<div id="catalogoCampos"><div id="listaCampos">'
-   +'<section class="grupo-catalogo"><button class="botao-campo" data-tag="{{colaborador.nome}}" data-exemplo="Ana Teste" data-grupo="Identificação" data-descricao="Nome">Nome</button></section>'
+   +'<section class="grupo-catalogo"><button class="botao-campo" data-tag="{{colaborador.nome}}" data-exemplo="Ana Teste" data-grupo="Identificação" data-descricao="Nome"><span class="nome-campo">Nome</span></button></section>'
    +'</div></div><div id="contadorCampos"></div><div id="descricaoCampo"></div>'
    +'<iframe id="previaModelo"></iframe><div id="cfSaveWarning"></div>'
    +'</body></html>';
