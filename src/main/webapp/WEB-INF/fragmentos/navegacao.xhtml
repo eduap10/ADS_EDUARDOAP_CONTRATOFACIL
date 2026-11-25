@@ -1,0 +1,18 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="jakarta.faces.facelets" xmlns:h="jakarta.faces.html">
+<!-- Fragmento compartilhado: uma alteração de navegação vale para todas as páginas. -->
+<header class="cf-sidebar">
+<div class="cf-brand"><span class="cf-brand-icon"><i class="pi pi-file" aria-hidden="true"></i></span><div><h1>ContratoFácil</h1><small>Gestão de documentos</small></div></div>
+<nav aria-label="Menu principal">
+<span class="cf-nav-label">Área de trabalho</span>
+<h:link outcome="/index.xhtml" styleClass="#{cfSecao eq 'inicio' ? 'cf-nav-active' : ''}"><i class="pi pi-home" aria-hidden="true"></i><h:outputText value="Visão geral"/></h:link>
+<h:link outcome="/colaboradores.xhtml" styleClass="#{cfSecao eq 'colaboradores' ? 'cf-nav-active' : ''}"><i class="pi pi-users" aria-hidden="true"></i><h:outputText value="Colaboradores"/></h:link>
+<h:link outcome="/contratos.xhtml" styleClass="#{cfSecao eq 'contratos' ? 'cf-nav-active' : ''}"><i class="pi pi-file" aria-hidden="true"></i><h:outputText value="Contratos"/></h:link>
+<h:link outcome="/modelos.xhtml" styleClass="#{cfSecao eq 'modelos' ? 'cf-nav-active' : ''}"><i class="pi pi-file-edit" aria-hidden="true"></i><h:outputText value="Modelos de documentos"/></h:link>
+<span class="cf-nav-label">Organização</span>
+<h:link outcome="/tipos.xhtml" styleClass="#{cfSecao eq 'tipos' ? 'cf-nav-active' : ''}"><i class="pi pi-folder" aria-hidden="true"></i><h:outputText value="Tipos de contrato"/></h:link>
+<h:link outcome="/tags.xhtml" styleClass="#{cfSecao eq 'tags' ? 'cf-nav-active' : ''}"><i class="pi pi-tags" aria-hidden="true"></i><h:outputText value="Tags personalizadas"/></h:link>
+<h:link outcome="/configuracao-documento.xhtml" styleClass="#{cfSecao eq 'configuracoes' ? 'cf-nav-active' : ''}"><i class="pi pi-cog" aria-hidden="true"></i><h:outputText value="Configuração de logo"/></h:link>
+<h:form id="formSair" styleClass="form-sair"><h:commandLink action="#{loginBean.sair}"><i class="pi pi-sign-out" aria-hidden="true"></i><h:outputText value="Sair"/></h:commandLink></h:form>
+</nav>
+</header>
+</ui:composition>
