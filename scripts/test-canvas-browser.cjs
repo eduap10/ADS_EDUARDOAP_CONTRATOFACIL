@@ -273,6 +273,35 @@ const html='<!doctype html><html><head><meta charset="utf-8"><style>'+css+'</sty
   assert.equal(await reaberto.locator(".cf-background").evaluate(el=>getComputedStyle(el).pointerEvents),"none");
   await reaberto.close();await folha.close();
 
+  // Reutiliza CSS e JS reais com marcação representativa do PrimeFaces.
+  // O servidor JSF não é iniciado neste teste; a integração HTTP é separada.
+  const tema=fs.readFileSync("src/main/webapp/resources/js/tema.js","utf8");
+  const ui=await browser.newPage({viewport:{width:1280,height:800},colorScheme:"light"});
+  ui.on("pageerror",e=>failures.push(e.message));
+  const mock='<!doctype html><html><head><style>'+css+'</style><script>'+tema+'</script></head><body class="cf-auth"><main class="cf-auth-shell"><aside class="cf-auth-brand">ContratoFácil</aside><section class="cf-auth-main"><div class="cf-auth-top"><button type="button" data-cf-theme-toggle="true"><span class="cf-theme-label"></span></button></div><div class="acesso"><section class="painel cf-auth-card"><h2>Entrar</h2><button class="ui-button botao-acesso" type="submit"><span class="ui-button-text">Entrar</span></button></section></div></section></main></body></html>';
+  await ui.route("http://cf-test.local/**",route=>route.fulfill({contentType:"text/html",body:mock}));
+  await ui.goto("http://cf-test.local/login");
+  assert.equal(await ui.locator("html").getAttribute("data-cf-theme"),"light");
+  const cor=await ui.locator(".botao-acesso").evaluate(el=>[getComputedStyle(el).backgroundColor,getComputedStyle(el).color]);
+  assert.deepEqual(cor,["rgb(23, 111, 169)","rgb(255, 255, 255)"]);
+  await ui.locator("[data-cf-theme-toggle]").click();
+  assert.equal(await ui.locator("html").getAttribute("data-cf-theme"),"dark");
+  assert.equal(await ui.locator("[data-cf-theme-toggle]").getAttribute("aria-pressed"),"true");
+  await ui.reload();
+  assert.equal(await ui.locator("html").getAttribute("data-cf-theme"),"dark","Preferência perdida ao recarregar.");
+  await ui.setViewportSize({width:390,height:844});
+  assert(await ui.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth),"Login móvel transbordou.");
+  await ui.evaluate(()=>{
+    document.body.className="cf-app";
+    document.body.innerHTML='<main><section class="painel"><div class="campos"><div><label>Data</label><span class="ui-datepicker"><input class="ui-inputfield"><button class="ui-datepicker-trigger ui-button">D</button></span></div></div><div class="cf-canvas-stage"></div><section class="folha-a4">Documento</section></section></main>';
+  });
+  const input=await ui.locator(".ui-datepicker input").boundingBox();
+  const trigger=await ui.locator(".ui-datepicker-trigger").boundingBox();
+  assert(Math.abs(input.y-trigger.y)<2 && trigger.x>=input.x+input.width-2,"Calendário quebrou de linha.");
+  assert.equal(await ui.locator(".cf-canvas-stage").evaluate(el=>getComputedStyle(el).backgroundColor),"rgb(255, 255, 255)");
+  assert.equal(await ui.locator(".folha-a4").evaluate(el=>getComputedStyle(el).backgroundColor),"rgb(255, 255, 255)");
+  await ui.close();
+  console.log("UI: contraste, persistência do tema, largura móvel, calendário e folha branca verificados.");
   assert.equal(failures.length,0,failures.join("; "));
   console.log("Chrome: mouse, 8 alças, Delete, Backspace, setas, Shift+setas, Ctrl+D e Ctrl+Z aprovados.");
  }finally{await browser.close();}

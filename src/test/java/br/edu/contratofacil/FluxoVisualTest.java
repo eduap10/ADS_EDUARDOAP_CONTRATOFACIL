@@ -23,6 +23,8 @@ class FluxoVisualTest {
     @Test void telasDoFluxoSaoXhtmlBemFormado() throws Exception {
         xhtmlValido("WEB-INF/fragmentos/navegacao.xhtml");
         xhtmlValido("index.xhtml");
+        xhtmlValido("login.xhtml");
+        xhtmlValido("primeiro-acesso.xhtml");
         xhtmlValido("tags.xhtml");
         xhtmlValido("configuracao-documento.xhtml");
         xhtmlValido("tipos.xhtml");
