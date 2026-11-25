@@ -31,8 +31,24 @@ function object(tipo,extra={}){
    s.cells=Array.from({length:s.rows},(_,r)=>Array.from({length:s.cols},(_,c)=>s.cells?.[r]?.[c]??""));
  }
  if(tipo==="sign")s.role=Object.hasOwn(LABEL,s.role)?s.role:"colaborador";
- if(tipo==="image")s.src=/^data:image\/(?:png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(s.src||"")?s.src:"";
+ if(tipo==="image"){s.src=/^data:image\/(?:png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(s.src||"")?s.src:"";s.background=s.background===true;}
  return s;
+}
+// O fundo é uma camada persistente. O clique atravessa a imagem.
+function applyLayer(el){
+ const fundo=el.cf.tipo==="image"&&el.cf.background===true;
+ el.classList.toggle("cf-background",fundo);el.tabIndex=fundo?-1:0;
+ if(fundo&&!loading)stage.prepend(el);
+}
+function layers(){
+ const list=$("cfLayers");if(!list)return;
+ const nomes={text:"Texto",line:"Linha",table:"Tabela",sign:"Assinatura",image:"Imagem"};
+ list.replaceChildren(new Option("Selecionar objeto ou fundo…",""));
+ Array.from(stage.children).forEach((el,i)=>{
+  const nome=el.cf.background?"Fundo (bloqueado)":nomes[el.cf.tipo];
+  list.add(new Option((i+1)+" · "+nome,String(i)));
+ });
+ list.value=selected?String(Array.from(stage.children).indexOf(selected)):"";
 }
 function add(s,select=true){
  if(!s)return null;
@@ -47,7 +63,7 @@ function add(s,select=true){
   handle.dataset.dir=dir;handle.title="Redimensionar pelo lado "+dir;handle.setAttribute("aria-label",handle.title);
   handle.addEventListener("pointerdown",e=>beginPointer(e,el,"size",dir));el.append(handle);
  }
- stage.append(el);render(el);
+ stage.append(el);applyLayer(el);render(el);
  el.addEventListener("pointerdown",e=>{
   if(e.target.closest(".cf-resize-handle,.cf-move,.cf-resize"))return;
   if(el.classList.contains("cf-editing")&&e.target.closest('[contenteditable="true"]')&&!e.altKey){
@@ -66,7 +82,7 @@ function add(s,select=true){
  el.addEventListener("dblclick",e=>{
   if(["text","table"].includes(s.tipo))enterEditing(el,e.target);
  });
- if(select)choose(el);
+ if(select)choose(el);else layers();
  updatePreview();if(!loading)markHistory();return el;
 }
 function render(el){
@@ -141,17 +157,21 @@ function choose(el){
  if(typeof ribbonState==="function")ribbonState();
 }
 function toolbar(){
+ layers();
  $("cfProperties").hidden=!selected;if(!selected)return;
  const s=selected.cf;
  $("cfObjectKind").textContent={text:"Texto",line:"Linha",table:"Tabela",sign:"Assinatura",image:"Imagem"}[s.tipo];
- for(const key of ["x","y","w","h"])$("cf"+key.toUpperCase()).value=s[key];
+ for(const key of ["x","y","w","h"]){const input=$("cf"+key.toUpperCase());input.value=s[key];input.disabled=Boolean(s.background);}
+ if($("cfUseBackground"))$("cfUseBackground").checked=Boolean(s.background);
+ if($("cfFitBackground"))$("cfFitBackground").disabled=!s.background;
+ $("cfFront").disabled=Boolean(s.background);$("cfBack").disabled=Boolean(s.background);
  document.querySelectorAll("[data-cf-panel]").forEach(node=>node.hidden=node.dataset.cfPanel!==s.tipo);
  if(s.tipo==="line"){$("cfLineColor").value="#"+s.color;$("cfLineWeight").value=s.weight;$("cfLineOrient").value=s.orient;}
  if(s.tipo==="table"){$("cfTableStyle").value=s.style;$("cfTableHeader").checked=s.header;}
  if(s.tipo==="sign")$("cfSignRole").value=s.role;
 }
 function change(props,redraw=true){
- if(!selected)return;
+ if(!selected||selected.cf.background)return;
  const s=selected.cf;Object.assign(s,props);
  s.w=clamp(s.w,40,W);s.h=clamp(s.h,20,H);s.x=clamp(s.x,0,W-s.w);s.y=clamp(s.y,0,H-s.h);
  rect(selected,s);if(redraw)render(selected);toolbar();updatePreview();markHistory();
@@ -175,7 +195,7 @@ function cursorForEdge(dir){
 }
 let canvasFocus=false;
 function beginPointer(e,el,action,dir="se"){
- if(e.button!=null&&e.button!==0)return;
+ if(el.cf.background||e.button!=null&&e.button!==0)return;
  e.preventDefault();e.stopPropagation();
  choose(el);
  if(el.classList.contains("cf-editing"))exitEditing();
@@ -227,7 +247,10 @@ window.addEventListener("blur",()=>endPointer());
 stage.addEventListener("pointerdown",e=>{
  canvasFocus=true;
  if(e.target!==stage)return;
- selected?.classList.remove("cf-selected","cf-editing");
+ if(selected){
+  selected.classList.remove("cf-selected","cf-editing");
+  selected.querySelectorAll('[contenteditable="true"]').forEach(el=>el.contentEditable="false");
+ }
  selected=null;focusEditable=null;storedRange=null;toolbar();
  stage.focus({preventScroll:true});
 });
@@ -253,8 +276,32 @@ $("cfTableStyle").addEventListener("change",e=>change({style:e.target.value}));
 $("cfTableHeader").addEventListener("change",e=>change({header:e.target.checked}));
 $("cfSignRole").addEventListener("change",e=>change({role:e.target.value}));
 $("cfRemove").addEventListener("click",removeSelected);
-$("cfFront").addEventListener("click",()=>{if(selected){stage.append(selected);updatePreview();markHistory();}});
-$("cfBack").addEventListener("click",()=>{if(selected){stage.prepend(selected);updatePreview();markHistory();}});
+$("cfFront").addEventListener("click",()=>{if(selected&&!selected.cf.background){stage.append(selected);layers();updatePreview();markHistory();}});
+ $("cfBack").addEventListener("click",()=>{if(selected&&!selected.cf.background){
+  const first=Array.from(stage.children).find(el=>!el.cf.background);
+  if(first&&first!==selected)stage.insertBefore(selected,first);
+  layers();updatePreview();markHistory();
+ }});
+ $("cfLayers")?.addEventListener("change",e=>{
+  if(e.target.value===""){choose(null);focusEditable=null;storedRange=null;return;}
+  const el=stage.children[Number(e.target.value)];if(el)choose(el);
+ });
+ $("cfUseBackground")?.addEventListener("change",e=>{
+  if(selected?.cf.tipo!=="image")return;
+  selected.cf.background=e.target.checked;
+  applyLayer(selected);toolbar();updatePreview();markHistory();
+ });
+ $("cfFitBackground")?.addEventListener("click",()=>{
+  if(!selected?.cf.background)return;
+  Object.assign(selected.cf,{x:0,y:0,w:W,h:H});rect(selected,selected.cf);
+  toolbar();updatePreview();markHistory();
+ });
+ $("cfTogglePreview")?.addEventListener("click",e=>{
+  const wrapper=stage.closest(".editor-duas-colunas");if(!wrapper)return;
+  const hidden=wrapper.classList.toggle("cf-preview-hidden");
+  e.currentTarget.setAttribute("aria-expanded",String(!hidden));
+  e.currentTarget.textContent=hidden?"Mostrar prévia":"Ocultar prévia";
+ });
 function grid(rows,cols){
  if(!selected||selected.cf.tipo!=="table")return;
  const s=selected.cf;rows=clamp(rows,1,12);cols=clamp(cols,1,8);
@@ -318,7 +365,7 @@ document.addEventListener("keydown",e=>{
  if(mod&&(e.key.toLowerCase()==="z"||e.key.toLowerCase()==="y")){
    e.preventDefault();restoreHistory(e.key.toLowerCase()==="z"&&!e.shiftKey?-1:1);return;
  }
- if(!selected)return;
+ if(!selected||selected.cf.background)return;
  if(mod&&e.key.toLowerCase()==="d"){e.preventDefault();duplicateSelected();return;}
  if(mod&&e.key.toLowerCase()==="c"){e.preventDefault();clipboard=JSON.parse(JSON.stringify(selected.cf));return;}
  if(mod&&e.key.toLowerCase()==="v"&&clipboard){
@@ -335,9 +382,11 @@ document.addEventListener("keydown",e=>{
  }
 });
 
-$("cfAddImage")?.addEventListener("click",()=>$("cfImageFile")?.click());
+let inserirFundo=false;
+ $("cfAddImage")?.addEventListener("click",()=>{inserirFundo=false;$("cfImageFile")?.click();});
+ $("cfAddBackground")?.addEventListener("click",()=>{inserirFundo=true;$("cfImageFile")?.click();});
 $("cfImageFile")?.addEventListener("change",async e=>{
- const file=e.target.files?.[0];e.target.value="";
+ const file=e.target.files?.[0],background=inserirFundo;e.target.value="";inserirFundo=false;
  if(!file)return;
  if(!["image/png","image/jpeg"].includes(file.type)||file.size>8_000_000){
    alert("Selecione PNG ou JPEG de até 8 MB.");return;
@@ -366,7 +415,7 @@ $("cfImageFile")?.addEventListener("change",async e=>{
    if(result.length>350000)throw new Error("Reduza a resolução da imagem.");
    const factor=340/Math.max(img.naturalWidth,img.naturalHeight);
    const w=clamp(img.naturalWidth*factor,60,420),h=clamp(img.naturalHeight*factor,40,420);
-   add(object("image",{x:60,y:110,w,h,src:result}));
+   add(object("image",background?{x:0,y:0,w:W,h:H,src:result,background:true}:{x:60,y:110,w,h,src:result}));
  }catch(err){alert("Falha ao inserir imagem: "+err.message);}
 });
 
@@ -702,7 +751,7 @@ function serialize(){
   if(s.tipo==="image"){
    const m=/^data:(image\/(?:png|jpeg));base64,([A-Za-z0-9+/=]+)$/.exec(s.src);
    if(!m)throw new Error("Imagem inválida.");
-   lines.push([...pre,m[1],m[2]].join("|"));
+   lines.push([...pre,m[1],m[2],...(s.background?["fundo"]:[])].join("|"));
   }
   if(s.tipo==="table"){
    const values=Array.from(el.querySelectorAll("tr")).flatMap(tr=>Array.from(tr.children)
@@ -717,6 +766,7 @@ function preview(){
   const clone=stage.cloneNode(true);clone.removeAttribute("id");
   clone.querySelectorAll(".cf-move,.cf-resize,.cf-resize-handle").forEach(n=>n.remove());
   clone.querySelectorAll("[contenteditable]").forEach(n=>n.removeAttribute("contenteditable"));
+   clone.querySelectorAll(".cf-selected,.cf-editing").forEach(n=>n.classList.remove("cf-selected","cf-editing"));
   if(examplesOn){
    const map=new Map(Array.from(document.querySelectorAll(".botao-campo")).map(b=>[b.dataset.tag,b.dataset.exemplo||"[Exemplo]"]));
    map.set("{{empresa.logo}}","[Logo]");
@@ -730,7 +780,7 @@ function preview(){
    });
   }
   const css="*{box-sizing:border-box}body{margin:0;color:#243247}.cf-canvas-stage{width:642px;height:907px;position:relative}"
-    +".cf-canvas-obj{position:absolute;overflow:hidden}.cf-obj-conteudo{height:100%;width:100%}"
+    +".cf-canvas-obj{position:absolute;overflow:hidden;z-index:1}.cf-canvas-obj.cf-background{z-index:0}.cf-obj-conteudo{height:100%;width:100%}"
     +".cf-texto{font:14px/1.5 Arial,sans-serif;padding:5px}.cf-texto p{margin:0 0 8px}"
     +".cf-real-line{position:absolute;top:50%;width:100%;border-bottom-style:solid}.cf-vertical{border-bottom:0;border-left-style:solid;height:100%;left:50%;top:0;width:0}.cf-diagonal{transform:rotate(-11deg)}"
     +".cf-edit-table{border-collapse:collapse;table-layout:fixed;width:100%;height:100%;font:12px Arial}.cf-edit-table td,.cf-edit-table th{border:1px solid #64748b;padding:4px}.cf-edit-table th{background:#e2e8f0}.cf-tabela-listrado tr:nth-child(even){background:#f1f5f9}"
@@ -751,7 +801,7 @@ function loadSaved(raw){
   if(type==="text")obj.html=dec(f[5]);
   if(type==="line")Object.assign(obj,{orient:f[5],weight:Number(f[6]),color:f[7]});
   if(type==="sign")obj.role=f[5];
-  if(type==="image")obj.src="data:"+f[5]+";base64,"+f[6];
+  if(type==="image"){obj.src="data:"+f[5]+";base64,"+f[6];obj.background=f[7]==="fundo";}
   if(type==="table"){
    const rows=Number(f[7]),cols=Number(f[8]),values=dec(f[9]).split("\u001f");
    Object.assign(obj,{style:f[5],header:f[6]==="1",rows,cols,
