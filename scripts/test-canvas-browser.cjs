@@ -18,9 +18,9 @@ const html='<!doctype html><html><head><meta charset="utf-8"><style>'+css+'</sty
 '<button data-cf-align="left"></button><button data-cf-align="center"></button>'+
 '<button data-cf-align="right"></button><button data-cf-align="justify"></button>'+
 '<button data-cf-list="ul"></button><button data-cf-list="ol"></button></div>'+
-'<div id="cfProperties" class="cf-properties" hidden><strong id="cfObjectKind"></strong>'+
+'<div class="cf-property-slot"><div id="cfProperties" class="cf-properties" hidden><strong id="cfObjectKind"></strong>'+
 '<div data-cf-panel="text"></div><div data-cf-panel="line"></div>'+
-'<div data-cf-panel="table"></div><div data-cf-panel="sign"></div></div>'+
+'<div data-cf-panel="table"></div><div data-cf-panel="sign"></div></div><div class="cf-properties-empty">Selecione um objeto</div></div>'+
 '<button data-cf-add="text">Texto</button><button data-cf-add="line">Linha</button>'+
 '<button data-cf-add="table">Tabela</button><button data-cf-add="sign">Assinatura</button>'+
 '<button id="cfAddImage">Imagem</button><button id="cfAddBackground">Fundo</button><input id="cfImageFile" type="file">'+
@@ -243,7 +243,10 @@ const html='<!doctype html><html><head><meta charset="utf-8"><style>'+css+'</sty
   const caixa=folha.locator(".cf-obj-text").first();
   assert(Number(await caixa.evaluate(el=>getComputedStyle(el).zIndex))>Number(await fundo.evaluate(el=>getComputedStyle(el).zIndex)));
   const pos=await fundo.evaluate(el=>[el.cf.x,el.cf.y,el.cf.w,el.cf.h]);
+  const folhaAntes=await folha.locator("#cfCanvas").boundingBox();
   await caixa.dblclick({position:{x:45,y:30}});
+  assert.equal(await caixa.locator(".cf-texto").getAttribute("contenteditable"),"true","Duplo clique não iniciou a edição.");
+  assert.equal((await folha.locator("#cfCanvas").boundingBox()).y,folhaAntes.y,"A seleção deslocou a folha.");
   await caixa.locator(".cf-texto").fill("Conteúdo digitado sobre o papel timbrado");
   await folha.locator("#cfCanvas").dblclick({position:{x:620,y:500}});
   assert.equal(await folha.locator(".cf-obj-text").count(),2,"Fundo bloqueou a criação de texto na folha.");

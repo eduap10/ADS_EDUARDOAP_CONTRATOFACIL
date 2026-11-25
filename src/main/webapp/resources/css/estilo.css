@@ -511,3 +511,11 @@ body.cf-app{padding-left:var(--cf-sidebar);background:var(--cf-surface)}
 }
 @media(max-width:640px){.cf-toolkit{display:flex;flex-wrap:wrap}.cf-toolkit button{min-height:40px}.cf-toolbar-label{width:100%}.cf-layer-bar>span{width:100%}.cf-stage-scroll{padding:10px}.cf-metric{padding:12px}.cf-metric .cf-metric-value{font-size:1.5rem}}
 @media print{body.cf-app{padding:0;background:#fff}.cf-app>.cf-sidebar{display:none!important}.cf-app>main{padding:0;margin:0;max-width:none}}
+
+/* A seleção não pode deslocar a folha entre o primeiro e o segundo clique.
+ * A área de propriedades reserva espaço mesmo quando nenhum objeto está ativo. */
+.cf-property-slot{height:154px;margin:9px 0;position:relative;min-width:0}
+.cf-property-slot>.cf-properties{height:100%;margin:0;overflow:auto;scrollbar-gutter:stable}
+.cf-properties-empty{display:none;align-items:center;justify-content:center;gap:8px;height:100%;border:1px dashed #c7d7e5;border-radius:7px;background:#f8fafc;color:#64748b;font-size:.83rem;padding:16px;text-align:center}
+.cf-property-slot>.cf-properties[hidden]+.cf-properties-empty{display:flex}
+@media(max-width:640px){.cf-property-slot{height:185px}}
