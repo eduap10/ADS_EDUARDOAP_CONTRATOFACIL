@@ -21,7 +21,7 @@
                     <p:password id="senha" value="#{loginBean.senha}" required="true"
                                    requiredMessage="Informe a senha." redisplay="false" toggleMask="true" feedback="false" placeholder="Informe sua senha" pt:autocomplete="current-password"/>
                 </div>
-                <p:commandButton value="Entrar" action="#{loginBean.entrar}" styleClass="botao-acesso" icon="pi pi-sign-in" ajax="false"/>
+                <h:commandButton value="Entrar" action="#{loginBean.entrar}" styleClass="botao-acesso"/>
             </h:form>
             <p class="ajuda-acesso">
                 Primeiro acesso?

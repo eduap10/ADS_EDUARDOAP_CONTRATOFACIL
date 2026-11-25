@@ -27,7 +27,7 @@
                                    required="true" requiredMessage="Confirme a senha." redisplay="false" toggleMask="true" feedback="false" placeholder="Repita a senha" pt:autocomplete="new-password"/>
                 </div>
                 <p>Use ao menos 10 caracteres, incluindo letra e número. Não utilize senha de outros serviços.</p>
-                <p:commandButton value="Criar administrador" action="#{primeiroAcessoBean.criar}" styleClass="botao-acesso" icon="pi pi-sign-in" ajax="false"/>
+                <h:commandButton value="Criar administrador" action="#{primeiroAcessoBean.criar}" styleClass="botao-acesso"/>
             </h:form>
             <p class="ajuda-acesso"><h:link outcome="/login.xhtml" value="Voltar ao login"/></p>
         </section>
