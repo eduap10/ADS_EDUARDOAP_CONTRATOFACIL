@@ -1,30 +1,35 @@
 <!DOCTYPE html>
 <!-- Página inicial do sistema; apenas navega para os cadastros e o fluxo de documentos. -->
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html">
+<html xmlns:ui="jakarta.faces.facelets" xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html" xmlns:f="jakarta.faces.core" xmlns:p="primefaces">
 <h:head><title>ContratoFácil | Início</title><h:outputStylesheet library="css" name="estilo.css"/></h:head>
-<h:body><header><h1>ContratoFácil</h1><nav>
-<h:link outcome="/index.xhtml" value="Início"/>
-<h:link outcome="/colaboradores.xhtml" value="Colaboradores"/>
-<h:link outcome="/tipos.xhtml" value="Tipos"/>
-<h:link outcome="/modelos.xhtml" value="Modelos"/>
-<h:link outcome="/tags.xhtml" value="Tags"/>
-<h:link outcome="/contratos.xhtml" value="Contratos"/>
-<h:form id="formSair" styleClass="form-sair"><h:commandLink action="#{loginBean.sair}" value="Sair"/></h:form>
-</nav></header>
+<h:body styleClass="cf-app"><ui:include src="/WEB-INF/fragmentos/navegacao.xhtml"><ui:param name="cfSecao" value="inicio"/></ui:include>
 <main><section class="painel">
-<h2>Bem-vindo ao ContratoFácil</h2>
-<p>Cadastre os dados, organize os tipos, monte modelos e gere documentos preenchidos automaticamente.</p>
+<div class="cf-home-intro">
+<div><div class="cf-kicker">Área de trabalho</div><h2>Gestão de documentos e contratos</h2>
+<p class="subtitulo">Organize colaboradores, modelos reutilizáveis e documentos emitidos.</p></div>
+<h:link outcome="/editar-contrato.xhtml" styleClass="link-acao"><i class="pi pi-plus" aria-hidden="true"></i> Gerar contrato</h:link>
+</div>
+<h:panelGroup rendered="#{inicioBean.disponivel}" layout="block">
+<div class="cf-metrics">
+<div class="cf-metric"><span class="cf-metric-label"><i class="pi pi-users" aria-hidden="true"></i> Colaboradores</span><h:outputText styleClass="cf-metric-value" value="#{inicioBean.colaboradores}"/></div>
+<div class="cf-metric"><span class="cf-metric-label"><i class="pi pi-file-edit" aria-hidden="true"></i> Modelos</span><h:outputText styleClass="cf-metric-value" value="#{inicioBean.modelos}"/></div>
+<div class="cf-metric"><span class="cf-metric-label"><i class="pi pi-file" aria-hidden="true"></i> Contratos</span><h:outputText styleClass="cf-metric-value" value="#{inicioBean.contratos}"/></div>
+<div class="cf-metric"><span class="cf-metric-label"><i class="pi pi-clock" aria-hidden="true"></i> Rascunhos</span><h:outputText styleClass="cf-metric-value" value="#{inicioBean.rascunhos}"/></div>
+</div>
+<div class="cf-home-section">
+<div class="titulo"><h3>Contratos recentes</h3><h:link outcome="/contratos.xhtml" value="Ver todos" styleClass="link-acao-subtil"/></div>
+<p:dataTable value="#{inicioBean.recentes}" var="item" reflow="true" emptyMessage="Nenhum contrato registrado.">
+<p:column headerText="Documento"><h:outputText value="#{item.titulo}"/></p:column>
+<p:column headerText="Colaborador"><h:outputText value="#{item.colaborador}"/></p:column>
+<p:column headerText="Situação"><h:outputText value="#{item.situacao}" styleClass="cf-status cf-status-#{item.situacao}"/></p:column>
+<p:column headerText="Ações"><h:link outcome="/visualizar-contrato.xhtml" styleClass="link-acao-subtil" title="Visualizar contrato"><f:param name="id" value="#{item.id}"/><i class="pi pi-eye" aria-hidden="true"></i> Visualizar</h:link></p:column>
+</p:dataTable>
+</div></h:panelGroup>
+<h:panelGroup rendered="#{not inicioBean.disponivel}" layout="block"><p class="subtitulo">Não foi possível consultar os indicadores. Verifique a conexão com o banco de dados.</p></h:panelGroup>
+<div class="cf-home-section"><h3>Acesso rápido</h3>
 <div class="cartoes-inicio">
-<h:link outcome="/colaboradores.xhtml">
-<strong><i class="pi pi-users"></i> Colaboradores</strong>
-<span>Informações pessoais e profissionais dos colaboradores.</span></h:link>
-<h:link outcome="/tipos.xhtml">
-<strong><i class="pi pi-tags"></i> Tipos</strong>
-<span>Defina as categorias dos documentos.</span></h:link>
-<h:link outcome="/modelos.xhtml">
-<strong><i class="pi pi-file-edit"></i> Modelos</strong>
-<span>Crie textos reutilizáveis com formatação e tags.</span></h:link>
-<h:link outcome="/contratos.xhtml">
-<strong><i class="pi pi-file-pdf"></i> Contratos</strong>
-<span>Selecione colaborador, gere, visualize e exporte.</span></h:link>
-</div></section></main></h:body></html>
+<h:link outcome="/colaboradores.xhtml"><strong><i class="pi pi-users"></i> Colaboradores</strong><span>Fichas pessoais e profissionais.</span></h:link>
+<h:link outcome="/tipos.xhtml"><strong><i class="pi pi-folder"></i> Tipos</strong><span>Classifique os documentos.</span></h:link>
+<h:link outcome="/modelos.xhtml"><strong><i class="pi pi-file-edit"></i> Modelos</strong><span>Editor de documentos reutilizáveis.</span></h:link>
+<h:link outcome="/contratos.xhtml"><strong><i class="pi pi-file-pdf"></i> Contratos</strong><span>Emita, visualize e exporte.</span></h:link>
+</div></div></section></main></h:body></html>

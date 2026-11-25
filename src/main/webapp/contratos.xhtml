@@ -1,18 +1,10 @@
 <!DOCTYPE html>
 <!-- Lista de contratos emitidos. Um contrato é uma instância criada a partir de modelo e colaborador, não o modelo em si. -->
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html"
+<html xmlns:ui="jakarta.faces.facelets" xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html"
 xmlns:f="jakarta.faces.core" xmlns:p="primefaces">
 <h:head><title>ContratoFácil | Documentos emitidos</title>
 <h:outputStylesheet library="css" name="estilo.css"/></h:head>
-<h:body><header><h1>ContratoFácil</h1><nav>
-<h:link outcome="/index.xhtml" value="Início"/>
-<h:link outcome="/colaboradores.xhtml" value="Colaboradores"/>
-<h:link outcome="/tipos.xhtml" value="Tipos"/>
-<h:link outcome="/modelos.xhtml" value="Modelos"/>
-<h:link outcome="/tags.xhtml" value="Tags"/>
-<h:link outcome="/contratos.xhtml" value="Contratos"/>
-<h:form id="formSair" styleClass="form-sair"><h:commandLink action="#{loginBean.sair}" value="Sair"/></h:form>
-</nav></header>
+<h:body styleClass="cf-app"><ui:include src="/WEB-INF/fragmentos/navegacao.xhtml"><ui:param name="cfSecao" value="contratos"/></ui:include>
 <main><h:form id="form"><section class="painel">
 <div class="titulo"><div><h2>Contratos gerados</h2>
 <p class="subtitulo">Documentos vinculados aos colaboradores. Visualize e exporte quando precisar.</p></div>
@@ -30,7 +22,7 @@ xmlns:f="jakarta.faces.core" xmlns:p="primefaces">
 <p:column headerText="Título"><h:outputText value="#{contrato.titulo}"/></p:column>
 <p:column headerText="Colaborador"><h:outputText value="#{contratoBean.nomeColaborador(contrato.colaboradorId)}"/></p:column>
 <p:column headerText="Tipo"><h:outputText value="#{contratoBean.nomeTipo(contrato.tipoId)}"/></p:column>
-<p:column headerText="Situação"><h:outputText value="#{contrato.situacao}"/></p:column>
+<p:column headerText="Situação"><h:outputText value="#{contrato.situacao}" styleClass="cf-status cf-status-#{contrato.situacao}"/></p:column>
 <p:column headerText="Ações" style="width:160px">
 <h:link outcome="/visualizar-contrato.xhtml" styleClass="link-acao-subtil" title="Visualizar documento">
 <f:param name="id" value="#{contrato.id}"/><i class="pi pi-eye"></i></h:link>

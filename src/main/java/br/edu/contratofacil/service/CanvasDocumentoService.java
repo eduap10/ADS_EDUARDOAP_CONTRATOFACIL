@@ -138,7 +138,8 @@ public final class CanvasDocumentoService {
                         throw new IllegalArgumentException("Quantidade de células inválida.");
                 }
                 case "I" -> {
-                    if(f.length!=7)throw new IllegalArgumentException("Componente de imagem inválido.");
+                    if(f.length!=7 && !(f.length==8 && "fundo".equals(f[7])))
+                        throw new IllegalArgumentException("Componente de imagem inválido.");
                     imagemValida(f[5],f[6]);
                 }
                 default -> throw new IllegalArgumentException("Tipo de componente desconhecido.");
@@ -146,7 +147,15 @@ public final class CanvasDocumentoService {
             resultado.add(new Objeto(f[0],x,y,w,h,f));
         }
         if(resultado.isEmpty()) throw new IllegalArgumentException("Documento vazio.");
+        // CFCANVAS1 continua aceitando a imagem antiga de sete campos.
+        // O oitavo campo opcional marca o papel de fundo; uma ordenação
+        // estável garante que nenhum conteúdo seja encoberto na emissão.
+        resultado.sort(Comparator.comparingInt(o -> ehFundo(o) ? 0 : 1));
         return resultado;
+    }
+
+    private static boolean ehFundo(Objeto o) {
+        return "I".equals(o.tipo()) && o.campos().length == 8;
     }
 
     public static String normalizar(String entrada) {
@@ -177,8 +186,8 @@ public final class CanvasDocumentoService {
             String[] f=o.campos();
             String estilo="position:absolute;left:"+mm(o.x(),LARGURA,170)
                 +"mm;top:"+mm(o.y(),ALTURA,240)+"mm;width:"+mm(o.w(),LARGURA,170)
-                +"mm;height:"+mm(o.h(),ALTURA,240)+"mm;overflow:hidden;box-sizing:border-box;";
-            html.append("<div class=\"cf-canvas-item cf-canvas-"+o.tipo()+"\" style=\"")
+                +"mm;height:"+mm(o.h(),ALTURA,240)+"mm;overflow:hidden;box-sizing:border-box;z-index:"+(ehFundo(o)?0:1)+";";
+            html.append("<div class=\"cf-canvas-item cf-canvas-"+o.tipo()+(ehFundo(o)?" cf-canvas-fundo":"")+"\" style=\"")
                 .append(estilo).append("\">");
             switch(o.tipo()) {
                 case "T" -> {
@@ -221,9 +230,22 @@ public final class CanvasDocumentoService {
                     html.append("</table>");
                 }
                 case "I" -> {
+                    // O renderizador PDF não entende object-fit. Calculamos a
+                    // mesma caixa proporcional do navegador antes de gerar o HTML.
+                    double cw=o.w()*170.0/LARGURA, ch=o.h()*240.0/ALTURA;
+                    double iw=cw, ih=ch;
+                    try {
+                        var imagem=ImageIO.read(new ByteArrayInputStream(Base64.getDecoder().decode(f[6])));
+                        double escala=Math.min(cw/imagem.getWidth(),ch/imagem.getHeight());
+                        iw=imagem.getWidth()*escala; ih=imagem.getHeight()*escala;
+                    } catch(IOException e) {
+                        throw new IllegalArgumentException("Imagem ilegível.",e);
+                    }
                     html.append("<img class=\"cf-canvas-imagem\" alt=\"Imagem do documento\" src=\"data:")
                         .append(f[5]).append(";base64,").append(f[6])
-                        .append("\" style=\"width:100%;height:100%;object-fit:contain;\"/>");
+                        .append("\" style=\"position:absolute;left:").append(decimal((cw-iw)/2))
+                        .append("mm;top:").append(decimal((ch-ih)/2)).append("mm;width:")
+                        .append(decimal(iw)).append("mm;height:").append(decimal(ih)).append("mm;\"/>");
                 }
                 case "S" -> {
                     String papel=f[5];
@@ -248,6 +270,8 @@ public final class CanvasDocumentoService {
         html.append("</div>");
         return html.toString();
     }
+
+    private static String decimal(double valor) { return String.format(Locale.ROOT,"%.2f",valor); }
 
     private static String mm(int pixels,int base,int mm) {
         return String.format(Locale.ROOT,"%.2f",((double)pixels*mm)/base);

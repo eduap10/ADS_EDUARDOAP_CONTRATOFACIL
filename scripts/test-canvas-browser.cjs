@@ -18,12 +18,13 @@ const html='<!doctype html><html><head><meta charset="utf-8"><style>'+css+'</sty
 '<button data-cf-align="left"></button><button data-cf-align="center"></button>'+
 '<button data-cf-align="right"></button><button data-cf-align="justify"></button>'+
 '<button data-cf-list="ul"></button><button data-cf-list="ol"></button></div>'+
-'<div id="cfProperties" class="cf-properties" hidden><strong id="cfObjectKind"></strong>'+
+'<div class="cf-property-slot"><div id="cfProperties" class="cf-properties" hidden><strong id="cfObjectKind"></strong>'+
 '<div data-cf-panel="text"></div><div data-cf-panel="line"></div>'+
-'<div data-cf-panel="table"></div><div data-cf-panel="sign"></div></div>'+
+'<div data-cf-panel="table"></div><div data-cf-panel="sign"></div></div><div class="cf-properties-empty">Selecione um objeto</div></div>'+
 '<button data-cf-add="text">Texto</button><button data-cf-add="line">Linha</button>'+
 '<button data-cf-add="table">Tabela</button><button data-cf-add="sign">Assinatura</button>'+
-'<button id="cfAddImage">Imagem</button><input id="cfImageFile" type="file">'+
+'<button id="cfAddImage">Imagem</button><button id="cfAddBackground">Fundo</button><input id="cfImageFile" type="file">'+
+ '<select id="cfLayers"></select><input id="cfUseBackground" type="checkbox"><button id="cfFitBackground">Ajustar fundo</button>'+
 '<div class="cf-stage-scroll"><div id="cfCanvas" class="cf-canvas-stage" tabindex="0"></div></div>'+
 '<input id="form:conteudo" type="hidden">'+
 '<div id="catalogoCampos"><div id="listaCampos"></div></div>'+
@@ -226,6 +227,51 @@ const html='<!doctype html><html><head><meta charset="utf-8"><style>'+css+'</sty
   // Salvar/reabrir após alternar não deve ressuscitar estilos desligados.
   const saved=await page.evaluate(()=>{window.CFCanvas.salvar();return document.getElementById("form:conteudo").value;});
   assert(saved.startsWith("CFCANVAS1\n"));
+
+  // Regressão do papel timbrado: conteúdo real editável sobre uma imagem
+  // que cobre a folha. Testamos a camada, o clique, a reabertura e o desbloqueio.
+  const png="iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAFklEQVR4nGPkCtjCwMDAxMDAwMDAAAAMKAESBnDZDAAAAABJRU5ErkJggg==";
+  const txt=Buffer.from("<p>Contrato sobre fundo</p>").toString("base64");
+  const raw="CFCANVAS1\nT|35|40|530|130|"+txt+"\nI|0|0|642|907|image/png|"+png+"|fundo\n";
+  const initial=raw=>html.replace("<script>","<script>document.getElementById('form:conteudo').value="+JSON.stringify(raw)+";");
+  const folha=await browser.newPage({viewport:{width:1280,height:1100}});
+  folha.on("pageerror",e=>failures.push(e.message));
+  await folha.setContent(initial(raw));
+  const fundo=folha.locator(".cf-background");
+  assert.equal(await fundo.count(),1);
+  assert.equal(await fundo.evaluate(el=>getComputedStyle(el).pointerEvents),"none");
+  const caixa=folha.locator(".cf-obj-text").first();
+  assert(Number(await caixa.evaluate(el=>getComputedStyle(el).zIndex))>Number(await fundo.evaluate(el=>getComputedStyle(el).zIndex)));
+  const pos=await fundo.evaluate(el=>[el.cf.x,el.cf.y,el.cf.w,el.cf.h]);
+  const folhaAntes=await folha.locator("#cfCanvas").boundingBox();
+  await caixa.dblclick({position:{x:45,y:30}});
+  assert.equal(await caixa.locator(".cf-texto").getAttribute("contenteditable"),"true","Duplo clique não iniciou a edição.");
+  assert.equal((await folha.locator("#cfCanvas").boundingBox()).y,folhaAntes.y,"A seleção deslocou a folha.");
+  await caixa.locator(".cf-texto").fill("Conteúdo digitado sobre o papel timbrado");
+  await folha.locator("#cfCanvas").dblclick({position:{x:620,y:500}});
+  assert.equal(await folha.locator(".cf-obj-text").count(),2,"Fundo bloqueou a criação de texto na folha.");
+  assert.deepEqual(await fundo.evaluate(el=>[el.cf.x,el.cf.y,el.cf.w,el.cf.h]),pos);
+  const indice=await fundo.evaluate(el=>String(Array.from(el.parentNode.children).indexOf(el)));
+  await folha.locator("#cfLayers").selectOption(indice);
+  assert.equal(await folha.locator("#cfUseBackground").isChecked(),true);
+  assert.equal(await folha.locator("#cfX").isDisabled(),true);
+  await folha.locator("#cfUseBackground").uncheck();
+  assert.equal(await folha.locator(".cf-background").count(),0);
+  assert.equal(await folha.locator("#cfX").isDisabled(),false);
+  await folha.locator("#cfUseBackground").check();
+  await folha.locator("#cfFitBackground").click();
+  assert.deepEqual(await folha.locator(".cf-background").evaluate(el=>[el.cf.x,el.cf.y,el.cf.w,el.cf.h]),[0,0,642,907]);
+  const salvo=await folha.evaluate(()=>{window.CFCanvas.salvar();return document.getElementById("form:conteudo").value;});
+  assert.match(salvo,/\|fundo\n/);
+  await folha.waitForTimeout(180);
+  assert.match(await folha.locator("#previaModelo").getAttribute("srcdoc"),/cf-background/);
+  const reaberto=await browser.newPage();
+  reaberto.on("pageerror",e=>failures.push(e.message));
+  await reaberto.setContent(initial(salvo));
+  assert.equal(await reaberto.locator(".cf-background").count(),1);
+  assert.match(await reaberto.locator(".cf-obj-text").first().innerText(),/Conteúdo digitado/);
+  assert.equal(await reaberto.locator(".cf-background").evaluate(el=>getComputedStyle(el).pointerEvents),"none");
+  await reaberto.close();await folha.close();
 
   assert.equal(failures.length,0,failures.join("; "));
   console.log("Chrome: mouse, 8 alças, Delete, Backspace, setas, Shift+setas, Ctrl+D e Ctrl+Z aprovados.");

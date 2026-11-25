@@ -13,6 +13,17 @@ import static org.junit.jupiter.api.Assertions.*;
  *  * RUN_DB_INTEGRATION habilita a execução no ambiente preparado.
  */
 class PersistenciaIntegracaoTest {
+    @Test void indicadoresDaVisaoGeralLeemOBancoReal() {
+        Assumptions.assumeTrue("true".equals(System.getenv("RUN_DB_INTEGRATION")));
+        var inicio=new br.edu.contratofacil.bean.InicioBean();
+        inicio.carregar();
+        assertTrue(inicio.isDisponivel(),"O dashboard deve consultar as tabelas do projeto.");
+        assertTrue(inicio.getColaboradores()>=0);
+        assertTrue(inicio.getModelos()>=0);
+        assertTrue(inicio.getContratos()>=inicio.getRascunhos());
+        assertTrue(inicio.getRecentes().size()<=5);
+    }
+
     @Test void tagsPersonalizadasUsamFichaEVariaveisDoSistema() throws Exception {
         Assumptions.assumeTrue("true".equals(System.getenv("RUN_DB_INTEGRATION")));
         TagPersonalizada tag = new TagPersonalizada();

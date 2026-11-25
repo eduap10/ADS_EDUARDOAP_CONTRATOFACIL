@@ -141,6 +141,37 @@ class CanvasDocumentoServiceTest {
         }
     }
 
+    @Test void fundoPreservaOrdemEProporcaoNaEmissaoEWord() throws Exception {
+        String texto="T|35|40|530|130|"+b64("<p>Contrato sobre o fundo</p>")+"\n";
+        String fundo="I|0|0|642|907|image/png|"+PNG_2X2+"|fundo\n";
+        String bruto=CanvasDocumentoService.CABECALHO+texto+fundo;
+        String salvo=DocumentoService.sanitizar(bruto);
+        assertTrue(salvo.startsWith(CanvasDocumentoService.CABECALHO+"I|"));
+        assertEquals(salvo,DocumentoService.sanitizar(salvo));
+        String html=DocumentoService.preencher(salvo,pessoa());
+        var documento=org.jsoup.Jsoup.parseBodyFragment(html);
+        assertTrue(documento.selectFirst(".cf-canvas-item").hasClass("cf-canvas-fundo"));
+        assertTrue(documento.selectFirst(".cf-canvas-fundo").attr("style").contains("z-index:0"));
+        assertTrue(documento.selectFirst(".cf-canvas-T").attr("style").contains("z-index:1"));
+        String img=documento.selectFirst(".cf-canvas-fundo img").attr("style");
+        assertTrue(img.contains("width:170.00mm;height:170.00mm"),img);
+        assertThrows(IllegalArgumentException.class,()->DocumentoService.sanitizar(bruto.replace("|fundo","|invalido")));
+        ByteArrayOutputStream pdf=new ByteArrayOutputStream();
+        ExportacaoDocumento.pdf("Contrato",html,pdf);
+        assertTrue(pdf.size()>200);
+        ByteArrayOutputStream docx=new ByteArrayOutputStream();
+        ExportacaoDocumento.docx("Contrato",html,docx);
+        try(var word=new org.apache.poi.xwpf.usermodel.XWPFDocument(new ByteArrayInputStream(docx.toByteArray()))){
+            assertEquals(1,word.getAllPictures().size());
+            var desenho=word.getParagraphs().get(0).getRuns().stream()
+                .flatMap(r->Arrays.stream(r.getCTR().getDrawingArray())).findFirst().orElseThrow();
+            assertEquals(0,desenho.sizeOfInlineArray());
+            assertEquals(1,desenho.sizeOfAnchorArray());
+            assertTrue(desenho.getAnchorArray(0).getBehindDoc());
+            assertTrue(word.getParagraphs().stream().anyMatch(p->p.getText().contains("Contrato sobre o fundo")));
+        }
+    }
+
     @Test void imagensPerigosasEOuCorrompidasSaoRecusadas() {
         String prefixo=CanvasDocumentoService.CABECALHO+"I|0|0|100|100|";
         assertThrows(IllegalArgumentException.class,()->

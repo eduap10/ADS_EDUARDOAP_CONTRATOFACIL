@@ -8,15 +8,7 @@
 </f:metadata>
 <h:head><title>ContratoFácil | Editor de modelos</title>
 <h:outputStylesheet library="css" name="estilo.css"/></h:head>
-<h:body><header><h1>ContratoFácil</h1><nav>
-<h:link outcome="/index.xhtml" value="Início"/>
-<h:link outcome="/colaboradores.xhtml" value="Colaboradores"/>
-<h:link outcome="/tipos.xhtml" value="Tipos"/>
-<h:link outcome="/modelos.xhtml" value="Modelos"/>
-<h:link outcome="/tags.xhtml" value="Tags"/>
-<h:link outcome="/contratos.xhtml" value="Contratos"/>
-<h:form id="formSair" styleClass="form-sair"><h:commandLink action="#{loginBean.sair}" value="Sair"/></h:form>
-</nav></header>
+<h:body styleClass="cf-app"><ui:include src="/WEB-INF/fragmentos/navegacao.xhtml"><ui:param name="cfSecao" value="modelos"/></ui:include>
 <main class="pagina-editor-modelo">
 <section class="painel">
 <div class="titulo">
@@ -53,15 +45,16 @@
 </div></div>
 <div class="editor-duas-colunas">
 <div class="area-editor-modelo">
-<div class="subtitulo-secao">Composição livre do documento</div>
-<p class="subtitulo">Edite o texto diretamente na página. Selecione um objeto para mover, arraste as bordas para redimensionar ou dê dois cliques para editar seu conteúdo. A barra de texto permanece fixa acima da folha.</p>
+<div class="cf-editor-heading"><div><div class="cf-kicker">EDITOR DE MODELOS</div><h3>Composição do documento</h3></div><button type="button" class="cf-secondary" id="cfTogglePreview" aria-controls="cfPreviewPanel" aria-expanded="true">Ocultar prévia</button></div>
+<p class="subtitulo">Edite o texto diretamente na página. Selecione um objeto para mover, arraste as bordas para redimensionar ou dê dois cliques para editar seu conteúdo. Use Fundo da folha para inserir papel timbrado sem interferir na escrita.</p>
 <h:inputHidden id="conteudo" value="#{modeloContratoBean.edicao.conteudo}"/>
-<div class="cf-toolkit" role="toolbar" aria-label="Adicionar elementos">
-<button type="button" data-cf-add="text" title="Adicionar outra caixa de texto">＋ Caixa de texto</button>
-<button type="button" data-cf-add="line" title="Adicionar linha redimensionável">＋ Linha</button>
-<button type="button" data-cf-add="table" title="Adicionar tabela editável">＋ Tabela</button>
-<button type="button" data-cf-add="sign" title="Adicionar linha de assinatura">＋ Assinatura</button>
-<button type="button" id="cfAddImage" title="Inserir imagem do computador, como logotipo, carimbo ou ilustração">＋ Imagem</button>
+<div class="cf-toolkit" role="toolbar" aria-label="Adicionar elementos"><span class="cf-toolbar-label">Inserir</span>
+<button type="button" data-cf-add="text" title="Adicionar outra caixa de texto"><i class="pi pi-align-left" aria-hidden="true"></i> Caixa de texto</button>
+<button type="button" data-cf-add="line" title="Adicionar linha redimensionável"><i class="pi pi-minus" aria-hidden="true"></i> Linha</button>
+<button type="button" data-cf-add="table" title="Adicionar tabela editável"><i class="pi pi-table" aria-hidden="true"></i> Tabela</button>
+<button type="button" data-cf-add="sign" title="Adicionar linha de assinatura"><i class="pi pi-pencil" aria-hidden="true"></i> Assinatura</button>
+<button type="button" id="cfAddImage" title="Inserir imagem do computador, como logotipo, carimbo ou ilustração"><i class="pi pi-image" aria-hidden="true"></i> Imagem</button>
+<button type="button" id="cfAddBackground" title="Inserir imagem atrás de todos os elementos, protegida contra movimentos acidentais"><i class="pi pi-lock" aria-hidden="true"></i> Fundo da folha</button>
 <input id="cfImageFile" type="file" accept="image/png,image/jpeg" style="display:none" aria-label="Selecionar imagem PNG ou JPEG"/>
 </div>
 <div class="cf-toolbar-sticky">
@@ -134,7 +127,8 @@
 <div class="cf-ribbon-hint">Selecione uma palavra ou trecho para formatar. Sem seleção, a opção se aplica à caixa de texto.</div>
 </div>
 </div>
-<div id="cfProperties" class="cf-properties" hidden="hidden">
+<div class="cf-layer-bar"><label for="cfLayers"><i class="pi pi-clone" aria-hidden="true"></i> Camadas</label><select id="cfLayers" aria-label="Selecionar elemento nas camadas"><option value="">Selecionar objeto ou fundo…</option></select><span>Fundos ficam protegidos durante a escrita.</span></div>
+<div class="cf-property-slot"><div id="cfProperties" class="cf-properties" hidden="hidden">
 <div class="cf-props-head"><strong id="cfObjectKind">Objeto selecionado</strong>
 <button type="button" id="cfRemove" title="Excluir objeto selecionado">Excluir</button>
 <button type="button" id="cfFront" title="Trazer para frente">Trazer à frente</button>
@@ -145,6 +139,11 @@
 <label for="cfY">Y <input id="cfY" type="number" min="0" max="907"/></label>
 <label for="cfW">Largura <input id="cfW" type="number" min="40" max="642"/></label>
 <label for="cfH">Altura <input id="cfH" type="number" min="20" max="907"/></label>
+</div>
+<div class="cf-props-row" data-cf-panel="image" hidden="hidden">
+<label class="cf-check"><input type="checkbox" id="cfUseBackground"/> Usar como fundo (bloqueado)</label>
+<button type="button" id="cfFitBackground">Ajustar à folha</button>
+<span class="subtitulo">Para mover ou redimensionar, desmarque a opção de fundo. Selecione novamente pelo menu Camadas.</span>
 </div>
 <div class="cf-props-row" data-cf-panel="line" hidden="hidden">
 <label for="cfLineOrient">Orientação <select id="cfLineOrient">
@@ -171,8 +170,9 @@
 <option value="outro">Outro participante</option></select></label>
 <span class="subtitulo">O nome será informado na emissão, abaixo da linha.</span>
 </div>
-</div>
+</div><div class="cf-properties-empty"><i class="pi pi-sliders-h" aria-hidden="true"></i> Selecione um objeto na folha ou pelo menu Camadas para ajustar suas propriedades.</div></div>
 
+<div class="cf-page-label"><span><i class="pi pi-file" aria-hidden="true"></i> Página 1</span><span>Formato A4 · 210 × 297 mm</span></div>
 <div class="cf-stage-scroll">
 <div id="cfCanvas" class="cf-canvas-stage" role="region" aria-label="Página de criação do documento" tabindex="0">
 </div>
@@ -250,7 +250,7 @@ aria-label="Inserir #{tagOpcao.nome}">
 <h:link outcome="/tags.xhtml" value="Criar ou editar tags" styleClass="link-acao-subtil"/>
 </div>
 </div>
-<div class="area-previa-modelo">
+<div class="area-previa-modelo" id="cfPreviewPanel">
 <div class="titulo"><h3>Pré-visualização</h3><span class="subtitulo">Atualização enquanto digita</span></div>
 <div class="alternar-previa" role="group" aria-label="Modo de visualização">
 <button id="modoExemplo" type="button" class="ativo" aria-pressed="true"
