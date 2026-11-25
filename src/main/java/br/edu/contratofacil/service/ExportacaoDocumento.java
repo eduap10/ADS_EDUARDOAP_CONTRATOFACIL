@@ -244,19 +244,26 @@ public final class ExportacaoDocumento {
         var desenho=run.getCTR().getDrawingArray(0);
         var inline=desenho.getInlineArray(0);
         long dx=Math.round(x*36000),dy=Math.round(y*36000);
-        String estrutura="<wp:anchor xmlns:wp=\"http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing\" "
-            +"distT=\"0\" distB=\"0\" distL=\"0\" distR=\"0\" simplePos=\"0\" relativeHeight=\"0\" "
-            +"behindDoc=\"1\" locked=\"0\" layoutInCell=\"1\" allowOverlap=\"1\">"
-            +"<wp:simplePos x=\"0\" y=\"0\"/>"
-            +"<wp:positionH relativeFrom=\"margin\"><wp:posOffset>"+dx+"</wp:posOffset></wp:positionH>"
-            +"<wp:positionV relativeFrom=\"margin\"><wp:posOffset>"+dy+"</wp:posOffset></wp:positionV>"
-            +"<wp:extent cx=\"1\" cy=\"1\"/><wp:wrapNone/><wp:docPr id=\"1\" name=\"Fundo do documento\"/>"
-            +"</wp:anchor>";
-        var ancora=org.openxmlformats.schemas.drawingml.x2006.wordprocessingDrawing.CTAnchor.Factory.parse(estrutura);
+        var ancora=desenho.addNewAnchor();
+        ancora.setDistT(0); ancora.setDistB(0); ancora.setDistL(0); ancora.setDistR(0);
+        ancora.setSimplePos2(false);
+        ancora.setRelativeHeight(0);
+        ancora.setBehindDoc(true);
+        ancora.setLocked(false);
+        ancora.setLayoutInCell(true);
+        ancora.setAllowOverlap(true);
+        var ponto=ancora.addNewSimplePos();
+        ponto.setX(0L); ponto.setY(0L);
+        var horizontal=ancora.addNewPositionH();
+        horizontal.setRelativeFrom(org.openxmlformats.schemas.drawingml.x2006.wordprocessingDrawing.STRelFromH.MARGIN);
+        horizontal.setPosOffset(Math.toIntExact(dx));
+        var vertical=ancora.addNewPositionV();
+        vertical.setRelativeFrom(org.openxmlformats.schemas.drawingml.x2006.wordprocessingDrawing.STRelFromV.MARGIN);
+        vertical.setPosOffset(Math.toIntExact(dy));
         ancora.setExtent(inline.getExtent());
+        ancora.addNewWrapNone();
         ancora.setDocPr(inline.getDocPr());
         ancora.setGraphic(inline.getGraphic());
-        desenho.addNewAnchor().set(ancora);
         desenho.removeInline(0);
     }
 
