@@ -3,7 +3,7 @@
 <html xmlns:ui="jakarta.faces.facelets" xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html"
       xmlns:f="jakarta.faces.core" xmlns:p="primefaces">
 <h:head><title>ContratoFácil | Tipos de contrato</title>
-<h:outputStylesheet library="css" name="estilo.css"/></h:head>
+<h:outputStylesheet library="css" name="estilo.css"/><h:outputScript library="js" name="tema.js"/></h:head>
 <h:body styleClass="cf-app"><ui:include src="/WEB-INF/fragmentos/navegacao.xhtml"><ui:param name="cfSecao" value="tipos"/></ui:include>
 <main><h:form id="form">
 <section class="painel">
@@ -37,7 +37,7 @@
   actionListener="#{tipoContratoBean.novo}" process="@this" update=":form:edicao" resetValues="true"/>
 </div>
 <div class="campo-formulario">
-<p:outputLabel for="nome" value="Nome do tipo *"/>
+<p:outputLabel for="nome" value="Nome do tipo"/>
 <p:inputText id="nome" value="#{tipoContratoBean.edicao.nome}" required="true"
  requiredMessage="Informe o nome." maxlength="100" style="width:100%"/>
 </div>

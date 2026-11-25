@@ -12,7 +12,7 @@
 <h:link outcome="/tipos.xhtml" styleClass="#{cfSecao eq 'tipos' ? 'cf-nav-active' : ''}"><i class="pi pi-folder" aria-hidden="true"></i><h:outputText value="Tipos de contrato"/></h:link>
 <h:link outcome="/tags.xhtml" styleClass="#{cfSecao eq 'tags' ? 'cf-nav-active' : ''}"><i class="pi pi-tags" aria-hidden="true"></i><h:outputText value="Tags personalizadas"/></h:link>
 <h:link outcome="/configuracao-documento.xhtml" styleClass="#{cfSecao eq 'configuracoes' ? 'cf-nav-active' : ''}"><i class="pi pi-cog" aria-hidden="true"></i><h:outputText value="Configuração de logo"/></h:link>
-<h:form id="formSair" styleClass="form-sair"><h:commandLink action="#{loginBean.sair}"><i class="pi pi-sign-out" aria-hidden="true"></i><h:outputText value="Sair"/></h:commandLink></h:form>
+<button type="button" class="cf-theme-toggle" data-cf-theme-toggle="true" aria-pressed="false" title="Alternar tema"><i class="pi pi-moon" aria-hidden="true"></i><span class="cf-theme-label">Modo noturno</span></button><h:form id="formSair" styleClass="form-sair"><h:commandLink action="#{loginBean.sair}"><i class="pi pi-sign-out" aria-hidden="true"></i><h:outputText value="Sair"/></h:commandLink></h:form>
 </nav>
 </header>
 </ui:composition>

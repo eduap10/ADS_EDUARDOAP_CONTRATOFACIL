@@ -7,7 +7,7 @@ xmlns:f="jakarta.faces.core">
 <f:viewAction action="#{visualizacaoBean.carregar}"/>
 </f:metadata>
 <h:head><title>ContratoFácil | Visualização</title>
-<h:outputStylesheet library="css" name="estilo.css"/></h:head>
+<h:outputStylesheet library="css" name="estilo.css"/><h:outputScript library="js" name="tema.js"/></h:head>
 <h:body styleClass="cf-app"><ui:include src="/WEB-INF/fragmentos/navegacao.xhtml"><ui:param name="cfSecao" value="contratos"/></ui:include>
 <main class="pagina-documento">
 <div class="titulo"><h2>Visualização do documento</h2><h:link outcome="/contratos.xhtml" value="Voltar" styleClass="link-acao-subtil"/></div>
