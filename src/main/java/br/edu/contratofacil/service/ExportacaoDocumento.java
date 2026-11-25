@@ -44,7 +44,7 @@ public final class ExportacaoDocumento {
            + ".cf-canvas-G th,.cf-canvas-G td{padding:3px;border:1px solid #64748b;}"
            + ".cf-canvas-G th{background:#e2e8f0;font-weight:bold;}"
            + ".cf-canvas-assinatura p{font-size:10pt;text-align:center;}"
-           + ".cf-canvas-imagem{width:100%;height:100%;object-fit:contain;}"
+           + ".cf-canvas-imagem{display:block;}"
 
            + ".cf-linha{margin:8px 0 18px;min-height:12px;}"
            + ".cf-linha-horizontal,.cf-linha-livre{border-bottom-style:solid;}"
@@ -109,15 +109,27 @@ public final class ExportacaoDocumento {
                             try {
                                 byte[] bytes=java.util.Base64.getDecoder().decode(src.substring(corte+1));
                                 if(bytes.length>270_000)throw new IllegalArgumentException("Imagem grande demais.");
-                                int w=Math.max(8,(int)Math.round(obterMm(objeto.attr("style"),"width")*72/25.4));
-                                int h=Math.max(8,(int)Math.round(obterMm(objeto.attr("style"),"height")*72/25.4));
+                                String imagemEstilo=imagem.attr("style");
+                                double largura=obterMm(imagemEstilo,"width"),altura=obterMm(imagemEstilo,"height");
+                                if(largura<=0)largura=obterMm(objeto.attr("style"),"width");
+                                if(altura<=0)altura=obterMm(objeto.attr("style"),"height");
+                                int w=Math.max(8,(int)Math.round(largura*72/25.4));
+                                int h=Math.max(8,(int)Math.round(altura*72/25.4));
                                 try(var stream=new java.io.ByteArrayInputStream(bytes)) {
-                                    var paragrafo=doc.createParagraph();
-                                    paragrafo.createRun().addPicture(stream,
+                                    boolean fundo=objeto.hasClass("cf-canvas-fundo");
+                                    // Uma imagem de fundo não cria um parágrafo gigante no fluxo do Word.
+                                    var paragrafo=fundo?doc.getParagraphs().get(0):doc.createParagraph();
+                                    var run=paragrafo.createRun();
+                                    run.addPicture(stream,
                                        png?XWPFDocument.PICTURE_TYPE_PNG:XWPFDocument.PICTURE_TYPE_JPEG,
                                        "imagem-contrato",
                                        org.apache.poi.util.Units.toEMU(w),
                                        org.apache.poi.util.Units.toEMU(h));
+                                    if(fundo) {
+                                        double x=obterMm(objeto.attr("style"),"left")+obterMm(imagemEstilo,"left");
+                                        double y=obterMm(objeto.attr("style"),"top")+obterMm(imagemEstilo,"top");
+                                        imagemAtrasDoTexto(run,x,y);
+                                    }
                                 }
                             } catch(Exception e) {
                                 doc.createParagraph().createRun().setText("[Imagem não disponível]");
@@ -224,6 +236,28 @@ public final class ExportacaoDocumento {
             p.setAlignment(ParagraphAlignment.CENTER);
         }
         adicionarConteudo(p, el, tag.matches("h[123]"), false, false);
+    }
+
+    // O Word usa wp:anchor com behindDoc, em vez de wp:inline no fluxo.
+    // As demais caixas continuam editáveis e seguem a ordem vertical do DOCX.
+    private static void imagemAtrasDoTexto(XWPFRun run,double x,double y) throws Exception {
+        var desenho=run.getCTR().getDrawingArray(0);
+        var inline=desenho.getInlineArray(0);
+        long dx=Math.round(x*36000),dy=Math.round(y*36000);
+        String estrutura="<wp:anchor xmlns:wp=\"http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing\" "
+            +"distT=\"0\" distB=\"0\" distL=\"0\" distR=\"0\" simplePos=\"0\" relativeHeight=\"0\" "
+            +"behindDoc=\"1\" locked=\"0\" layoutInCell=\"1\" allowOverlap=\"1\">"
+            +"<wp:simplePos x=\"0\" y=\"0\"/>"
+            +"<wp:positionH relativeFrom=\"margin\"><wp:posOffset>"+dx+"</wp:posOffset></wp:positionH>"
+            +"<wp:positionV relativeFrom=\"margin\"><wp:posOffset>"+dy+"</wp:posOffset></wp:positionV>"
+            +"<wp:extent cx=\"1\" cy=\"1\"/><wp:wrapNone/><wp:docPr id=\"1\" name=\"Fundo do documento\"/>"
+            +"</wp:anchor>";
+        var ancora=org.openxmlformats.schemas.drawingml.x2006.wordprocessingDrawing.CTAnchor.Factory.parse(estrutura);
+        ancora.setExtent(inline.getExtent());
+        ancora.setDocPr(inline.getDocPr());
+        ancora.setGraphic(inline.getGraphic());
+        desenho.addNewAnchor().set(ancora);
+        desenho.removeInline(0);
     }
 
     private static double obterMm(String style, String propriedade) {
