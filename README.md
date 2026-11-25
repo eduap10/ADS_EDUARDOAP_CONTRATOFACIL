@@ -188,3 +188,9 @@ $psql = "C:\Program Files\PostgreSQL\18\bin\psql.exe"
 ```
 
 Não apague as tabelas antigas. Depois compile `mvn -U clean verify` e reinicie apenas o Tomcat local do ContratoFácil. A CI valida Java, XHTML, JavaScript e a persistência usando PostgreSQL temporário. Teste o funcionamento das telas no notebook antes de considerar a versão pronta.
+
+## Interface e papel timbrado
+
+A navegação lateral compartilhada usa Facelets e mantém os cadastros PrimeFaces. A visão geral consulta quantidades de colaboradores, modelos, contratos e rascunhos, além dos cinco últimos registros. Os dados permanecem no PostgreSQL.
+
+No editor, use **Fundo da folha** para inserir uma imagem proporcional à área A4 e bloqueada contra alterações acidentais. Ou selecione uma imagem já inserida e marque **Usar como fundo (bloqueado)**. O menu **Camadas** permite selecionar a imagem protegida, ajustá-la à folha, desmarcar a opção para editar suas dimensões ou excluí-la deliberadamente. A prévia pode ser recolhida. A marca opcional `fundo` no registro I do formato CFCANVAS1 mantém a compatibilidade com modelos antigos e é validada no Java. Não há migração SQL nova. Na exportação Word, a imagem de fundo usa uma âncora atrás do texto; o restante do conteúdo continua seguindo o fluxo editável, portanto a paginação precisa ser conferida no Word.

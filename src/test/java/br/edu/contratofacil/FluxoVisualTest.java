@@ -21,6 +21,10 @@ class FluxoVisualTest {
     }
 
     @Test void telasDoFluxoSaoXhtmlBemFormado() throws Exception {
+        xhtmlValido("WEB-INF/fragmentos/navegacao.xhtml");
+        xhtmlValido("index.xhtml");
+        xhtmlValido("tags.xhtml");
+        xhtmlValido("configuracao-documento.xhtml");
         xhtmlValido("tipos.xhtml");
         xhtmlValido("modelos.xhtml");
         xhtmlValido("editar-modelo.xhtml");
@@ -28,6 +32,9 @@ class FluxoVisualTest {
             java.nio.file.Path.of("src/main/webapp/editar-modelo.xhtml"));
         assertTrue(editor.contains("canvas-modelo.js"));
         assertTrue(editor.contains("cfCanvas"));
+        assertTrue(editor.contains("id=\"cfLayers\""));
+        assertTrue(editor.contains("id=\"cfUseBackground\""));
+        assertTrue(editor.contains("id=\"cfAddBackground\""));
         assertTrue(editor.contains("cfLineColor"));
         assertTrue(editor.contains("cfTableStyle"));
         assertTrue(editor.contains("cfTableHeader"));
