@@ -519,3 +519,97 @@ body.cf-app{padding-left:var(--cf-sidebar);background:var(--cf-surface)}
 .cf-properties-empty{display:none;align-items:center;justify-content:center;gap:8px;height:100%;border:1px dashed #c7d7e5;border-radius:7px;background:#f8fafc;color:#64748b;font-size:.83rem;padding:16px;text-align:center}
 .cf-property-slot>.cf-properties[hidden]+.cf-properties-empty{display:flex}
 @media(max-width:640px){.cf-property-slot{height:185px}}
+
+
+/* Formulários e autenticação: superfície, contraste e espaçamento comuns.
+ * As regras de tema são restritas à interface; a folha A4 conserva suas cores. */
+:root{--cf-ui-bg:#f3f6fa;--cf-ui-panel:#fff;--cf-ui-sub:#f5f8fb;--cf-ui-ink:#20354a;--cf-ui-muted:#596f84;--cf-ui-border:#d6e1eb;--cf-ui-input:#fff;--cf-ui-accent:#176fa9;--cf-ui-link:#155f96;--cf-ui-hover:#edf5fb}
+html[data-cf-theme="dark"]{color-scheme:dark;--cf-ui-bg:#101b29;--cf-ui-panel:#192737;--cf-ui-sub:#202f40;--cf-ui-ink:#e6edf5;--cf-ui-muted:#adc0d2;--cf-ui-border:#3b4d60;--cf-ui-input:#142231;--cf-ui-accent:#176fa9;--cf-ui-link:#8dceff;--cf-ui-hover:#293e53}
+html,body{background:var(--cf-ui-bg);color:var(--cf-ui-ink)}
+body.cf-app,body.cf-auth{background:var(--cf-ui-bg);color:var(--cf-ui-ink)}
+.cf-app .painel,.cf-auth-card{background:var(--cf-ui-panel);border-color:var(--cf-ui-border);color:var(--cf-ui-ink)}
+.cf-app .painel h2,.cf-app .painel h3,.cf-auth-card h2{color:var(--cf-ui-ink)}
+.cf-app label,.cf-auth label{color:var(--cf-ui-ink);font-weight:600}
+.cf-app .subtitulo,.cf-app .observacao-cadastro,.cf-auth .acesso p,.cf-form-intro,.cf-kicker{color:var(--cf-ui-muted)}
+.cf-app .painel-edicao-leve{background:var(--cf-ui-sub);border-color:var(--cf-ui-border);padding:22px}
+.cf-app .campos{gap:18px 20px}
+.cf-app .campo-formulario{margin:16px 0}
+.cf-app .campo-formulario>label,.cf-app .campos label{margin-bottom:7px;font-size:.85rem}
+.cf-app .campo-formulario .ui-inputfield,.cf-app .campo-formulario .ui-selectonemenu{width:100%;max-width:100%}
+.cf-app .ui-inputfield,.cf-auth .ui-inputfield{background:var(--cf-ui-input)!important;color:var(--cf-ui-ink)!important;border-color:var(--cf-ui-border)!important;min-height:40px}
+.cf-app .ui-selectonemenu,.cf-app .ui-selectonemenu-label,.cf-app .ui-selectonemenu-trigger{background:var(--cf-ui-input)!important;color:var(--cf-ui-ink)!important;border-color:var(--cf-ui-border)!important}
+.cf-app .ui-selectonemenu-label{min-height:38px}
+.cf-app .ui-inputfield:focus,.cf-auth .ui-inputfield:focus{border-color:#3997d0!important;box-shadow:0 0 0 3px #2588c426!important}
+.cf-app .campos .ui-datepicker,.cf-app .campos .ui-calendar{display:flex!important;align-items:stretch;flex-wrap:nowrap;width:100%!important}
+.cf-app .campos .ui-datepicker input,.cf-app .campos .ui-calendar input{flex:1 1 0;min-width:0;width:0!important;border-radius:6px 0 0 6px!important}
+.cf-app .campos .ui-datepicker .ui-datepicker-trigger,.cf-app .campos .ui-calendar .ui-datepicker-trigger{flex:0 0 42px;width:42px!important;min-width:42px!important;margin:0!important;border-radius:0 6px 6px 0!important;padding:0!important}
+.cf-app .ui-dialog{border:1px solid var(--cf-ui-border);border-radius:12px!important;overflow:hidden;background:var(--cf-ui-panel);color:var(--cf-ui-ink)}
+.cf-app .ui-dialog .ui-dialog-titlebar{background:var(--cf-ui-sub)!important;color:var(--cf-ui-ink)!important;padding:18px 22px!important;border-bottom:1px solid var(--cf-ui-border)}
+.cf-app .ui-dialog .ui-dialog-content{background:var(--cf-ui-panel)!important;color:var(--cf-ui-ink)!important;padding:20px 24px!important}
+.cf-app .ui-dialog .ui-dialog-titlebar-icon{color:var(--cf-ui-muted)}
+.cf-app .dialog-cadastro .ui-dialog-content{max-height:74vh}
+.cf-section-heading{display:flex;align-items:center;gap:12px;margin:24px 0 15px;padding:12px 14px;background:var(--cf-ui-sub);border:1px solid var(--cf-ui-border);border-radius:8px}
+.cf-section-heading>i{font-size:1.15rem;color:var(--cf-ui-link)}
+.cf-app .dialog-cadastro .cf-section-heading h3{margin:0 0 3px;padding:0;border:0;font-size:.95rem;color:var(--cf-ui-ink)}
+.cf-section-heading p{margin:0;color:var(--cf-ui-muted);font-size:.8rem}
+.cf-form-intro{margin:0;font-size:.85rem}
+.cf-app .acoes-formulario{padding-top:16px;border-top:1px solid var(--cf-ui-border);justify-content:flex-end}
+.cf-app .dialog-cadastro .acoes-formulario{position:sticky;bottom:-20px;background:var(--cf-ui-panel);padding:14px 0;z-index:2}
+.cf-app .barra{padding:12px 14px;background:var(--cf-ui-sub);border:1px solid var(--cf-ui-border);border-radius:8px}
+.cf-app .cf-metric,.cf-app .cartoes-inicio a{background:var(--cf-ui-sub);border-color:var(--cf-ui-border);color:var(--cf-ui-ink)}
+.cf-app .cf-metric-value,.cf-app .cf-metric-label,.cf-app .cartoes-inicio span{color:var(--cf-ui-muted)}
+.cf-app .cf-metric-value{color:var(--cf-ui-ink)}
+.cf-app .ui-datatable thead th,.cf-app .ui-datatable .ui-datatable-header{background:var(--cf-ui-sub)!important;color:var(--cf-ui-ink)!important;border-color:var(--cf-ui-border)!important}
+.cf-app .ui-datatable tbody tr,.cf-app .ui-datatable tbody td{background:var(--cf-ui-panel);color:var(--cf-ui-ink);border-color:var(--cf-ui-border)!important}
+.cf-app .ui-datatable tbody tr:nth-child(even) td{background:var(--cf-ui-sub)}
+.cf-app .ui-datatable tbody tr:hover td{background:var(--cf-ui-hover)}
+.cf-app .ui-paginator,.cf-app .ui-paginator .ui-paginator-page{background:var(--cf-ui-panel);color:var(--cf-ui-ink);border-color:var(--cf-ui-border)}
+.cf-app .ui-paginator .ui-state-active{background:var(--cf-ui-hover);color:var(--cf-ui-link)}
+.cf-app .link-acao-subtil,.cf-app .botao-imprimir{background:var(--cf-ui-input);color:var(--cf-ui-link)!important;border-color:var(--cf-ui-border)}
+.cf-app .link-acao-subtil:hover{background:var(--cf-ui-hover)}
+.cf-app .cf-toolkit,.cf-app .cf-toolbar-sticky,.cf-app .cf-word-ribbon,.cf-app .cf-properties,.cf-app .cf-layer-bar,.cf-app .cf-properties-empty,.cf-app .tags-documento,.cf-app .area-previa-modelo,.cf-app .assinaturas-emissao{background:var(--cf-ui-sub);color:var(--cf-ui-ink);border-color:var(--cf-ui-border)}
+.cf-app .cf-toolkit button,.cf-app .cf-properties button,.cf-app .cf-properties input:not([type=color]),.cf-app .cf-properties select,.cf-app .cf-word-ribbon select,.cf-app .cf-word-ribbon input:not([type=color]),.cf-app .cf-layer-bar select,.cf-app .cf-secondary,.cf-app .tags-documento button,.cf-app .filtros-campos input,.cf-app .filtros-campos select,.cf-app .alternar-previa button{background:var(--cf-ui-input);color:var(--cf-ui-link);border-color:var(--cf-ui-border)}
+.cf-app .cf-word-ribbon button.cf-mini-icon,.cf-app .cf-editor-heading h3,.cf-app .cf-ribbon-hint,.cf-app .cf-toolbar-label,.cf-app .cf-layer-bar>span,.cf-app .cf-hint,.cf-app .tags-documento p,.cf-app .grupo-catalogo h4,.cf-app .grupo-campo,.cf-app .aviso-previa{color:var(--cf-ui-muted)}
+.cf-app .cf-word-ribbon button.cf-mini-icon[aria-pressed="true"],.cf-app .alternar-previa button.ativo{background:var(--cf-ui-accent);color:#fff!important}
+.cf-app .cf-page-label,.cf-app .cf-stage-scroll{background:var(--cf-ui-bg);border-color:var(--cf-ui-border);color:var(--cf-ui-muted)}
+/* Overlays PrimeFaces podem ficar anexados diretamente ao body. */
+html[data-cf-theme="dark"] .ui-selectonemenu-panel,html[data-cf-theme="dark"] .ui-selectonemenu-items-wrapper,html[data-cf-theme="dark"] .ui-datepicker-panel,html[data-cf-theme="dark"] .ui-datepicker-calendar,html[data-cf-theme="dark"] .ui-datepicker-header,html[data-cf-theme="dark"] .ui-datepicker-title select,html[data-cf-theme="dark"] .ui-autocomplete-panel,html[data-cf-theme="dark"] .ui-widget-content{background:var(--cf-ui-panel);color:var(--cf-ui-ink);border-color:var(--cf-ui-border)}
+html[data-cf-theme="dark"] .ui-selectonemenu-item,html[data-cf-theme="dark"] .ui-datepicker-calendar a,html[data-cf-theme="dark"] .ui-datepicker-calendar span,html[data-cf-theme="dark"] .ui-dialog-titlebar-close{color:var(--cf-ui-ink)}
+html[data-cf-theme="dark"] .ui-selectonemenu-item.ui-state-hover,html[data-cf-theme="dark"] .ui-selectonemenu-item.ui-state-highlight,html[data-cf-theme="dark"] .ui-datepicker-calendar a.ui-state-hover{background:var(--cf-ui-hover);color:var(--cf-ui-link)}
+html[data-cf-theme="dark"] .ui-button-secondary{background:var(--cf-ui-sub);color:var(--cf-ui-ink);border-color:var(--cf-ui-border)}
+.cf-app .cf-canvas-stage,.cf-app .folha-a4,.cf-app .frame-previa{color:#1f2c3f;background:#fff;color-scheme:light}
+.cf-theme-toggle{display:inline-flex;align-items:center;gap:9px;border:1px solid var(--cf-ui-border);border-radius:7px;padding:10px 12px;font:inherit;font-size:.83rem;background:var(--cf-ui-panel);color:var(--cf-ui-ink);cursor:pointer}
+.cf-sidebar .cf-theme-toggle{border-color:#ffffff35;background:transparent;color:#e4edf6;text-align:left;margin-top:12px}
+.cf-theme-toggle:hover{background:var(--cf-ui-hover)}
+.cf-sidebar .cf-theme-toggle:hover{background:#ffffff16}
+.cf-theme-toggle:focus-visible,.botao-acesso:focus-visible{outline:3px solid #65b5f2;outline-offset:3px}
+.cf-auth-shell{display:grid;grid-template-columns:minmax(300px,.95fr) minmax(390px,1.05fr);max-width:none!important;width:100%;min-height:100vh;padding:0!important;margin:0!important}
+.cf-auth-brand{background:#19334d;color:#fff;display:flex;flex-direction:column;justify-content:space-between;padding:clamp(28px,5vw,80px);gap:42px}
+.cf-auth-logo{display:flex;align-items:center;gap:12px;font-weight:700;font-size:1.45rem}
+.cf-auth-logo>i{display:grid;place-items:center;width:46px;height:50px;background:#28658e;border:1px solid #ffffff38;border-radius:10px}
+.cf-auth-story{max-width:460px}
+.cf-auth-eyebrow{font-size:.75rem;font-weight:700;letter-spacing:.11em;color:#a7d0ee}
+.cf-auth-story h1{font-size:clamp(2rem,3.2vw,3.3rem);line-height:1.12;letter-spacing:-.035em;margin:18px 0}
+.cf-auth-story p{line-height:1.65;color:#c6d8e8;margin-bottom:28px}
+.cf-auth-feature{display:flex;align-items:center;gap:10px;font-size:.9rem;margin:15px 0;color:#dceaf4}
+.cf-auth-feature i{color:#85c9f4}
+.cf-auth-brand small{font-size:.75rem;color:#b2c8dc}
+.cf-auth-main{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:64px 24px 32px;position:relative;min-width:0}
+.cf-auth-top{position:absolute;top:22px;right:24px}
+.cf-auth-main .acesso{width:min(100%,460px);max-width:none;margin:0;padding:0}
+.cf-auth-card{padding:34px!important;box-shadow:0 8px 32px #132c4510}
+.cf-auth-card h2{margin:9px 0 12px}
+.cf-auth .campo-acesso{margin:20px 0}
+.cf-auth .campo-acesso .ui-password,.cf-auth .campo-acesso .ui-password input{width:100%;max-width:100%}
+.cf-auth .campo-acesso .ui-password input{padding-right:42px}
+.cf-auth .campo-acesso .ui-password .ui-password-icon{color:var(--cf-ui-muted)}
+.cf-auth .painel a{color:var(--cf-ui-link)}
+/* PrimeFaces também estiliza botões submit. Fixamos fundo e texto juntos. */
+.cf-auth .botao-acesso,.cf-auth .botao-acesso.ui-button,.cf-auth input.botao-acesso[type=submit]{width:100%;min-height:44px;background:#176fa9!important;color:#fff!important;border:1px solid #176fa9!important;font-weight:600!important;border-radius:7px!important}
+.cf-auth .botao-acesso:hover{background:#125a89!important;border-color:#125a89!important}
+.cf-auth .botao-acesso .ui-button-text,.cf-auth .botao-acesso .ui-button-icon-left{color:#fff!important}
+.cf-auth .mensagens-acesso{color:#b42318}
+html[data-cf-theme="dark"] .cf-auth .mensagens-acesso{color:#ffaaa5}
+@media(max-width:850px){.cf-auth-shell{grid-template-columns:1fr}.cf-auth-brand{padding:22px 24px;gap:0}.cf-auth-story,.cf-auth-brand small{display:none}.cf-auth-main{min-height:calc(100vh - 94px);padding-top:76px}.cf-auth-top{top:16px;right:20px}}
+@media(max-width:640px){.cf-auth-card{padding:24px!important}.cf-app .ui-dialog .ui-dialog-content{padding:14px!important}.cf-app .dialog-cadastro .acoes-formulario{bottom:-14px}.cf-app .barra .campo-busca{min-width:0}.cf-app .campos{gap:14px}.cf-app .cf-section-heading{margin-top:18px}}
+@media print{html[data-cf-theme="dark"],body.cf-app{color-scheme:light;background:white!important;color:#1f2c3f!important}.cf-theme-toggle{display:none!important}}

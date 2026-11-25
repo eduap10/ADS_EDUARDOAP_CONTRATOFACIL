@@ -1,35 +1,33 @@
 <!DOCTYPE html>
 <!-- Formulário público de autenticação. A validação acontece no LoginBean/UsuarioDAO; não colocar senha nem regras no HTML. -->
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html" xmlns:p="primefaces" xmlns:pt="jakarta.faces.passthrough">
 <h:head>
     <title>ContratoFácil | Entrar</title>
     <h:outputStylesheet library="css" name="estilo.css"/>
-</h:head>
-<h:body>
-    <header><h1>ContratoFácil</h1></header>
-    <main class="acesso">
-        <section class="painel">
+<h:outputScript library="js" name="tema.js"/></h:head>
+<h:body styleClass="cf-auth"><main class="cf-auth-shell"><aside class="cf-auth-brand"><div class="cf-auth-logo"><i class="pi pi-file" aria-hidden="true"></i><span>ContratoFácil</span></div><div class="cf-auth-story"><span class="cf-auth-eyebrow">GESTÃO DOCUMENTAL</span><h1>Contratos organizados.<br/>Trabalho simplificado.</h1><p>Gerencie colaboradores, crie modelos reutilizáveis e emita documentos em um único ambiente.</p><div class="cf-auth-feature"><i class="pi pi-folder" aria-hidden="true"></i> Modelos e documentos</div><div class="cf-auth-feature"><i class="pi pi-users" aria-hidden="true"></i> Cadastro de colaboradores</div><div class="cf-auth-feature"><i class="pi pi-file-pdf" aria-hidden="true"></i> Exportação PDF e Word</div></div><small>ContratoFácil · Gestão de documentos e contratos</small></aside><section class="cf-auth-main"><div class="cf-auth-top"><button type="button" class="cf-theme-toggle" data-cf-theme-toggle="true" aria-pressed="false" title="Alternar tema"><i class="pi pi-moon" aria-hidden="true"></i><span class="cf-theme-label">Modo noturno</span></button></div><div class="acesso">
+        <section class="painel cf-auth-card"><span class="cf-kicker">Acesso ao sistema</span>
             <h2>Entrar</h2>
             <p>Informe seu usuário e sua senha para acessar o sistema.</p>
             <h:form id="formLogin">
                 <h:messages styleClass="mensagens-acesso" globalOnly="false"/>
                 <div class="campo-acesso">
                     <h:outputLabel for="login" value="Usuário"/>
-                    <h:inputText id="login" value="#{loginBean.login}" required="true"
-                                 requiredMessage="Informe o usuário." maxlength="60"/>
+                    <p:inputText id="login" value="#{loginBean.login}" required="true"
+                                 requiredMessage="Informe o usuário." maxlength="60" pt:autocomplete="username" placeholder="Informe seu usuário"/>
                 </div>
                 <div class="campo-acesso">
                     <h:outputLabel for="senha" value="Senha"/>
-                    <h:inputSecret id="senha" value="#{loginBean.senha}" required="true"
-                                   requiredMessage="Informe a senha." redisplay="false"/>
+                    <p:password id="senha" value="#{loginBean.senha}" required="true"
+                                   requiredMessage="Informe a senha." redisplay="false" toggleMask="true" feedback="false" placeholder="Informe sua senha" pt:autocomplete="current-password"/>
                 </div>
-                <h:commandButton value="Entrar" action="#{loginBean.entrar}" styleClass="botao-acesso"/>
+                <p:commandButton value="Entrar" action="#{loginBean.entrar}" styleClass="botao-acesso" icon="pi pi-sign-in" ajax="false"/>
             </h:form>
             <p class="ajuda-acesso">
                 Primeiro acesso?
                 <h:link outcome="/primeiro-acesso.xhtml" value="Cadastrar administrador local"/>
             </p>
         </section>
-    </main>
+    </div></section></main>
 </h:body>
 </html>

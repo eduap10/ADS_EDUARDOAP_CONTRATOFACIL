@@ -7,7 +7,7 @@
 <f:viewAction action="#{modeloContratoBean.carregarEdicao}"/>
 </f:metadata>
 <h:head><title>ContratoFácil | Editor de modelos</title>
-<h:outputStylesheet library="css" name="estilo.css"/></h:head>
+<h:outputStylesheet library="css" name="estilo.css"/><h:outputScript library="js" name="tema.js"/></h:head>
 <h:body styleClass="cf-app"><ui:include src="/WEB-INF/fragmentos/navegacao.xhtml"><ui:param name="cfSecao" value="modelos"/></ui:include>
 <main class="pagina-editor-modelo">
 <section class="painel">
@@ -30,7 +30,7 @@
 <p>Se um atributo não tiver valor cadastrado, o documento indicará “Não informado”. Campos de exemplo são fictícios.</p>
 </details>
 <div class="campos">
-<div><p:outputLabel for="tipo" value="Tipo de contrato *"/>
+<div><p:outputLabel for="tipo" value="Tipo de contrato"/>
 <span class="icone-ajuda" title="Classificação cadastrada na aba Tipos. Organiza os modelos por finalidade." aria-label="Ajuda: classificação do modelo">ⓘ</span>
 <p:selectOneMenu id="tipo" value="#{modeloContratoBean.edicao.tipoId}" required="true"
  requiredMessage="Selecione o tipo de contrato." style="width:100%">
@@ -38,7 +38,7 @@
 <f:selectItems value="#{modeloContratoBean.tipos}" var="tipoOpcao"
  itemLabel="#{tipoOpcao.nome}" itemValue="#{tipoOpcao.id}"/>
 </p:selectOneMenu></div>
-<div><p:outputLabel for="titulo" value="Nome do modelo *"/>
+<div><p:outputLabel for="titulo" value="Nome do modelo"/>
 <span class="icone-ajuda" title="Nome para encontrar o texto-base na geração de contratos. Não é o nome do colaborador." aria-label="Ajuda: nome do modelo">ⓘ</span>
 <p:inputText id="titulo" value="#{modeloContratoBean.edicao.titulo}"
  required="true" requiredMessage="Informe o título." maxlength="160" style="width:100%"/>

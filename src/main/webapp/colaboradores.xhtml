@@ -5,10 +5,10 @@
 <h:head>
     <title>ContratoFácil | Colaboradores</title>
     <h:outputStylesheet library="css" name="estilo.css"/>
-</h:head>
+<h:outputScript library="js" name="tema.js"/></h:head>
 <h:body styleClass="cf-app"><ui:include src="/WEB-INF/fragmentos/navegacao.xhtml"><ui:param name="cfSecao" value="colaboradores"/></ui:include>
 <main><h:form id="form"><section class="painel">
-    <div class="titulo"><h2>Colaboradores</h2>
+    <div class="titulo"><div><h2>Colaboradores</h2><p class="subtitulo">Gerencie fichas pessoais e profissionais.</p></div>
       <p:commandButton value="Novo colaborador" icon="pi pi-plus" styleClass="ui-button-sm" process="@this"
             actionListener="#{colaboradorBean.novo}" update=":form:campos"
             resetValues="true" oncomplete="PF('editor').show()"/>
@@ -43,20 +43,20 @@
 <p:dialog widgetVar="editor" header="Ficha do colaborador" modal="true" responsive="true"
           resizable="false" width="900" styleClass="dialog-cadastro">
     <p:outputPanel id="campos">
-        <p:messages showDetail="true"/>
-        <h3>Identificação</h3>
+        <p:messages showDetail="true"/><p class="cf-form-intro">Preencha os dados abaixo. Os campos sinalizados com * são obrigatórios para novos cadastros.</p>
+        <div class="cf-section-heading"><i class="pi pi-id-card" aria-hidden="true"></i><div><h3>Identificação</h3><p>Dados pessoais e identificação do colaborador.</p></div></div>
         <div class="campos">
-            <div><p:outputLabel for="matricula" value="Matrícula *"/>
+            <div><p:outputLabel for="matricula" value="Matrícula"/>
                 <p:inputText id="matricula" value="#{colaboradorBean.edicao.matricula}"
                     required="true" requiredMessage="Informe a matrícula." maxlength="20"/></div>
-            <div><p:outputLabel for="nome" value="Nome completo *"/>
+            <div><p:outputLabel for="nome" value="Nome completo"/>
                 <p:inputText id="nome" value="#{colaboradorBean.edicao.nome}"
                     required="true" requiredMessage="Informe o nome." maxlength="120"/></div>
             <div><p:outputLabel for="cpf" value="CPF"/>
                 <p:inputMask id="cpf" mask="999.999.999-99" value="#{colaboradorBean.edicao.cpf}"/></div>
             <div><p:outputLabel for="email" value="E-mail"/>
                 <p:inputText id="email" value="#{colaboradorBean.edicao.email}" maxlength="150"/></div>
-            <div><p:outputLabel for="nascimento" value="Data de nascimento *"/>
+            <div><p:outputLabel for="nascimento" value="Data de nascimento"/>
                 <p:datePicker id="nascimento" value="#{colaboradorBean.edicao.dataNascimento}"
                     pattern="dd/MM/yyyy" showIcon="true" monthNavigator="true" yearNavigator="true"
                     required="#{colaboradorBean.edicao.id == null}" requiredMessage="Informe a data de nascimento."/></div>
@@ -91,7 +91,7 @@
                     <f:selectItems value="#{colaboradorBean.escolaridades}"/>
                 </p:selectOneMenu></div>
         </div>
-        <h3>Endereço</h3>
+        <div class="cf-section-heading"><i class="pi pi-map-marker" aria-hidden="true"></i><div><h3>Endereço</h3><p>Informações de residência e correspondência.</p></div></div>
         <div class="campos">
             <div><p:outputLabel for="cep" value="CEP"/>
                 <p:inputMask id="cep" mask="99999-999" value="#{colaboradorBean.edicao.cep}"/></div>
@@ -113,13 +113,13 @@
             <div><p:outputLabel for="pais" value="País"/>
                 <p:inputText id="pais" value="#{colaboradorBean.edicao.pais}" maxlength="60"/></div>
         </div>
-        <h3>Dados profissionais</h3>
+        <div class="cf-section-heading"><i class="pi pi-briefcase" aria-hidden="true"></i><div><h3>Dados profissionais</h3><p>Vínculo, cargo e informações contratuais.</p></div></div>
         <div class="campos">
-            <div><p:outputLabel for="admissao" value="Data de admissão *"/>
+            <div><p:outputLabel for="admissao" value="Data de admissão"/>
                 <p:datePicker id="admissao" value="#{colaboradorBean.edicao.dataAdmissao}"
                     pattern="dd/MM/yyyy" showIcon="true"
                     required="#{colaboradorBean.edicao.id == null}" requiredMessage="Informe a data de admissão."/></div>
-            <div><p:outputLabel for="cargo" value="Cargo *"/>
+            <div><p:outputLabel for="cargo" value="Cargo"/>
                 <p:inputText id="cargo" value="#{colaboradorBean.edicao.cargo}"
                     required="#{colaboradorBean.edicao.id == null}" requiredMessage="Informe o cargo." maxlength="100"/></div>
             <div><p:outputLabel for="ccCodigo" value="Código centro de custo"/>

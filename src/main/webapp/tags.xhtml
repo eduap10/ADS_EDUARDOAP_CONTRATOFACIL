@@ -3,7 +3,7 @@
 <html xmlns:ui="jakarta.faces.facelets" xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html"
 xmlns:f="jakarta.faces.core" xmlns:p="primefaces">
 <h:head><title>ContratoFácil | Tags personalizadas</title>
-<h:outputStylesheet library="css" name="estilo.css"/></h:head>
+<h:outputStylesheet library="css" name="estilo.css"/><h:outputScript library="js" name="tema.js"/></h:head>
 <h:body styleClass="cf-app"><ui:include src="/WEB-INF/fragmentos/navegacao.xhtml"><ui:param name="cfSecao" value="tags"/></ui:include>
 <main><section class="painel">
 <div class="titulo"><div><h2>Tags personalizadas</h2>
@@ -35,13 +35,13 @@ xmlns:f="jakarta.faces.core" xmlns:p="primefaces">
  update=":formTag:camposTag" resetValues="true" styleClass="ui-button-flat ui-button-rounded acao-icone"/>
 </div>
 <div class="campo-formulario">
-<p:outputLabel for="codigo" value="Código da tag *" />
+<p:outputLabel for="codigo" value="Código da tag" />
 <p:inputText id="codigo" value="#{tagPersonalizadaBean.edicao.codigo}" required="true" maxlength="40"
  disabled="#{tagPersonalizadaBean.edicao.id != null}"
  requiredMessage="Informe o código." style="width:100%" placeholder="ex.: nome_empresa"/>
 <small>Será inserida como <code>{{personalizada.nome_empresa}}</code>. Depois de criada, a chave permanece fixa para proteger os modelos existentes.</small></div>
 <div class="campo-formulario">
-<p:outputLabel for="nome" value="Nome amigável *"/>
+<p:outputLabel for="nome" value="Nome amigável"/>
 <p:inputText id="nome" value="#{tagPersonalizadaBean.edicao.nome}" required="true" maxlength="100"
  requiredMessage="Informe o nome." style="width:100%"/>
 </div>
