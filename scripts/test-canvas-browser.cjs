@@ -309,14 +309,29 @@ const html='<!doctype html><html><head><meta charset="utf-8"><style>'+css+'</sty
   const campos=await browser.newPage({viewport:{width:1280,height:1100}});
   campos.on("pageerror",e=>failures.push(e.message));
   await campos.setContent(initial("CFCANVAS1\nT|35|40|530|130|"+Buffer.from("<p>Nome: </p>").toString("base64")+"\n"));
+  // O fixture antigo ficava abaixo da folha: ao rolar para o destino,
+  // o botão saía do viewport antes de começar o drag. Reproduzimos o
+  // painel fixo ao lado da folha para testar o mouse de ponta a ponta.
+  await campos.addStyleTag({content:"#catalogoCampos{position:fixed;top:20px;right:16px;width:200px;z-index:100;background:white} #catalogoCampos .botao-campo{display:block;margin:8px}"});
+  async function arrastarCampo(origem,destino,posicao){
+    await destino.scrollIntoViewIfNeeded();
+    const a=await origem.boundingBox(),b=await destino.boundingBox();
+    assert(a&&b,"Origem ou destino invisível");
+    await campos.mouse.move(a.x+a.width/2,a.y+a.height/2);
+    await campos.mouse.down();
+    await campos.mouse.move(a.x+a.width/2-15,a.y+a.height/2,{steps:4});
+    await campos.mouse.move(b.x+posicao.x,b.y+posicao.y,{steps:18});
+    await campos.mouse.move(b.x+posicao.x+1,b.y+posicao.y);
+    await campos.mouse.up();
+  }
   const nome=campos.locator('.botao-campo[data-tag="{{colaborador.nome}}"]');
   const edit=campos.locator(".cf-obj-text .cf-texto").first();
-  await nome.dragTo(edit,{targetPosition:{x:90,y:25}});
+  await arrastarCampo(nome,edit,{x:90,y:25});
   assert.equal(await edit.locator(".cf-tag-chip").count(),1);
   assert.equal(await edit.locator(".cf-tag-chip").getAttribute("data-label"),"Nome completo");
   assert.equal(await edit.locator(".cf-tag-key").textContent(),"{{colaborador.nome}}");
   const extra=campos.locator('.botao-campo[data-tag="{{personalizada.teste}}"]');
-  await extra.dragTo(campos.locator("#cfCanvas"),{targetPosition:{x:180,y:440}});
+  await arrastarCampo(extra,campos.locator("#cfCanvas"),{x:180,y:440});
   assert.equal(await campos.locator(".cf-obj-text").count(),2);
   assert.equal(await campos.locator(".cf-tag-chip[data-cf-tag='{{personalizada.teste}}']").count(),1);
   await nome.click();
