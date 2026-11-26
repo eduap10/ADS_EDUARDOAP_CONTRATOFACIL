@@ -15,7 +15,36 @@ let selected=null,drag=null,focusEditable=null,storedRange=null,examplesOn=true,
 let loading=true,history=[],historyIndex=-1,historyTask,clipboard=null,lastSelectionIndex=-1;
 function enc(txt){const b=new TextEncoder().encode(String(txt));let o="";for(let i=0;i<b.length;i+=8192)o+=String.fromCharCode(...b.slice(i,i+8192));return btoa(o);}
 function dec(txt){return new TextDecoder().decode(Uint8Array.from(atob(txt),c=>c.charCodeAt(0)));}
-function rect(el,s){el.style.left=s.x+"px";el.style.top=s.y+"px";el.style.width=s.w+"px";el.style.height=s.h+"px";}
+// Rótulos são apenas visuais: o servidor continua recebendo {{chave}}.
+ const tagPattern=/^\{\{[a-zA-Z][a-zA-Z0-9_.]*\}\}$/;
+ function campoTag(tag){return Array.from(document.querySelectorAll("#catalogoCampos .botao-campo")).find(b=>b.dataset.tag===tag);}
+ function etiqueta(tag){
+  const campo=campoTag(tag);if(!campo)return document.createTextNode(tag);
+  const chip=document.createElement("span");chip.className="cf-tag-chip";chip.dataset.cfTag=tag;
+  chip.dataset.label=campo.querySelector(".nome-campo")?.textContent.trim()||campo.textContent.trim()||tag;
+  chip.title=chip.dataset.label+" · "+tag;chip.contentEditable="false";chip.setAttribute("aria-label",chip.dataset.label);
+  const key=document.createElement("span");key.className="cf-tag-key";key.textContent=tag;chip.append(key);return chip;
+ }
+ function mostrarTags(edit){
+  const walk=document.createTreeWalker(edit,NodeFilter.SHOW_TEXT),nodes=[];
+  while(walk.nextNode())nodes.push(walk.currentNode);
+  for(const n of nodes){
+   if(n.parentElement?.closest(".cf-tag-chip,script,style"))continue;
+   const value=n.nodeValue,matches=Array.from(value.matchAll(/\{\{[a-zA-Z][a-zA-Z0-9_.]*\}\}/g));
+   if(!matches.length)continue;
+   const frag=document.createDocumentFragment();let pos=0;
+   for(const m of matches){frag.append(value.slice(pos,m.index),etiqueta(m[0]));pos=m.index+m[0].length;}
+   frag.append(value.slice(pos));n.replaceWith(frag);
+  }
+ }
+ function rawTags(container){
+  container.querySelectorAll(".cf-tag-chip").forEach(chip=>{
+   const tag=chip.dataset.cfTag;chip.replaceWith(document.createTextNode(tagPattern.test(tag||"")?tag:chip.textContent));
+  });return container;
+ }
+ function textoCelula(cell){return rawTags(cell.cloneNode(true)).textContent.replace(/[\r\n|\u001f]/g," ").slice(0,500);}
+ function htmlTexto(edit){return rawTags(edit.cloneNode(true)).innerHTML;}
+ function rect(el,s){el.style.left=s.x+"px";el.style.top=s.y+"px";el.style.width=s.w+"px";el.style.height=s.h+"px";}
 function object(tipo,extra={}){
  if(stage.querySelectorAll(".cf-canvas-obj").length>=MAX){alert("Limite de 100 elementos por página.");return null;}
  const n=stage.querySelectorAll(".cf-canvas-obj").length;
@@ -88,12 +117,12 @@ function add(s,select=true){
 function render(el){
  const s=el.cf,area=el.querySelector(".cf-obj-conteudo");area.textContent="";
  if(s.tipo==="text"){
-  const div=document.createElement("div");div.className="cf-texto";div.contentEditable=el.classList.contains("cf-editing")?"true":"false";div.tabIndex=0;div.innerHTML=s.html;
+  const div=document.createElement("div");div.className="cf-texto";div.contentEditable=el.classList.contains("cf-editing")?"true":"false";div.tabIndex=0;div.innerHTML=s.html;mostrarTags(div);
   area.append(div);
   div.addEventListener("focus",()=>{focusEditable=div;choose(el);});
   div.addEventListener("click",()=>{focusEditable=div;choose(el);remember();});
   div.addEventListener("keyup",remember);div.addEventListener("mouseup",remember);
-  div.addEventListener("input",()=>{s.html=div.innerHTML;updatePreview();scheduleHistory();});
+  div.addEventListener("input",()=>{s.html=htmlTexto(div);updatePreview();scheduleHistory();});
  }else if(s.tipo==="line"){
   const line=document.createElement("div");line.className="cf-real-line cf-"+s.orient;
   line.style.borderColor="#"+s.color;line.style.borderWidth=s.weight+"px";area.append(line);
@@ -108,10 +137,10 @@ function render(el){
     const tr=document.createElement("tr");
     for(let c=0;c<s.cols;c++){
       const td=document.createElement(s.header&&r===0?"th":"td");td.contentEditable=el.classList.contains("cf-editing")?"true":"false";td.tabIndex=0;
-      td.dataset.r=r;td.dataset.c=c;td.textContent=s.cells[r][c];
+      td.dataset.r=r;td.dataset.c=c;td.textContent=s.cells[r][c];mostrarTags(td);
       td.addEventListener("focus",()=>{focusEditable=td;choose(el);});
       td.addEventListener("keyup",remember);td.addEventListener("mouseup",remember);
-      td.addEventListener("input",()=>{s.cells[r][c]=td.innerText.replace(/[\r\n|\u001f]/g," ").slice(0,500);updatePreview();scheduleHistory();});
+      td.addEventListener("input",()=>{s.cells[r][c]=textoCelula(td);updatePreview();scheduleHistory();});
       tr.append(td);
     }
     body.append(tr);
@@ -463,10 +492,10 @@ function restoreRange(edit,r){
 function syncFormatted(edit){
  if(!selected)return;
  if(selected.cf.tipo==="text"){
-   selected.cf.html=selected.querySelector(".cf-texto").innerHTML;
+   selected.cf.html=htmlTexto(selected.querySelector(".cf-texto"));
  }else if(selected.cf.tipo==="table"){
    selected.querySelectorAll("tr").forEach((tr,r)=>Array.from(tr.children).forEach((cell,c)=>{
-     selected.cf.cells[r][c]=cell.textContent.replace(/[\u001f\r\n|]/g," ").slice(0,500);
+     selected.cf.cells[r][c]=textoCelula(cell);
    }));
  }
  updatePreview();scheduleHistory();
@@ -606,7 +635,8 @@ function clearTextFormat(){
  }else{
    // Sem seleção, limpamos os estilos da caixa, mas mantemos os parágrafos.
    edit.querySelectorAll("span,strong,em,u,s,font,b,i,strike").forEach(el=>{
-     const parent=el.parentNode;
+     if(el.closest(".cf-tag-chip"))return;
+      const parent=el.parentNode;
      while(el.firstChild)parent.insertBefore(el.firstChild,el);
      el.remove();
    });
@@ -699,30 +729,62 @@ $("cfParagraphStyle").addEventListener("change",e=>styleParagraph(e.target.value
 bindButton("cfIndentLess",()=>changeIndent(-24));
 bindButton("cfIndentMore",()=>changeIndent(24));
 bindButton("cfFormatReset",clearTextFormat);
-function insertTag(tag){
- if(!selected || !["text","table"].includes(selected.cf.tipo))add(object("text",{html:"<p></p>",w:420,h:100}));
- let edit=focusEditable;
- if(!edit?.isConnected||!selected.contains(edit)){edit=selected.querySelector(".cf-texto,.cf-edit-table td,.cf-edit-table th");focusEditable=edit;storedRange=null;}
- if(!edit)return;
- if(selected && !selected.classList.contains("cf-editing"))enterEditing(selected,edit);
- edit.focus();const sel=window.getSelection();
- if(storedRange && edit.contains(storedRange.commonAncestorContainer)){sel.removeAllRanges();sel.addRange(storedRange);}
- const local=sel.rangeCount && edit.contains(sel.getRangeAt(0).commonAncestorContainer);
- if(local){
-  const r=sel.getRangeAt(0);r.deleteContents();const txt=document.createTextNode(tag);
-  r.insertNode(txt);r.setStartAfter(txt);r.collapse(true);sel.removeAllRanges();sel.addRange(r);
- } else {
-  const txt=document.createTextNode(tag);edit.append(txt);
-  const r=document.createRange();r.setStartAfter(txt);r.collapse(true);
-  sel.removeAllRanges();sel.addRange(r);
+// O clique recupera o cursor; o drop usa a posição real do ponteiro.
+ function insertTag(tag,drop=null){
+  if(!tagPattern.test(tag||"")||!campoTag(tag))return;
+  const target=drop?.target?.closest(".cf-texto,.cf-edit-table td,.cf-edit-table th");
+  if(drop){
+   const obj=target?.closest(".cf-canvas-obj");
+   if(obj&&stage.contains(obj)){enterEditing(obj,target);}
+   else{
+    const bounds=stage.getBoundingClientRect();
+    const x=(drop.clientX-bounds.left)*W/bounds.width,y=(drop.clientY-bounds.top)*H/bounds.height;
+    const created=add(object("text",{x,y,w:Math.min(420,W-x),h:80,html:"<p></p>"}));
+    if(!created)return;enterEditing(created);
+   }
+  }else if(!selected||!["text","table"].includes(selected.cf.tipo)){
+   const created=add(object("text",{html:"<p></p>",w:420,h:100}));
+   if(!created)return;enterEditing(created);
+  }
+  const edit=editableReady();if(!edit)return;
+  if(!selected.classList.contains("cf-editing"))enterEditing(selected,edit);
+  let range=getRange(edit);
+  if(drop){
+   range=null;
+   if(target){
+    const hit=document.caretRangeFromPoint?.(drop.clientX,drop.clientY);
+    if(hit&&edit.contains(hit.commonAncestorContainer))range=hit;
+    else if(document.caretPositionFromPoint){
+     const p=document.caretPositionFromPoint(drop.clientX,drop.clientY);
+     if(p&&edit.contains(p.offsetNode)){range=document.createRange();range.setStart(p.offsetNode,p.offset);range.collapse(true);}
+    }
+   }
+  }
+  if(!range){range=document.createRange();range.selectNodeContents(edit);range.collapse(false);}
+  const inside=(range.startContainer.nodeType===1?range.startContainer:range.startContainer.parentElement)?.closest(".cf-tag-chip");
+  if(inside&&edit.contains(inside)){range.setStartAfter(inside);range.collapse(true);}
+  const node=etiqueta(tag);range.deleteContents();range.insertNode(node);
+  const space=document.createTextNode(" ");node.after(space);
+  range.setStartAfter(space);range.collapse(true);
+  restoreRange(edit,range);syncFormatted(edit);markHistory();
  }
- remember();
- if(selected.cf.tipo==="text")selected.cf.html=edit.innerHTML;
- else selected.cf.cells[Number(edit.dataset.r)][Number(edit.dataset.c)]=edit.innerText;
- updatePreview();markHistory();
-}
-$("catalogoCampos").addEventListener("click",e=>{const b=e.target.closest(".botao-campo");if(b)insertTag(b.dataset.tag);});
-function filterTags(){
+ const catalogo=$("catalogoCampos"),tipoArrasto="application/x-contratofacil-tag";
+ catalogo.addEventListener("mousedown",e=>{if(e.target.closest(".botao-campo"))remember();});
+ catalogo.addEventListener("click",e=>{const b=e.target.closest(".botao-campo");if(b)insertTag(b.dataset.tag);});
+ catalogo.addEventListener("dragstart",e=>{
+  const b=e.target.closest(".botao-campo");if(!b||!e.dataTransfer)return;
+  e.dataTransfer.setData(tipoArrasto,b.dataset.tag);e.dataTransfer.effectAllowed="copy";stage.classList.add("cf-tag-drop-ready");
+ });
+ catalogo.addEventListener("dragend",()=>stage.classList.remove("cf-tag-drop-ready"));
+ stage.addEventListener("dragover",e=>{
+  if(!Array.from(e.dataTransfer?.types||[]).includes(tipoArrasto))return;
+  e.preventDefault();e.dataTransfer.dropEffect="copy";stage.classList.add("cf-tag-drop-ready");
+ });
+ stage.addEventListener("drop",e=>{
+  if(!Array.from(e.dataTransfer?.types||[]).includes(tipoArrasto))return;
+  e.preventDefault();e.stopPropagation();stage.classList.remove("cf-tag-drop-ready");insertTag(e.dataTransfer.getData(tipoArrasto),e);
+ });
+ function filterTags(){
  const term=($("buscaCampo")?.value||"").toLocaleLowerCase("pt-BR"),cat=$("grupoCampo")?.value||"";
  let count=0;
  document.querySelectorAll("#listaCampos .grupo-catalogo").forEach(group=>{
@@ -745,7 +807,7 @@ function serialize(){
  const lines=[PREFIX.trimEnd()];
  for(const el of stage.querySelectorAll(".cf-canvas-obj")){
   const s=el.cf,pre=[{text:"T",line:"L",table:"G",sign:"S",image:"I"}[s.tipo],s.x,s.y,s.w,s.h];
-  if(s.tipo==="text")lines.push([...pre,enc(el.querySelector(".cf-texto").innerHTML)].join("|"));
+  if(s.tipo==="text")lines.push([...pre,enc(htmlTexto(el.querySelector(".cf-texto")))].join("|"));
   if(s.tipo==="line")lines.push([...pre,s.orient,s.weight,s.color].join("|"));
   if(s.tipo==="sign")lines.push([...pre,s.role].join("|"));
   if(s.tipo==="image"){
@@ -755,7 +817,7 @@ function serialize(){
   }
   if(s.tipo==="table"){
    const values=Array.from(el.querySelectorAll("tr")).flatMap(tr=>Array.from(tr.children)
-     .map(td=>td.innerText.replace(/[\r\n|\u001f]/g," ").slice(0,500)));
+     .map(td=>textoCelula(td)));
    lines.push([...pre,s.style,s.header?"1":"0",s.rows,s.cols,enc(values.join("\u001f"))].join("|"));
   }
  }
@@ -763,7 +825,7 @@ function serialize(){
 }
 function preview(){
  clearTimeout(timer);timer=setTimeout(()=>{
-  const clone=stage.cloneNode(true);clone.removeAttribute("id");
+  const clone=rawTags(stage.cloneNode(true));clone.removeAttribute("id");
   clone.querySelectorAll(".cf-move,.cf-resize,.cf-resize-handle").forEach(n=>n.remove());
   clone.querySelectorAll("[contenteditable]").forEach(n=>n.removeAttribute("contenteditable"));
    clone.querySelectorAll(".cf-selected,.cf-editing").forEach(n=>n.classList.remove("cf-selected","cf-editing"));

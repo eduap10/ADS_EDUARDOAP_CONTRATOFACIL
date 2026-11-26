@@ -34,6 +34,8 @@ class FluxoVisualTest {
             java.nio.file.Path.of("src/main/webapp/editar-modelo.xhtml"));
         assertTrue(editor.contains("canvas-modelo.js"));
         assertTrue(editor.contains("cfCanvas"));
+        assertTrue(editor.contains("cf-fields-panel"));
+        assertTrue(editor.contains("draggable=\"true\""));
         assertTrue(editor.contains("id=\"cfLayers\""));
         assertTrue(editor.contains("id=\"cfUseBackground\""));
         assertTrue(editor.contains("id=\"cfAddBackground\""));
